@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { Settings } from 'lucide-react';
 import { isDataBaseInitializedAtom } from '@/app/idb/idbStore';
 import { Toggle } from '@/components/ui/toggle';
@@ -7,13 +7,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useRx } from '@/lib/rxjs/useRx';
 import { cn } from '@/lib/utils';
-import { leftPanel$$ } from '../leftPanel/leftPanelStore';
+import { isLeftPanelOpenAtom } from '../leftPanel/leftPanelStore';
 import { ChannelSelector } from './ChannelSelector';
 
 export const Header = () => {
-  const [open, setOpen] = useRx(leftPanel$$);
+  const [open, setOpen] = useAtom(isLeftPanelOpenAtom);
   const isDBInitialized = useAtomValue(isDataBaseInitializedAtom);
 
   return (

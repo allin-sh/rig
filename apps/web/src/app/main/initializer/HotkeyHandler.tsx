@@ -1,10 +1,12 @@
+import { useSetAtom } from 'jotai';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { textAreaFocusTrigger$ } from '../chat/UserInput';
-import { leftPanel$$ } from '../leftPanel/leftPanelStore';
+import { isLeftPanelOpenAtom } from '../leftPanel/leftPanelStore';
 
 export const HotkeyHandler = () => {
+  const setIsLeftPanelOpen = useSetAtom(isLeftPanelOpenAtom);
   useHotkeys('mod+b', () => {
-    leftPanel$$.set(prev => !prev);
+    setIsLeftPanelOpen(prev => !prev);
   });
   useHotkeys('Slash', e => {
     // Slash 를 누르면 텍스트 영역 포커스 외에 / 가 한번 입력되는 이슈가 있었음.

@@ -1,5 +1,6 @@
 'use client';
 
+import { useAtomValue } from 'jotai';
 import { ActivitySquare, FlaskConical, ToyBrick } from 'lucide-react';
 import { type RefObject, useEffect, useRef, useState } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
@@ -13,7 +14,7 @@ import { TypographyH3 } from '@/components/ui/typographyH3';
 import { useRxValue } from '@/lib/rxjs/useRx';
 import { cn } from '@/lib/utils';
 import { DevelopmentPanel } from './development/DevelopmentPanel';
-import { leftPanel$$ } from './leftPanelStore';
+import { isLeftPanelOpenAtom } from './leftPanelStore';
 import { MonitorPanel } from './monitor/MonitorPanel';
 import { PluginPanel } from './PluginPanel';
 
@@ -41,7 +42,7 @@ const _PropertyList = [
 export const LeftPanel = () => {
   const PropertyList = _PropertyList.filter(value => !value.disabled);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const open = useRxValue(leftPanel$$);
+  const open = useAtomValue(isLeftPanelOpenAtom);
   const { width: leftPanelWidth = 360 } = useResizeObserver({
     ref: wrapperRef as RefObject<HTMLDivElement>,
   });

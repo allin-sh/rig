@@ -1,3 +1,3 @@
-import { rx } from '@/lib/rxjs/rx';
+import { atom } from 'jotai';
 
-export const leftPanel$$ = rx(false);
+export const isLeftPanelOpenAtom = atom(false);
