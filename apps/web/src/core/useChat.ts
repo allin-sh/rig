@@ -1,6 +1,6 @@
 import type { UIMessage } from 'ai';
 import { useCallback, useSyncExternalStore } from 'react';
-import type { ChatFacade } from './ChatFacade';
+import type { ChatFacade } from './chat/ChatFacade';
 
 export const useChat = <UI_MESSAGE extends UIMessage>(
   chatFacade: ChatFacade<UI_MESSAGE>,

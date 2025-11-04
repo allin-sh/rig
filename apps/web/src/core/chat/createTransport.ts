@@ -38,6 +38,14 @@ export const createTransport = <S extends Service>(
       return await streamText({
         model: createModel(service, model),
         messages: convertToModelMessages(messages),
+        providerOptions: {
+          google: {
+            thinkingConfig: {
+              thinkingBudget: 8192,
+              includeThoughts: true,
+            },
+          },
+        },
         onError: err => {
           throw new Error(
             err instanceof Error
