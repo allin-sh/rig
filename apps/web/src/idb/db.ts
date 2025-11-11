@@ -63,11 +63,17 @@ const getDB = async () => {
           });
           messagesStore.createIndex('channelId', 'channelId');
         }
-        if (oldVersion < 2) {
-          if (db.objectStoreNames.contains(DB_STORE.CONFIG)) {
-            db.deleteObjectStore(DB_STORE.CONFIG);
-          }
+        if (!db.objectStoreNames.contains(DB_STORE.CONFIG)) {
           db.createObjectStore(DB_STORE.CONFIG, { keyPath: 'key' });
+          db.put(
+            DB_STORE.CONFIG,
+            {
+              lastSelectedChannelId: undefined,
+              googleApiKey: undefined,
+              openaiApiKey: undefined,
+            },
+            CONFIG_KEY,
+          );
         }
       },
     });
@@ -110,7 +116,15 @@ const updateChannel = async (
 
 const getConfig = async () => {
   const db = await getDB();
-  return db.get(DB_STORE.CONFIG, CONFIG_KEY);
+  const config = await db.get(DB_STORE.CONFIG, CONFIG_KEY);
+
+  /**
+   * check if config is valid.
+   *
+   * if config is undefined, it will throw an error and it means the database is not initialized.
+   * this make sure the database is always initialized.
+   */
+  return ConfigSchema.parse(config);
 };
 
 const updateApiKey = async (provider: AiService, apiKey: string) => {
