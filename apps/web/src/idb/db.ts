@@ -1,7 +1,7 @@
 import { type DBSchema, type IDBPDatabase, openDB } from 'idb';
 import { z } from 'zod';
 import type { AiService } from '@/core/chat/ai-model';
-import type { MyMessage } from '../main/chat/Chat';
+import type { MyMessage } from '../app/main/chat/Chat';
 
 export const DB_NAME = 'ALLIN';
 export const DEFAULT_CHANNEL_ID = 'DEFAULT-CHANNEL';
