@@ -1,5 +1,5 @@
 import { Google, OpenAI } from '@lobehub/icons';
-import { Check, Loader2, Plus, RefreshCw, Save } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { useLayoutEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,7 @@ import {
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
-import { Separator } from '@/components/ui/separator';
 import { validateApiKey } from '@/core/ai/validate-apikey';
-import type { AiService } from '@/core/chat/ai-model';
 import { DB } from '@/idb/db';
 
 export const ApiKeyConfigModal = ({
@@ -146,6 +144,10 @@ export const ApiKeyConfigModal = ({
         <Card className='w-full'>
           <CardHeader>
             <CardTitle>My API Key</CardTitle>
+            <CardDescription className='text-xs mt-1'>
+              <em className='font-bold text-blue-400'>100% Safe.</em> API keys
+              are saved in local storage.
+            </CardDescription>
           </CardHeader>
           <CardContent className='mt-2'>
             <div className='grid gap-6'>
