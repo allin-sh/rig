@@ -2,6 +2,8 @@ import { Google, OpenAI } from '@lobehub/icons';
 import {
   ChartArea,
   ChevronDown,
+  Key,
+  KeyRound,
   Lock,
   MessageCirclePlus,
   Sidebar,
@@ -9,14 +11,30 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useLayoutEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Kbd, KbdGroup } from '@/components/ui/kbd';
 import { Textarea } from '@/components/ui/textarea';
 import { DB } from '@/idb/db';
+import { ApiKeyConfigModal } from './modal/ApiKeyConfigModal';
 import { ApiKeyFormModal } from './modal/ApiKeyFormModal';
 
 export const RootView = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [isApiKeyConfigModalOpen, setIsApiKeyConfigModalOpen] = useState(false);
 
   useLayoutEffect(() => {
     const checkIfHasApiKey = async () => {
@@ -33,7 +51,11 @@ export const RootView = () => {
   }, []);
 
   return (
-    <div className='dark w-full h-full flex flex-row'>
+    <div className='w-full h-full flex flex-row'>
+      <ApiKeyConfigModal
+        open={isApiKeyConfigModalOpen}
+        onOpenChange={setIsApiKeyConfigModalOpen}
+      />
       <div className='absolute top-1 left-2 flex '>
         <Button
           variant={'outline'}
@@ -52,14 +74,28 @@ export const RootView = () => {
         >
           <MessageCirclePlus />
         </Button>
-        <Button
-          variant={'ghost'}
-          size={'icon'}
-          className='rounded-full'
-          onClick={() => {}}
-        >
-          <ChevronDown />
-        </Button>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant={'ghost'}
+              size={'icon'}
+              className='rounded-full'
+              onClick={() => {}}
+            >
+              <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className='w-56' align='start'>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => setIsApiKeyConfigModalOpen(true)}
+              >
+                <KeyRound />
+                My API Key
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <AnimatePresence>
         {isSidebarOpen && (
