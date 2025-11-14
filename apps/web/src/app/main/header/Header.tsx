@@ -1,12 +1,12 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { Settings } from 'lucide-react';
-import { isDataBaseInitializedAtom } from '@/app/idb/idbStore';
 import { Toggle } from '@/components/ui/toggle';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { isDataBaseInitializedAtom } from '@/idb/idbStore';
 import { cn } from '@/lib/utils';
 import { isLeftPanelOpenAtom } from '../leftPanel/leftPanelStore';
 import { ChannelSelector } from './ChannelSelector';

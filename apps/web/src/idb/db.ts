@@ -1,7 +1,7 @@
 import { type DBSchema, type IDBPDatabase, openDB } from 'idb';
 import { z } from 'zod';
 import type { AiService } from '@/core/chat/ai-model';
-import type { MyMessage } from '../main/chat/Chat';
+import type { MyMessage } from '../app/main/chat/Chat';
 
 export const DB_NAME = 'ALLIN';
 export const DEFAULT_CHANNEL_ID = 'DEFAULT-CHANNEL';
@@ -61,13 +61,19 @@ const getDB = async () => {
           const messagesStore = db.createObjectStore(DB_STORE.MESSAGES, {
             autoIncrement: true,
           });
+          // this makes it quicker to get messages by channel id.
           messagesStore.createIndex('channelId', 'channelId');
         }
-        if (oldVersion < 2) {
-          if (db.objectStoreNames.contains(DB_STORE.CONFIG)) {
-            db.deleteObjectStore(DB_STORE.CONFIG);
-          }
-          db.createObjectStore(DB_STORE.CONFIG, { keyPath: 'key' });
+        if (!db.objectStoreNames.contains(DB_STORE.CONFIG)) {
+          const configStore = db.createObjectStore(DB_STORE.CONFIG);
+          configStore.put(
+            {
+              lastSelectedChannelId: undefined,
+              googleApiKey: undefined,
+              openaiApiKey: undefined,
+            },
+            CONFIG_KEY,
+          );
         }
       },
     });
@@ -110,7 +116,16 @@ const updateChannel = async (
 
 const getConfig = async () => {
   const db = await getDB();
-  return db.get(DB_STORE.CONFIG, CONFIG_KEY);
+  const config = await db.get(DB_STORE.CONFIG, CONFIG_KEY);
+
+  /**
+   * check if config is valid.
+   *
+   * if config is undefined, it will throw an error and it means the database is not initialized.
+   * this make sure the database is always initialized.
+   */
+  const parsed = ConfigSchema.parse(config);
+  return parsed;
 };
 
 const updateApiKey = async (provider: AiService, apiKey: string) => {
@@ -118,10 +133,13 @@ const updateApiKey = async (provider: AiService, apiKey: string) => {
   const tx = db.transaction(DB_STORE.CONFIG, 'readwrite');
   const store = tx.objectStore(DB_STORE.CONFIG);
   const existingConfig = (await store.get(CONFIG_KEY)) ?? {};
-  await store.put({
-    ...existingConfig,
-    [provider]: apiKey,
-  });
+  await store.put(
+    {
+      ...existingConfig,
+      [`${provider}ApiKey`]: apiKey,
+    },
+    CONFIG_KEY,
+  );
   await tx.done;
 };
 
@@ -131,10 +149,13 @@ const updateConfig = async (config: Partial<z.infer<typeof ConfigSchema>>) => {
   const store = tx.objectStore(DB_STORE.CONFIG);
   const existingConfig = (await store.get(CONFIG_KEY)) ?? {};
 
-  await store.put({
-    ...existingConfig,
-    ...config,
-  });
+  await store.put(
+    {
+      ...existingConfig,
+      ...config,
+    },
+    CONFIG_KEY,
+  );
   await tx.done;
 };
 

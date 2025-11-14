@@ -2,23 +2,60 @@ import { Google, OpenAI } from '@lobehub/icons';
 import {
   ChartArea,
   ChevronDown,
+  Key,
+  KeyRound,
   Lock,
   MessageCirclePlus,
   Sidebar,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Kbd, KbdGroup } from '@/components/ui/kbd';
 import { Textarea } from '@/components/ui/textarea';
-import { LockModal } from './LockModal';
+import { DB } from '@/idb/db';
+import { ApiKeyConfigModal } from './modal/ApiKeyConfigModal';
+import { ApiKeyFormModal } from './modal/ApiKeyFormModal';
 
 export const RootView = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLockModalOpen, setIsLockModalOpen] = useState(true);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [isApiKeyConfigModalOpen, setIsApiKeyConfigModalOpen] = useState(false);
+
+  useLayoutEffect(() => {
+    const checkIfHasApiKey = async () => {
+      const { googleApiKey, openaiApiKey } = await DB.getConfig();
+
+      return !!(googleApiKey || openaiApiKey);
+    };
+
+    checkIfHasApiKey().then(hasApiKey => {
+      if (!hasApiKey) {
+        setIsApiKeyModalOpen(true);
+      }
+    });
+  }, []);
 
   return (
-    <div className='dark w-full h-full flex flex-row'>
+    <div className='w-full h-full flex flex-row'>
+      <ApiKeyConfigModal
+        open={isApiKeyConfigModalOpen}
+        onOpenChange={setIsApiKeyConfigModalOpen}
+      />
       <div className='absolute top-1 left-2 flex '>
         <Button
           variant={'outline'}
@@ -37,14 +74,28 @@ export const RootView = () => {
         >
           <MessageCirclePlus />
         </Button>
-        <Button
-          variant={'ghost'}
-          size={'icon'}
-          className='rounded-full'
-          onClick={() => {}}
-        >
-          <ChevronDown />
-        </Button>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant={'ghost'}
+              size={'icon'}
+              className='rounded-full'
+              onClick={() => {}}
+            >
+              <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className='w-56' align='start'>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => setIsApiKeyConfigModalOpen(true)}
+              >
+                <KeyRound />
+                My API Key
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <AnimatePresence>
         {isSidebarOpen && (
@@ -61,7 +112,10 @@ export const RootView = () => {
         layout={'size'}
         className='flex-1 h-full bg-background justify-center items-center flex'
       >
-        <LockModal open={isLockModalOpen} onOpenChange={setIsLockModalOpen} />
+        <ApiKeyFormModal
+          open={isApiKeyModalOpen}
+          onOpenChange={setIsApiKeyModalOpen}
+        />
         <section className='absolute bottom-8 flex flex-col items-start gap-2'>
           <Textarea
             className='w-[800px] min-h-[40px] max-h-[500px]'

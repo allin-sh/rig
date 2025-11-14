@@ -2,7 +2,7 @@
 
 import { useAtomValue } from 'jotai';
 import { motion } from 'motion/react';
-import { isDataBaseInitializedAtom } from '../idb/idbStore';
+import { isDataBaseInitializedAtom } from '../../idb/idbStore';
 import { Chat } from './chat/Chat';
 import { FeedbackPopup } from './FeedbackPopup';
 import { Header } from './header/Header';

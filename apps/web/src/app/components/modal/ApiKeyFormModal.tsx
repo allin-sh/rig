@@ -22,9 +22,15 @@ import {
 } from '@/components/ui/select';
 import { validateApiKey } from '@/core/ai/validate-apikey';
 import type { AiService } from '@/core/chat/ai-model';
-import { DB } from '../idb/db';
+import { DB } from '../../../idb/db';
 
-export const LockModal = ({
+/**
+ * This modal should be shown when the user does not have any API key.
+ *
+ * If user enter site, and does not have any API key,
+ * this modal should be shown to user to enter API key.
+ */
+export const ApiKeyFormModal = ({
   open,
   onOpenChange,
 }: {
