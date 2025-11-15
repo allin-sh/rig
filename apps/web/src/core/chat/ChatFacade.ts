@@ -3,7 +3,7 @@ import type { ChatInit, ChatStatus, UIMessage } from 'ai';
 import { BehaviorSubject, type Observable, take } from 'rxjs';
 import { type Setter, setValueOrFn } from '@/utils/setter';
 import { UIMessageStore } from '../UiMessageStore';
-import type { LLMModelNameMap, LLMProvider } from './ai-model';
+import type { LLMModelMap, LLMProvider } from './ai-model';
 import { createTransport } from './createTransport';
 
 type CreateChatOptions = Pick<
@@ -14,7 +14,7 @@ type CreateChatOptions = Pick<
 const createChat = <S extends LLMProvider>(
   apiKey: string,
   provider: S,
-  model: LLMModelNameMap[S],
+  model: LLMModelMap[S],
   { id, messages, onData, onFinish, onError }: Required<CreateChatOptions>,
 ) => {
   const transport = createTransport(apiKey, provider, model);
@@ -32,7 +32,7 @@ const createChat = <S extends LLMProvider>(
 export const createChatFacade = <S extends LLMProvider>(
   apiKey: string,
   provider: S,
-  model: LLMModelNameMap[S],
+  model: LLMModelMap[S],
   { id, messages, onData, onFinish, onError }: Required<CreateChatOptions>,
 ) => {
   const chat = createChat(apiKey, provider, model, {
@@ -70,7 +70,7 @@ export class ChatFacade<UI_MESSAGE extends UIMessage> {
    * current LLM provider and model
    */
   private provider: LLMProvider;
-  private model: LLMModelNameMap[LLMProvider];
+  private model: LLMModelMap[LLMProvider];
   private apiKey: string;
 
   constructor({
@@ -82,7 +82,7 @@ export class ChatFacade<UI_MESSAGE extends UIMessage> {
     chat: Chat<UI_MESSAGE>;
     provider: LLMProvider;
     apiKey: string;
-    model: LLMModelNameMap[LLMProvider];
+    model: LLMModelMap[LLMProvider];
   }) {
     this.chat = chat;
     this.uiMessageStore = new UIMessageStore<UI_MESSAGE>();
@@ -144,7 +144,7 @@ export class ChatFacade<UI_MESSAGE extends UIMessage> {
 
   public setLLMModel<S extends LLMProvider>(
     provider: S,
-    model: LLMModelNameMap[S],
+    model: LLMModelMap[S],
     apiKey: string,
   ) {
     this.provider = provider;
