@@ -2,10 +2,11 @@ import {
   ChevronDown,
   KeyRound,
   MessageCirclePlus,
-  Sidebar,
+  Sidebar as SidebarIcon,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import type z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,18 +18,39 @@ import {
 import { createChatFacade } from '@/core/chat/ChatFacade';
 import { useChat } from '@/core/chat/useChat';
 import { generateUIMessage, messagesToThreads } from '@/core/helper';
-import { DB } from '@/idb/db';
+import {
+  type ChannelSchema,
+  type ConfigSchema,
+  DB,
+  type DB_MESSAGE,
+} from '@/idb/db';
+import { useChannel } from '@/idb/useChannel';
 import { useConfig } from '@/idb/useConfig';
-import { Thread } from '../main/chat/Thread';
+import { useMessages } from '@/idb/useMessages';
+import { cn } from '@/lib/utils';
 import { ChatInput } from './ChatInput';
+import { Chatting } from './Chatting';
 import { ApiKeyConfigModal } from './modal/ApiKeyConfigModal';
 import { ApiKeyFormModal } from './modal/ApiKeyFormModal';
+import { Sidebar } from './Sidebar';
 
-export const RootView = () => {
+type RootViewProps = {
+  initialData: {
+    channels: z.infer<typeof ChannelSchema>[];
+    messages: DB_MESSAGE[];
+    config: z.infer<typeof ConfigSchema>;
+  };
+};
+
+export const RootView = ({ initialData }: RootViewProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isApiKeyConfigModalOpen, setIsApiKeyConfigModalOpen] = useState(false);
   const { data: config } = useConfig();
+  const { data: currentChannel } = useChannel(
+    config?.lastSelectedChannelId || '',
+  );
+  const { data: messages } = useMessages(currentChannel?.id || '');
 
   const chatFacade = useMemo(() => {
     return createChatFacade(undefined, undefined, undefined, {
@@ -71,7 +93,7 @@ export const RootView = () => {
   const threads = messagesToThreads([...uiMessages]);
 
   return (
-    <div className='w-full h-full flex flex-row'>
+    <div className={cn('w-full h-full flex flex-row')}>
       <ApiKeyConfigModal
         open={isApiKeyConfigModalOpen}
         onOpenChange={setIsApiKeyConfigModalOpen}
@@ -82,7 +104,7 @@ export const RootView = () => {
           size={'icon'}
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
-          <Sidebar />
+          <SidebarIcon />
         </Button>
       </div>
       <div className='absolute px-1 top-2 right-4 flex rounded-2xl dark:bg-input/30 dark:border-input'>
@@ -117,33 +139,12 @@ export const RootView = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: 360 }}
-            exit={{ width: 0 }}
-            transition={{ ease: 'easeInOut', duration: 0.16 }}
-            className='h-full bg-blue-200 overflow-hidden'
-          />
-        )}
-      </AnimatePresence>
+      <AnimatePresence>{isSidebarOpen && <Sidebar />}</AnimatePresence>
       <motion.div
         layout={'size'}
         className='flex-1 h-full bg-background justify-center items-center flex'
       >
-        <div className='w-full h-full flex flex-col'>
-          <div className='p-4 gap-4 flex flex-col'>
-            {threads.map((thread, index) => (
-              <Thread
-                key={`thread-${index}`}
-                thread={thread}
-                isLast={threads.length - 1 === index}
-                status={status}
-              ></Thread>
-            ))}
-          </div>
-        </div>
+        <Chatting threads={threads} status={status} />
         <ChatInput onSubmit={onSubmit} />
       </motion.div>
       <ApiKeyFormModal
