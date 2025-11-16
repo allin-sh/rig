@@ -6,7 +6,7 @@ import {
   streamText,
   type UIMessage,
 } from 'ai';
-import type { LLMModelNameMap, LLMProvider } from './ai-model';
+import type { LLMModelMap, LLMProvider } from './ai-model';
 
 type Feature = {
   thinking?: boolean;
@@ -22,10 +22,10 @@ type Feature = {
 export const createTransport = <S extends LLMProvider>(
   apiKey: string,
   service: S,
-  model: LLMModelNameMap[S],
+  model: LLMModelMap[S],
   features?: Feature,
 ): ChatTransport<UIMessage> => {
-  const createModel = (service: S, model: LLMModelNameMap[S]) => {
+  const createModel = (service: S, model: LLMModelMap[S]) => {
     if (service === 'google') {
       return createGoogleGenerativeAI({
         apiKey,
@@ -39,7 +39,7 @@ export const createTransport = <S extends LLMProvider>(
     }
   };
 
-  const createProviderOptions = (service: S, model: LLMModelNameMap[S]) => {
+  const createProviderOptions = (service: S, model: LLMModelMap[S]) => {
     if (
       service === 'google' &&
       ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite'].includes(
