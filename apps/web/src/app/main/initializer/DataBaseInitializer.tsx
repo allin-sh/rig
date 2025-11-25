@@ -1,7 +1,7 @@
 import { useSetAtom } from 'jotai';
 import { useLayoutEffect } from 'react';
 import { DB, DEFAULT_CHANNEL_ID } from '@/idb/db';
-import { isDataBaseInitializedAtom } from '@/idb/idbStore';
+import { isDataBaseInitializedAtom } from '@/idb/dbStore';
 import { currentChannelIdAtom } from '../store/currentChannelStore';
 
 const getLastSelectedChannelId = async () => {

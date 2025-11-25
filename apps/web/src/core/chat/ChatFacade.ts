@@ -147,6 +147,14 @@ export class ChatFacade<UI_MESSAGE extends UIMessage> {
     model: LLMModelMap[S],
     apiKey: string,
   ) {
+    if (
+      this.provider === provider &&
+      this.model === model &&
+      this.apiKey === apiKey
+    ) {
+      console.warn('setLLMModel: same provider, model, and apiKey');
+      return;
+    }
     this.provider = provider;
     this.model = model;
     this.apiKey = apiKey;

@@ -1,11 +1,19 @@
+import { delay, timeout } from 'es-toolkit';
 import { atom } from 'jotai';
 import type z from 'zod';
 import { assertDefined } from '@/utils/assertDefined';
-import { type ConfigSchema, DB, type DB_MESSAGE } from './db';
+import {
+  type ChannelSchema,
+  type ConfigSchema,
+  DB,
+  type DB_MESSAGE,
+} from './db';
 
 export const isDataBaseInitializedAtom = atom(false);
 
-const allChannelsAtom = atom(async () => {
+const allChannelsRefreshAtom = atom(0);
+const allChannelsAtom = atom(async get => {
+  get(allChannelsRefreshAtom); // dependency
   const channels = await DB.getChannels();
   return channels;
 });
@@ -19,28 +27,47 @@ const selectedChannelIdAtom = atom(
   },
 );
 
-const selectedChannelAtom = atom(async get => {
-  const selectedChannelId = await get(selectedChannelIdAtom);
-  if (!selectedChannelId) return null;
-  const channel = await DB.getChannel(selectedChannelId);
+const selectedChannelAtom = atom(
+  async get => {
+    const selectedChannelId = await get(selectedChannelIdAtom);
+    if (!selectedChannelId) return null;
+    const allChannels = await get(allChannelsAtom);
+    const channel = allChannels.find(
+      channel => channel.id === selectedChannelId,
+    );
 
-  assertDefined(
-    channel,
-    `channel is not found, selectedChannelId: ${selectedChannelId}`,
-  );
+    assertDefined(
+      channel,
+      `channel is not found, selectedChannelId: ${selectedChannelId}`,
+    );
 
-  return channel;
-});
+    return channel;
+  },
+  async (get, set, channel: Partial<z.infer<typeof ChannelSchema>>) => {
+    const selectedChannel = await get(selectedChannelAtom);
+
+    if (!selectedChannel) {
+      throw new Error(`dbStore: selectedChannel is not found.`);
+    }
+
+    await DB.updateChannel(selectedChannel.id, channel);
+    set(allChannelsRefreshAtom, prev => prev + 1);
+  },
+);
+
+// for refreshing config atom
+const configRefreshAtom = atom(0);
 
 const configAtom = atom(
-  async () => {
+  async get => {
+    get(configRefreshAtom); // dependency
     const config = await DB.getConfig();
     return config;
   },
-  async (_, set, newConfig: Partial<z.infer<typeof ConfigSchema>>) => {
+  async (get, set, newConfig: Partial<z.infer<typeof ConfigSchema>>) => {
     await DB.updateConfig(newConfig);
-    const updatedConfig = await DB.getConfig();
-    await set(configAtom, updatedConfig);
+    // increase refresh trigger to refresh config atom
+    set(configRefreshAtom, get(configRefreshAtom) + 1);
   },
 );
 

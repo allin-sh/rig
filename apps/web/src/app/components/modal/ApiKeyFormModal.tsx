@@ -1,6 +1,8 @@
 import { Google, OpenAI } from '@lobehub/icons';
+import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { v4 } from 'uuid';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,13 +24,11 @@ import {
 } from '@/components/ui/select';
 import { validateApiKey } from '@/core/ai/validate-apikey';
 import type { LLMProvider } from '@/core/chat/ai-model';
+import { dbAtoms } from '@/idb/dbStore';
 import { DB } from '../../../idb/db';
 
 /**
  * This modal should be shown when the user does not have any API key.
- *
- * If user enter site, and does not have any API key,
- * this modal should be shown to user to enter API key.
  */
 export const ApiKeyFormModal = ({
   open,
@@ -40,38 +40,63 @@ export const ApiKeyFormModal = ({
   const [apiKey, setApiKey] = useState('');
   const [provider, setProvider] = useState<LLMProvider>('openai');
   const [isLoading, setIsLoading] = useState(false);
+  const setConfig = useSetAtom(dbAtoms.configAtom);
 
   const handleValidateAndSave = async () => {
     setIsLoading(true);
 
     const isValid = await validateApiKey({ apiKey, provider });
 
-    if (isValid) {
-      await DB.updateApiKey(provider, apiKey);
-      toast.success('API key has been saved.', {
-        position: 'top-center',
-        duration: 2500,
-      });
-      onOpenChange(false);
-    } else {
+    if (!isValid) {
       toast.error('Invalid API key. Please check your key and try again.', {
         position: 'top-center',
         duration: 5000,
       });
+      setIsLoading(false);
+      return;
     }
 
+    const channelId = v4();
+    const createdAt = Date.now();
+    const defaultModel =
+      provider === 'openai' ? 'gpt-5-nano' : 'gemini-2.5-flash';
+
+    await DB.createChannel({
+      id: channelId,
+      model: defaultModel,
+      createdAt: createdAt,
+      isEmpty: true,
+    });
+
+    await setConfig({
+      lastSelectedChannelId: channelId,
+      [provider === 'openai' ? 'openaiApiKey' : 'googleApiKey']: apiKey,
+    });
+
+    toast.success('Enjoy your AI journey! 🎉🎉🎉', {
+      position: 'top-center',
+      duration: 3000,
+    });
+
+    onOpenChange(false);
     setIsLoading(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='dark p-0 m-0 border-none outline-0'>
+      <DialogContent
+        className='dark m-0 border-none outline-0 md:max-w-2xl p-0'
+        showCloseButton={false}
+      >
         <DialogTitle className='sr-only'>AI API Key Form</DialogTitle>
         <Card className='w-full'>
           <CardHeader>
-            <CardTitle>API Key</CardTitle>
-            <CardDescription>
-              Please enter your API key to use the service.
+            <CardTitle className='flex flex-row gap-2 items-center'>
+              Enter your API key
+              <em className='font-bold text-blue-400 text-xs'>100% Safe</em>
+            </CardTitle>
+            <CardDescription className='text-sm mt-1'>
+              Before you can use the service, you need to enter your API key.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -103,6 +128,9 @@ export const ApiKeyFormModal = ({
                   onChange={e => setApiKey(e.target.value)}
                   placeholder=''
                 />
+                <CardDescription className='text-xs mt-1'>
+                  {`Your API key is stored in your browser's local storage.`}
+                </CardDescription>
               </div>
             </div>
           </CardContent>
