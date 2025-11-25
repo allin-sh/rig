@@ -1,10 +1,24 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 import { Toaster } from '@/components/ui/sonner';
-import { RootView } from './components/RootView';
 
 const queryClient = new QueryClient();
+
+/**
+ * In SSR, we can't use IDB.
+ */
+const DynamicRootViewRenderer = dynamic(
+  () =>
+    import('./components/RootViewRenderer').then(
+      module => module.RootViewRenderer,
+    ),
+  {
+    ssr: false,
+  },
+);
 
 export default function MainPage() {
   return (
@@ -12,9 +26,16 @@ export default function MainPage() {
       <Toaster richColors duration={3000} />
       <QueryClientProvider client={queryClient}>
         <div className='w-full h-full'>
-          <RootView />
+          <Suspense fallback={<MySuspense />}>
+            <DynamicRootViewRenderer />
+          </Suspense>
         </div>
       </QueryClientProvider>
     </div>
   );
 }
+
+export const MySuspense = () => {
+  console.log('susps  rerender');
+  return <div></div>;
+};

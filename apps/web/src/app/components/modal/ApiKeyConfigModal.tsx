@@ -1,4 +1,5 @@
 import { Google, OpenAI } from '@lobehub/icons';
+import { useSetAtom } from 'jotai';
 import { Loader2, Plus } from 'lucide-react';
 import { useLayoutEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -21,6 +22,7 @@ import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { validateApiKey } from '@/core/ai/validate-apikey';
 import { DB } from '@/idb/db';
+import { dbAtoms } from '@/idb/dbStore';
 
 export const ApiKeyConfigModal = ({
   open,
@@ -38,6 +40,8 @@ export const ApiKeyConfigModal = ({
   const [isGoogleApiKeyValid, setIsGoogleApiKeyValid] = useState(false);
   const [isGoogleApiKeyLoading, setIsGoogleApiKeyLoading] = useState(true);
   const [isGoogleApiKeyFailed, setIsGoogleApiKeyFailed] = useState(false);
+
+  const setConfig = useSetAtom(dbAtoms.configAtom);
 
   const resetState = () => {
     setIsOpenaiApiKeyValid(false);
@@ -90,7 +94,7 @@ export const ApiKeyConfigModal = ({
       provider: 'openai',
     });
     if (isValid) {
-      await DB.updateApiKey('openai', openaiApiKey);
+      setConfig({ openaiApiKey });
       setIsOpenaiApiKeyValid(true);
       toast.success('OpenAI API Key has been saved.', {
         position: 'top-center',
@@ -112,7 +116,7 @@ export const ApiKeyConfigModal = ({
       provider: 'google',
     });
     if (isValid) {
-      await DB.updateApiKey('google', googleApiKey);
+      setConfig({ googleApiKey });
       setIsGoogleApiKeyValid(true);
       toast.success('Google API Key has been saved.', {
         position: 'top-center',

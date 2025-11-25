@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { isDataBaseInitializedAtom } from '@/idb/idbStore';
+import { isDataBaseInitializedAtom } from '@/idb/dbStore';
 import { cn } from '@/lib/utils';
 import { isLeftPanelOpenAtom } from '../leftPanel/leftPanelStore';
 import { ChannelSelector } from './ChannelSelector';

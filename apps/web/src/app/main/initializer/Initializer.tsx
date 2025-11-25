@@ -5,7 +5,7 @@ export const Initializer = () => {
   return (
     <>
       <DataBaseInitializer />
-      <HotkeyHandler />
+      {/* <HotkeyHandler /> */}
     </>
   );
 };

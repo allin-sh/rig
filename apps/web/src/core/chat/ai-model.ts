@@ -12,12 +12,13 @@ export const OpenAiModelSchema = z.enum([
   'gpt-4.1',
   'gpt-4.1-mini',
   'gpt-4.1-nano',
-  'gpt-4o',
-  'gpt-4o-mini',
-  'gpt-4',
   'gpt-5',
   'gpt-5-mini',
   'gpt-5-nano',
+  'gpt-5-codex',
+  'gpt-5.1-codex',
+  'gpt-5.1-codex-mini',
+  'gpt-5.1',
 ]);
 
 export type OpenAiModel = z.infer<typeof OpenAiModelSchema>;
@@ -33,10 +34,10 @@ export type OpenAiModelDisplay =
     : Uppercase<OpenAiModel>;
 
 export const GoogleAiModelSchema = z.enum([
-  'gemini-2.0-flash',
   'gemini-2.5-flash-lite',
   'gemini-2.5-flash',
   'gemini-2.5-pro',
+  'gemini-3-pro-preview',
 ]);
 
 export type GoogleAiModel = z.infer<typeof GoogleAiModelSchema>;
@@ -66,16 +67,8 @@ export const AiModelMap: AiModelMapType = {
       display: 'GPT 4.1 nano',
     },
     {
-      name: 'gpt-4o',
-      display: 'GPT 4o',
-    },
-    {
-      name: 'gpt-4o-mini',
-      display: 'GPT 4o mini',
-    },
-    {
-      name: 'gpt-4',
-      display: 'GPT 4',
+      name: 'gpt-5-codex',
+      display: 'GPT 5 codex',
     },
     {
       name: 'gpt-5',
@@ -89,12 +82,20 @@ export const AiModelMap: AiModelMapType = {
       name: 'gpt-5-nano',
       display: 'GPT 5 nano',
     },
+    {
+      name: 'gpt-5.1-codex',
+      display: 'GPT 5.1 codex',
+    },
+    {
+      name: 'gpt-5.1-codex-mini',
+      display: 'GPT 5.1 codex mini',
+    },
+    {
+      name: 'gpt-5.1',
+      display: 'GPT 5.1',
+    },
   ],
   google: [
-    {
-      name: 'gemini-2.0-flash',
-      display: 'Gemini 2.0 Flash',
-    },
     {
       name: 'gemini-2.5-flash-lite',
       display: 'Gemini 2.5 Flash-lite',
@@ -109,6 +110,10 @@ export const AiModelMap: AiModelMapType = {
       name: 'gemini-2.5-pro',
       display: 'Gemini 2.5 Pro',
       thinking: true,
+    },
+    {
+      name: 'gemini-3-pro-preview',
+      display: 'Gemini 3 Pro-preview',
     },
   ],
 };
@@ -136,7 +141,7 @@ export const getProviderFromModel = (model: LLMModel): LLMProvider => {
   }
 };
 
-const LLMModelSchema = z.union([OpenAiModelSchema, GoogleAiModelSchema]);
+export const LLMModelSchema = z.union([OpenAiModelSchema, GoogleAiModelSchema]);
 export type LLMModel = z.infer<typeof LLMModelSchema>;
 
 /**
