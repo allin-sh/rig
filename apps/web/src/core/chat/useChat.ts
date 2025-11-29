@@ -1,3 +1,4 @@
+import type { LanguageModelV2 } from '@ai-sdk/provider';
 import type { ChatInit, UIMessage } from 'ai';
 import { isEqual, noop } from 'es-toolkit';
 import { useCallback, useRef, useSyncExternalStore } from 'react';
@@ -11,9 +12,17 @@ import { ChatFacadeManager } from './ChatFacadeManager';
 const EMPTY_MESSAGES: UIMessage[] = [];
 
 type UseChatOptions = {
+  /**
+   * this is unique id of the chat.
+   * It should be channelId.
+   */
   id: string;
   provider: LLMProvider;
-  modelId: string;
+  /**
+   * @example 'gpt-5.1'
+   */
+  modelId?: string;
+  model?: LanguageModelV2;
   messages: UIMessage[];
   onFinish?: ChatInit<UIMessage>['onFinish'];
   onError?: ChatInit<UIMessage>['onError'];
@@ -26,16 +35,25 @@ type UseChatOptions = {
 export const useChat = <UI_MESSAGE extends UIMessage>({
   id,
   provider,
+  model,
   modelId,
   messages,
   ...options
 }: UseChatOptions) => {
+  if (!model && !modelId) {
+    throw new Error('useChat: model or modelId is required');
+  }
+  if (model && modelId) {
+    throw new Error('useChat: both model and modelId cannot be used together');
+  }
+
   const chatFacadeRef = useRef<ChatFacade>(
     ChatFacadeManager.getChatFacade(id) ??
       createChatFacade({
         id,
         messages,
         provider,
+        model,
         modelId,
         onData: options.onData ?? noop,
         onFinish: options.onFinish ?? noop,
@@ -44,21 +62,20 @@ export const useChat = <UI_MESSAGE extends UIMessage>({
   );
 
   const shouldUpdateProvider =
+    // if channel is changed
     id !== chatFacadeRef.current.getId() ||
-    !isEqual(
-      {
-        provider: provider.name,
-        modelId,
-      },
-      {
-        provider: chatFacadeRef.current.getProviderName(),
-        modelId: chatFacadeRef.current.getModelId(),
-      },
-    );
+    // if 'google' => 'openai'
+    provider.name !== chatFacadeRef.current.getProviderName() ||
+    // if 'gpt-5.1' => 'gpt-4.1'
+    (modelId && modelId !== chatFacadeRef.current.getModelId()) ||
+    // if new model instance
+    (model && !chatFacadeRef.current.isSameModel(model));
 
   if (shouldUpdateProvider) {
     chatFacadeRef.current.setProvider(provider);
-    chatFacadeRef.current.setModelId(modelId);
+    chatFacadeRef.current.setModel(
+      model ? model : provider.createModel(modelId!),
+    );
     chatFacadeRef.current.updateTransport();
   }
 

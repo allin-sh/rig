@@ -1,5 +1,7 @@
+import type { LanguageModelV2 } from '@ai-sdk/provider';
 import type { Chat } from '@ai-sdk/react';
 import type { ChatInit, ChatStatus, UIMessage } from 'ai';
+import { isEqual } from 'es-toolkit';
 import { BehaviorSubject, type Observable, take } from 'rxjs';
 import { type Setter, setValueOrFn } from '@/utils/setter';
 import type { LLMProvider } from '../provider/LLMProvider';
@@ -11,7 +13,11 @@ export type CreateChatFacadeOptions = {
   id: string;
   messages: UIMessage[];
   provider: LLMProvider;
-  modelId: string;
+  model?: LanguageModelV2;
+  /**
+   * @example 'gpt-5.1'
+   */
+  modelId?: string;
   onData: Required<ChatInit<UIMessage>>['onData'];
   onFinish: Required<ChatInit<UIMessage>>['onFinish'];
   onError: Required<ChatInit<UIMessage>>['onError'];
@@ -21,13 +27,14 @@ export const createChatFacade = ({
   id,
   messages,
   provider,
+  model,
   modelId,
   onData,
   onFinish,
   onError,
 }: CreateChatFacadeOptions) => {
-  const model = provider.createModel(modelId);
-  const transport = provider.createTransport(model);
+  const _model = model ?? provider.createModel(modelId!);
+  const transport = provider.createTransport(_model);
 
   const chat = createChat({
     transport,
@@ -41,14 +48,14 @@ export const createChatFacade = ({
   return new ChatFacade({
     chat,
     provider,
-    modelId,
+    model: _model,
   });
 };
 
 type CreateChatFacadeParams = {
   chat: Chat<UIMessage>;
   provider: LLMProvider;
-  modelId: string;
+  model: LanguageModelV2;
 };
 
 export class ChatFacade {
@@ -70,15 +77,15 @@ export class ChatFacade {
    * current LLM provider and model
    */
   private provider: LLMProvider;
-  private modelId: string;
+  private model: LanguageModelV2;
 
-  constructor({ chat, provider, modelId }: CreateChatFacadeParams) {
+  constructor({ chat, provider, model }: CreateChatFacadeParams) {
     ChatFacadeManager.setChatFacade(chat.id, this);
 
     this.chat = chat;
     this.uiMessageStore = new UIMessageStore<UIMessage>();
     this.provider = provider;
-    this.modelId = modelId;
+    this.model = model;
 
     this.chat['~registerStatusCallback'](() => {
       this.status$.next(this.chat.status);
@@ -150,7 +157,7 @@ export class ChatFacade {
 
   /**
    * @example
-   * getLLM() => { provider: 'openai', model: 'gpt-4.1' }
+   * getLLM() => { provider: 'openai-', model: 'gpt-4.1' }
    * getLLM() => { provider: 'google', model: 'gemini-2.5-flash' }
    */
   public getProviderName() {
@@ -158,7 +165,11 @@ export class ChatFacade {
   }
 
   public getModelId() {
-    return this.modelId;
+    return this.model.modelId;
+  }
+
+  public isSameModel(model: LanguageModelV2) {
+    return isEqual(this.model, model);
   }
 
   public stop() {
@@ -171,13 +182,12 @@ export class ChatFacade {
     this.provider = provider;
   }
 
-  public setModelId(modelId: string) {
-    this.modelId = modelId;
+  public setModel(model: LanguageModelV2) {
+    this.model = model;
   }
 
   public updateTransport() {
-    const newModel = this.provider.createModel(this.modelId);
-    const newTransport = this.provider.createTransport(newModel);
+    const newTransport = this.provider.createTransport(this.model);
 
     // if the chat is submitted or streaming, wait for the chat to be finished,
     if (this.chat.status === 'submitted' || this.chat.status === 'streaming') {
