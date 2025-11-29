@@ -1,9 +1,9 @@
 import type { ChatInit, UIMessage } from 'ai';
 import { isEqual, noop } from 'es-toolkit';
 import { useCallback, useRef, useSyncExternalStore } from 'react';
+import type { LLMProvider } from '../provider/LLMProvider';
 import { type ChatFacade, createChatFacade } from './ChatFacade';
 import { ChatFacadeManager } from './ChatFacadeManager';
-import type { CustomTransport } from './createTransport';
 
 /**
  * It must be declared as a constant to avoid infinite re-rendering.
@@ -12,7 +12,8 @@ const EMPTY_MESSAGES: UIMessage[] = [];
 
 type UseChatOptions = {
   id: string;
-  transport: CustomTransport;
+  provider: LLMProvider;
+  modelId: string;
   messages: UIMessage[];
   onFinish?: ChatInit<UIMessage>['onFinish'];
   onError?: ChatInit<UIMessage>['onError'];
@@ -24,7 +25,8 @@ type UseChatOptions = {
  */
 export const useChat = <UI_MESSAGE extends UIMessage>({
   id,
-  transport,
+  provider,
+  modelId,
   messages,
   ...options
 }: UseChatOptions) => {
@@ -33,34 +35,31 @@ export const useChat = <UI_MESSAGE extends UIMessage>({
       createChatFacade({
         id,
         messages,
-        transport,
+        provider,
+        modelId,
         onData: options.onData ?? noop,
         onFinish: options.onFinish ?? noop,
         onError: options.onError ?? noop,
       }),
   );
 
-  console.group('useChat');
-  console.log(chatFacadeRef.current.getLLM());
-  console.log({
-    provider: transport.metadata.provider,
-    model: transport.metadata.model,
-  });
-  console.groupEnd();
-
-  const shouldRecreateTransport =
+  const shouldUpdateProvider =
     id !== chatFacadeRef.current.getId() ||
     !isEqual(
       {
-        provider: transport.metadata.provider,
-        model: transport.metadata.model,
+        provider: provider.name,
+        modelId,
       },
-      chatFacadeRef.current.getLLM(),
+      {
+        provider: chatFacadeRef.current.getProviderName(),
+        modelId: chatFacadeRef.current.getModelId(),
+      },
     );
 
-  console.log('shouldRecreateTransport', shouldRecreateTransport);
-  if (shouldRecreateTransport) {
-    chatFacadeRef.current.setTransport(transport);
+  if (shouldUpdateProvider) {
+    chatFacadeRef.current.setProvider(provider);
+    chatFacadeRef.current.setModelId(modelId);
+    chatFacadeRef.current.updateTransport();
   }
 
   const subscribeToMessages = useCallback((onChange: () => void) => {

@@ -1,21 +1,34 @@
 import type { Chat } from '@ai-sdk/react';
-import type { ChatStatus, UIMessage } from 'ai';
+import type { ChatInit, ChatStatus, UIMessage } from 'ai';
 import { BehaviorSubject, type Observable, take } from 'rxjs';
 import { type Setter, setValueOrFn } from '@/utils/setter';
+import type { LLMProvider } from '../provider/LLMProvider';
 import { UIMessageStore } from '../UiMessageStore';
-import type { LLMModel, LLMModelMap, LLMProvider } from './ai-model';
 import { ChatFacadeManager } from './ChatFacadeManager';
-import { type CreateChatOptions, createChat } from './createChat';
-import type { CustomTransport } from './createTransport';
+import { createChat } from './createChat';
+
+export type CreateChatFacadeOptions = {
+  id: string;
+  messages: UIMessage[];
+  provider: LLMProvider;
+  modelId: string;
+  onData: Required<ChatInit<UIMessage>>['onData'];
+  onFinish: Required<ChatInit<UIMessage>>['onFinish'];
+  onError: Required<ChatInit<UIMessage>>['onError'];
+};
 
 export const createChatFacade = ({
   id,
   messages,
+  provider,
+  modelId,
   onData,
   onFinish,
   onError,
-  transport,
-}: Required<CreateChatOptions>) => {
+}: CreateChatFacadeOptions) => {
+  const model = provider.createModel(modelId);
+  const transport = provider.createTransport(model);
+
   const chat = createChat({
     transport,
     id,
@@ -27,9 +40,15 @@ export const createChatFacade = ({
 
   return new ChatFacade({
     chat,
-    provider: transport.metadata.provider,
-    model: transport.metadata.model,
+    provider,
+    modelId,
   });
+};
+
+type CreateChatFacadeParams = {
+  chat: Chat<UIMessage>;
+  provider: LLMProvider;
+  modelId: string;
 };
 
 export class ChatFacade {
@@ -51,23 +70,15 @@ export class ChatFacade {
    * current LLM provider and model
    */
   private provider: LLMProvider;
-  private model: LLMModelMap[LLMProvider];
+  private modelId: string;
 
-  constructor({
-    chat,
-    provider,
-    model,
-  }: {
-    chat: Chat<UIMessage>;
-    provider: LLMProvider;
-    model: LLMModelMap[LLMProvider];
-  }) {
+  constructor({ chat, provider, modelId }: CreateChatFacadeParams) {
     ChatFacadeManager.setChatFacade(chat.id, this);
 
     this.chat = chat;
     this.uiMessageStore = new UIMessageStore<UIMessage>();
     this.provider = provider;
-    this.model = model;
+    this.modelId = modelId;
 
     this.chat['~registerStatusCallback'](() => {
       this.status$.next(this.chat.status);
@@ -142,11 +153,12 @@ export class ChatFacade {
    * getLLM() => { provider: 'openai', model: 'gpt-4.1' }
    * getLLM() => { provider: 'google', model: 'gemini-2.5-flash' }
    */
-  public getLLM(): { provider: LLMProvider; model: LLMModel } {
-    return {
-      provider: this.provider,
-      model: this.model,
-    };
+  public getProviderName() {
+    return this.provider.name;
+  }
+
+  public getModelId() {
+    return this.modelId;
   }
 
   public stop() {
@@ -155,9 +167,18 @@ export class ChatFacade {
     }
   }
 
-  public setTransport(transport: CustomTransport) {
-    this.provider = transport.metadata.provider;
-    this.model = transport.metadata.model;
+  public setProvider(provider: LLMProvider) {
+    this.provider = provider;
+  }
+
+  public setModelId(modelId: string) {
+    this.modelId = modelId;
+  }
+
+  public updateTransport() {
+    const newModel = this.provider.createModel(this.modelId);
+    const newTransport = this.provider.createTransport(newModel);
+
     // if the chat is submitted or streaming, wait for the chat to be finished,
     if (this.chat.status === 'submitted' || this.chat.status === 'streaming') {
       this.getStatus$()
@@ -165,12 +186,12 @@ export class ChatFacade {
         .subscribe(() => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-expect-error : this is a private property of the chat object
-          this.chat.transport = transport;
+          this.chat.transport = newTransport;
         });
     } else {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error : this is a private property of the chat object
-      this.chat.transport = transport;
+      this.chat.transport = newTransport;
     }
   }
 }
