@@ -7,7 +7,6 @@ import {
   type UIMessage,
 } from 'ai';
 import { z } from 'zod';
-import { ValidateModelProvider } from './decorators';
 import type { CreateTransportOptions, LLMProvider } from './LLMProvider';
 
 export const OpenAiModelIdSchema = z.enum([
