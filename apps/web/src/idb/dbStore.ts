@@ -17,6 +17,19 @@ const allChannelsAtom = atom(async get => {
   return channels;
 });
 
+const createChannelAtom = atom(
+  null,
+  async (
+    _,
+    set,
+    newChannel: z.infer<typeof ChannelSchema>,
+  ): Promise<string> => {
+    const newChannelId = await DB.createChannel(newChannel);
+    set(allChannelsRefreshAtom, prev => prev + 1);
+    return newChannelId;
+  },
+);
+
 const selectedChannelIdAtom = atom(
   async get => {
     return (await get(configAtom))?.lastSelectedChannelId ?? null;
@@ -108,4 +121,5 @@ export const dbAtoms = {
   configAtom,
   allMessagesAtom,
   selectedChannelMessagesAtom,
+  createChannelAtom,
 };
