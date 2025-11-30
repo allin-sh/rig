@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { Chatting } from './chatting/Chatting';
 import { LeftHeader } from './header/LeftHeader';
@@ -12,7 +12,9 @@ export const RootView = React.memo(() => {
     <div className={cn('w-full h-full flex flex-row')}>
       <ModalRegistry />
       <LeftHeader />
-      <RightHeader />
+      <Suspense fallback={<div>Loading...</div>}>
+        <RightHeader />
+      </Suspense>
       <SidebarRenderer />
       <motion.div
         // when left panel is open, the main chatting area should be animated.
