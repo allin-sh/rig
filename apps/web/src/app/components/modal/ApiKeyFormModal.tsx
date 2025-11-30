@@ -1,9 +1,10 @@
-import { Google, OpenAI } from '@lobehub/icons';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { sample } from 'es-toolkit';
 import { useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { v4 } from 'uuid';
-import type z from 'zod';
+import z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,10 +24,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { LLMProviderName } from '@/core/provider/all-models';
+import {
+  type LLMProviderName,
+  LLMProviderNameSchema,
+  MODEL_IDS_PER_PROVIDER,
+} from '@/core/provider/all-models';
 import { validateApiKey } from '@/core/provider/validate-apikey';
 import { dbAtoms } from '@/idb/dbStore';
 import { DB } from '../../../idb/db';
+import { getProviderLogo } from '../helper/providerLogo';
+
+const FormValuesSchema = z.object({
+  apiKey: z.string(),
+  providerName: LLMProviderNameSchema,
+});
+
+type FormValuesType = z.infer<typeof FormValuesSchema>;
+
+const createDefaultChannel = async (
+  providerName: LLMProviderName,
+): Promise<string> => {
+  const channelId = v4();
+  const createdAt = Date.now();
+  // randomly select a model from the provider's model list
+  const defaultModel = sample(MODEL_IDS_PER_PROVIDER[providerName]);
+
+  // return the id of the created channel
+  return await DB.createChannel({
+    id: channelId,
+    model: defaultModel,
+    providerName: providerName,
+    createdAt: createdAt,
+    isEmpty: true,
+  });
+};
 
 /**
  * This modal should be shown when the user does not have any API key.
@@ -38,41 +69,33 @@ export const ApiKeyFormModal = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
-  const [apiKey, setApiKey] = useState('');
-  const [providerName, setProviderName] = useState<LLMProviderName>('openai');
-  const [isLoading, setIsLoading] = useState(false);
+  const { register, handleSubmit, control, setError, formState } = useForm({
+    resolver: zodResolver(FormValuesSchema),
+    defaultValues: {
+      providerName: 'openai',
+    },
+  });
+
   const setConfig = useSetAtom(dbAtoms.configAtom);
 
-  const handleValidateAndSave = async () => {
-    setIsLoading(true);
+  const onSubmit = async (values: FormValuesType) => {
+    const { apiKey, providerName } = values;
 
     const isValid = await validateApiKey({ apiKey, providerName });
-
     if (!isValid) {
-      toast.error('Invalid API key. Please check your key and try again.', {
-        position: 'top-center',
-        duration: 5000,
+      setError('apiKey', {
+        message: 'Invalid API key. Please check your key and try again.',
       });
-      setIsLoading(false);
       return;
     }
 
-    const channelId = v4();
-    const createdAt = Date.now();
-    const defaultModel =
-      providerName === 'openai' ? 'gpt-5.1' : 'gemini-2.5-flash';
-
-    await DB.createChannel({
-      id: channelId,
-      model: defaultModel,
-      providerName: providerName,
-      createdAt: createdAt,
-      isEmpty: true,
-    });
+    const channelId = await createDefaultChannel(providerName);
 
     await setConfig({
       lastSelectedChannelId: channelId,
-      [providerName === 'openai' ? 'openaiApiKey' : 'googleApiKey']: apiKey,
+      apiKeys: {
+        [providerName]: apiKey,
+      },
     });
 
     toast.success('Enjoy your AI journey! 🎉🎉🎉', {
@@ -81,7 +104,6 @@ export const ApiKeyFormModal = ({
     });
 
     onOpenChange(false);
-    setIsLoading(false);
   };
 
   return (
@@ -98,40 +120,50 @@ export const ApiKeyFormModal = ({
               <em className='font-bold text-blue-400 text-xs'>100% Safe</em>
             </CardTitle>
             <CardDescription className='text-sm mt-1'>
-              Before you can use the service, you need to enter your API key.
+              {"Just set your API key and you're good to go!"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className='grid gap-4'>
               <div className='flex flex-col gap-2'>
-                <Label htmlFor='provider'>Service Provider</Label>
-                <Select
-                  value={providerName}
-                  onValueChange={value =>
-                    setProviderName(value as LLMProviderName)
-                  }
-                >
-                  <SelectTrigger id='provider'>
-                    <SelectValue placeholder='Select a provider' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='openai'>
-                      <OpenAI className='size-4' /> OpenAI
-                    </SelectItem>
-                    <SelectItem value='google'>
-                      <Google className='size-4' /> Google
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor='providerName'>Service Provider</Label>
+                <Controller
+                  name='providerName'
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={value =>
+                        field.onChange(value as LLMProviderName)
+                      }
+                    >
+                      <SelectTrigger id='providerName'>
+                        <SelectValue placeholder='Select a provider' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LLMProviderNameSchema.options.map(providerName => (
+                          <SelectItem key={providerName} value={providerName}>
+                            {getProviderLogo(providerName, 'size-4')}
+                            {` ${providerName}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
               <div className='flex flex-col gap-2'>
-                <Label htmlFor='api-key'>API Key</Label>
+                <Label htmlFor='apiKey'>API Key</Label>
                 <PasswordInput
-                  id='api-key'
-                  value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
+                  {...register('apiKey')}
+                  id='apiKey'
                   placeholder=''
                 />
+                {formState.errors.apiKey && (
+                  <span className='text-red-400 text-xs'>
+                    {formState.errors.apiKey.message}
+                  </span>
+                )}
                 <CardDescription className='text-xs mt-1'>
                   {`Your API key is stored in your browser's local storage.`}
                 </CardDescription>
@@ -140,11 +172,11 @@ export const ApiKeyFormModal = ({
           </CardContent>
           <CardFooter>
             <Button
-              disabled={!apiKey || isLoading}
+              disabled={formState.isSubmitting}
               className='w-full'
-              onClick={handleValidateAndSave}
+              onClick={handleSubmit(onSubmit)}
             >
-              {isLoading ? 'Validating...' : 'Save API Key'}
+              {formState.isSubmitting ? 'Validating...' : 'Save API Key'}
             </Button>
           </CardFooter>
         </Card>

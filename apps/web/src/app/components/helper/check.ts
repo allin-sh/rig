@@ -1,3 +1,4 @@
+import { match } from 'ts-pattern';
 import type z from 'zod';
 import type { LLMProviderName } from '@/core/provider/all-models';
 import type { ConfigSchema } from '@/idb/db';
@@ -11,12 +12,8 @@ export const canUseProvider = (
   providerName: LLMProviderName,
   config: z.infer<typeof ConfigSchema>,
 ) => {
-  switch (providerName) {
-    case 'google':
-      return !!config.googleApiKey;
-    case 'openai':
-      return !!config.openaiApiKey;
-    default:
-      return false;
-  }
+  return match(providerName)
+    .with('google', () => !!config.apiKeys.google)
+    .with('openai', () => !!config.apiKeys.openai)
+    .exhaustive();
 };
