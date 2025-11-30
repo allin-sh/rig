@@ -41,6 +41,7 @@ export const Chatting = () => {
 
   const onFinish = useCallback<ChatOnFinishCallback<UIMessage>>(
     options => {
+      // do not save message if the response is aborted, disconnected, or error.
       const shouldCancel =
         options.isAbort || options.isDisconnect || options.isError;
       if (shouldCancel) return;
