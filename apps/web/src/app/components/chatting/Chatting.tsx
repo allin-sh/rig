@@ -9,7 +9,6 @@ import { dbAtoms } from '@/idb/dbStore';
 import { assertDefined } from '@/utils/assertDefined';
 import { useSwrAtomValue } from '@/utils/useSwrAtomValue';
 import { registerProvider } from '../helper/registerProvider';
-import { ChatInput } from './ChatInput';
 import { ChatList } from './ChatList';
 
 export const Chatting = () => {
@@ -54,7 +53,7 @@ export const Chatting = () => {
     [saveMessages, selectedChannel.id],
   );
 
-  const { sendMessage, uiMessages, status } = useChat({
+  const { uiMessages, status } = useChat({
     id: selectedChannel.id,
     provider,
     modelId,
