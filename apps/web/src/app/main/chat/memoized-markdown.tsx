@@ -1,21 +1,29 @@
 import { marked } from 'marked';
-import { memo, useDeferredValue, useMemo } from 'react';
-import type { Components } from 'react-markdown';
+import {
+  type ClassAttributes,
+  type HTMLAttributes,
+  memo,
+  useDeferredValue,
+  useMemo,
+} from 'react';
+import type { ExtraProps } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import { isInlineCode, ShikiHighlighter } from 'react-shiki';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/utils/cn';
 import './shiki.css';
 
-const CodeHighlight: Components['code'] = ({
+type CodeProps = ClassAttributes<HTMLElement> &
+  HTMLAttributes<HTMLElement> &
+  ExtraProps;
+
+const CodeHighlight = ({
   className,
   children,
   node,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
   isLastBlock,
   ...props
-}) => {
+}: CodeProps & { isLastBlock?: boolean }) => {
   const code = String(children).trim();
   const match = className?.match(/language-(\w+)/);
   const language = match ? match[1] : undefined;
@@ -65,8 +73,6 @@ const MemoizedMarkdownBlock = memo(
           ],
         ]}
         components={{
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
           code: props => (
             <CodeHighlight {...props} isLastBlock={isLastBlock}></CodeHighlight>
           ),
@@ -88,7 +94,7 @@ export const MemoizedMarkdown = memo(
   ({ content, id }: { content: string; id: string }) => {
     const blocks = useMemo(() => parseMarkdownIntoBlocks(content), [content]);
 
-    return blocks.map(({ content, type }, index) => (
+    return blocks.map(({ content }, index) => (
       <MemoizedMarkdownBlock
         content={content}
         key={`${id}-block-${index}`}
