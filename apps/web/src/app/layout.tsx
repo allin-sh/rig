@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import { cookies } from 'next/headers';
 import Script from 'next/script';
+import { HydrateAtomProvider } from './components/HydrateAtomProvider';
+import { COOKIES } from './cookie';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -21,17 +24,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const leftPanelOpen =
+    cookieStore.get(COOKIES.LEFT_PANEL_OPEN)?.value === 'true';
+
   return (
     <html lang='en' className='dark'>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark:scheme-dark`}
       >
-        {children}
+        <HydrateAtomProvider leftPanelOpen={leftPanelOpen}>
+          {children}
+        </HydrateAtomProvider>
       </body>
       <Script
         src={'https://www.googletagmanager.com/gtag/js?id=G-1HGDY9T287'}
