@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import React, { Suspense } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 import { ChatInput } from './chatting/ChatInput';
 import { Chatting } from './chatting/Chatting';
 import { LeftHeader } from './header/LeftHeader';

@@ -2,8 +2,11 @@
 
 
 
+## Folder naming Conventions
 
-## Naming Conventions
+- All folders should be named in kebab-case.
+
+## File naming Conventions
 
 ### kebab-case
 - ui components (shadcn, util): `button.tsx`, `context-menu.tsx`
@@ -12,4 +15,3 @@
 ### PascalCase
 - class: `StateManager.ts`, `ModalManager.ts`
 - react components: `LeftPanel.tsx`, `ChatList.tsx`
-
