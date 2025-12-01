@@ -6,7 +6,7 @@
 ## Naming Conventions
 
 ### kebab-case
-- ui components: `button.tsx`, `context-menu.tsx`
+- ui components (shadcn, util): `button.tsx`, `context-menu.tsx`
 - *.ts files: `left-panel-store.ts`, `use-mobile.ts` (except class!)
 
 ### PascalCase
