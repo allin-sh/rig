@@ -32,15 +32,23 @@ export type UserOrAssistantMessage = UIMessage & {
   role: 'user' | 'assistant';
 };
 
+/**
+ * Possible thread formats:
+ * [user message] // when an assistant message was not generated due to an error
+ * [user message, assistant message]
+ * Any other forms indicate an unexpected error or a serious bug.
+ */
 export const messagesToThreads = (messages: UIMessage[]): Thread[] => {
   const threads = messages.reduce(
     (acc, message) => {
       if (message.role === 'user') {
-        acc.push([message as UserOrAssistantMessage] as Thread);
+        acc.push([message] as Thread);
       }
       if (message.role === 'assistant') {
-        const lastGroup = acc[acc.length - 1];
-        lastGroup.push(message as UserOrAssistantMessage);
+        const recentThread = acc[acc.length - 1];
+        if (recentThread.length < 2) {
+          recentThread.push(message as UserOrAssistantMessage);
+        }
       }
 
       return acc;
