@@ -1,3 +1,4 @@
+import type { UIMessage } from '@ai-sdk/react';
 import { atom } from 'jotai';
 import type z from 'zod';
 import { assert } from '@/utils/assert';
@@ -39,30 +40,30 @@ const selectedChannelIdAtom = atom(
   },
 );
 
-const selectedChannelAtom = atom(
-  async get => {
-    const selectedChannelId = await get(selectedChannelIdAtom);
-    if (!selectedChannelId) return null;
-    const allChannels = await get(allChannelsAtom);
-    const channel = allChannels.find(
-      channel => channel.id === selectedChannelId,
-    );
+const selectedChannelAtom = atom(async get => {
+  const selectedChannelId = await get(selectedChannelIdAtom);
+  if (!selectedChannelId) return null;
+  const allChannels = await get(allChannelsAtom);
+  const channel = allChannels.find(channel => channel.id === selectedChannelId);
 
-    assert(
-      channel,
-      `channel is not found, selectedChannelId: ${selectedChannelId}`,
-    );
+  assert(
+    channel,
+    `channel is not found, selectedChannelId: ${selectedChannelId}`,
+  );
 
-    return channel;
-  },
-  async (get, set, channel: Partial<z.infer<typeof ChannelSchema>>) => {
-    const selectedChannel = await get(selectedChannelAtom);
+  return channel;
+});
 
-    if (!selectedChannel) {
-      throw new Error(`dbStore: selectedChannel is not found.`);
-    }
-
-    await DB.updateChannel(selectedChannel.id, channel);
+const updateChannelAtom = atom(
+  null,
+  async (
+    _,
+    set,
+    channelId: string,
+    channel: Partial<z.infer<typeof ChannelSchema>>,
+  ) => {
+    const updatedAt = Date.now();
+    await DB.updateChannel(channelId, { ...channel, updatedAt });
     set(allChannelsRefreshAtom, prev => prev + 1);
   },
 );
@@ -99,20 +100,29 @@ const allMessagesAtom = atom(
   },
 );
 
-const selectedChannelMessagesAtom = atom(
-  async get => {
-    const selectedChannelId = await get(selectedChannelIdAtom);
-    if (!selectedChannelId) return [];
+const selectedChannelMessagesAtom = atom(async get => {
+  const selectedChannelId = await get(selectedChannelIdAtom);
+  if (!selectedChannelId) return [];
 
-    const allMessages = await get(allMessagesAtom);
-    return allMessages.filter(
-      message => message.channelId === selectedChannelId,
-    );
-  },
-  async (_, set, newMessages: DB_MESSAGE[]) => {
-    await set(allMessagesAtom, newMessages);
+  const allMessages = await get(allMessagesAtom);
+  return allMessages.filter(message => message.channelId === selectedChannelId);
+});
+
+const addMessageAtom = atom(
+  null,
+  async (_, set, channelId: string, message: UIMessage) => {
+    await DB.addMessage(channelId, message);
+    set(allMessagesRefreshAtom, prev => prev + 1);
   },
 );
+
+const deleteChannelAtom = atom(null, async (_, set, channelId: string) => {
+  await DB.deleteChannel(channelId);
+  set(allChannelsRefreshAtom, prev => prev + 1);
+  // delete all messages of the channel
+  await DB.deleteMessagesByChannelId(channelId);
+  set(allMessagesRefreshAtom, prev => prev + 1);
+});
 
 export const dbAtoms = {
   allChannelsAtom,
@@ -120,6 +130,9 @@ export const dbAtoms = {
   selectedChannelAtom,
   configAtom,
   allMessagesAtom,
+  addMessageAtom,
   selectedChannelMessagesAtom,
   createChannelAtom,
+  updateChannelAtom,
+  deleteChannelAtom,
 };
