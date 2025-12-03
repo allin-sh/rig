@@ -1,50 +1,29 @@
 import DOMPurify from 'dompurify';
 import { Clipboard, ClipboardCheck } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createOnigurumaEngine } from 'shiki';
-import {
-  type BundledLanguage,
-  bundledLanguagesInfo,
-  createHighlighter,
-  type Highlighter,
-} from 'shiki/bundle/full';
+import { getSingletonHighlighter } from 'shiki/bundle/full';
 import { toast } from 'sonner';
-import { assert } from '@/utils/assert';
 import { cn } from '@/utils/cn';
-import styles from './shiki.module.css';
-
-let highlighter: Highlighter | null = null;
-
-const isValidLanguage = (language: string): boolean => {
-  return bundledLanguagesInfo.some(lang => lang.id === language);
-};
+import styles from './codeblock.module.css';
 
 const getHighlighter = async (language: string) => {
   try {
-    if (!highlighter) {
-      const targetLanguage = isValidLanguage(language) ? language : 'plaintext';
-
-      highlighter = await createHighlighter({
-        langs: [targetLanguage],
+    return await getSingletonHighlighter({
+      langs: [language],
+      themes: ['github-dark'],
+      engine: createOnigurumaEngine(import('shiki/wasm')),
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Language')) {
+      return await getSingletonHighlighter({
+        langs: ['plaintext'],
         themes: ['github-dark'],
         engine: createOnigurumaEngine(import('shiki/wasm')),
       });
-    } else {
-      const targetLanguage = isValidLanguage(language) ? language : 'plaintext';
-
-      if (!highlighter.getLoadedLanguages().includes(targetLanguage)) {
-        await highlighter.loadLanguage(targetLanguage as BundledLanguage);
-      }
     }
-  } catch (err) {
-    console.error('Failed to create highlighter');
-    console.error(err);
-    throw err;
+    throw error;
   }
-
-  assert(highlighter, 'Shiki: highlighter is not found');
-
-  return highlighter;
 };
 
 type ShikiProps = {
@@ -54,7 +33,7 @@ type ShikiProps = {
   as?: React.ElementType;
 };
 
-export const Shiki = ({
+export const CodeBlock = ({
   code,
   language,
   ref,
@@ -75,7 +54,7 @@ export const Shiki = ({
     });
   }, [code, language]);
 
-  const onCopy = () => {
+  const onCopy = useCallback(() => {
     try {
       navigator.clipboard.writeText(code);
     } catch {
@@ -83,15 +62,20 @@ export const Shiki = ({
         'Failed to copy code. Please check your clipboard permissions.',
       );
     }
-  };
+  }, [code]);
 
   return (
-    <Element ref={ref} className={styles.shikiContainer}>
+    <Element ref={ref} className={cn(styles.codeBlockContainer, 'not-prose')}>
       <span className={cn(styles.languageLabel)}>{language}</span>
-      <CopyButton onCopy={onCopy} />
-      {highlightedCode && (
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized html
-        <div dangerouslySetInnerHTML={{ __html: highlightedCode }} />
+      {highlightedCode ? (
+        <>
+          <CopyButton onCopy={onCopy} />
+          {/** biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized */}
+          <div dangerouslySetInnerHTML={{ __html: highlightedCode }} />
+        </>
+      ) : (
+        // Shiki works asynchronously. so we need to show a loading skeleton until it's loaded.
+        <div className={styles.skeleton} />
       )}
     </Element>
   );
