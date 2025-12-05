@@ -24,6 +24,10 @@ export class ChatFacadeManager {
     return this.chatFacades.get(id);
   }
 
+  public getAllChatFacadeIds() {
+    return Array.from(this.chatFacades.keys());
+  }
+
   public setChatFacade(id: string, chatFacade: ChatFacade) {
     const oldChatFacade = this.getChatFacade(id);
 
@@ -32,5 +36,13 @@ export class ChatFacadeManager {
     }
 
     this.chatFacades.set(id, chatFacade);
+  }
+
+  public deleteChatFacadeById(id: string) {
+    const chatFacade = this.getChatFacade(id);
+    if (chatFacade) {
+      chatFacade.dispose();
+    }
+    this.chatFacades.delete(id);
   }
 }
