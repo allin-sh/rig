@@ -105,6 +105,10 @@ export class ChatFacade {
     return this.chat.error;
   }
 
+  public getModelId() {
+    return this.model.modelId;
+  }
+
   public getOnData$() {
     return this.onData$.asObservable();
   }
@@ -119,6 +123,13 @@ export class ChatFacade {
 
   public getOnBeforeSend$() {
     return this.onBeforeSend$.asObservable();
+  }
+
+  /**
+   * this must be used for testing only.
+   */
+  public __getChat() {
+    return this.chat;
   }
 
   /**
