@@ -11,50 +11,15 @@ import { registerProvider } from '../helper/register-provider';
 import { ThreadList } from './ThreadList';
 
 export const Chatting = () => {
-  const selectedChannel = useSwrAtomValue(dbAtoms.selectedChannelAtom);
+  const selectedChannelId = useSwrAtomValue(dbAtoms.selectedChannelIdAtom);
   const config = useSwrAtomValue(dbAtoms.configAtom);
-  const messages = useSwrAtomValue(dbAtoms.selectedChannelMessagesAtom);
-  const addMessage = useSetAtom(dbAtoms.addMessageAtom);
 
-  assert(selectedChannel, 'Chatting: selectedChannel is not found.');
-  assert(config, 'Chatting: config is not found.');
-  assert(messages, 'Chatting: messages is not found.');
+  assert(selectedChannelId, 'Chatting: selectedChannelId is not found.');
 
   registerProvider(config);
 
-  const provider = useMemo(
-    () => providerRegistry.get(selectedChannel.providerName),
-    [selectedChannel.providerName],
-  );
-  assert(provider, 'Chatting: provider is not found.');
-  const modelId = useMemo(() => selectedChannel.model, [selectedChannel.model]);
-
-  const onBeforeSend = useCallback(
-    (message: UIMessage) => {
-      addMessage(selectedChannel.id, message);
-    },
-    [selectedChannel.id, addMessage],
-  );
-
-  const onFinish = useCallback<ChatOnFinishCallback<UIMessage>>(
-    options => {
-      // do not save message if the response is aborted, disconnected, or error.
-      const shouldCancel =
-        options.isAbort || options.isDisconnect || options.isError;
-      if (shouldCancel) return;
-
-      addMessage(selectedChannel.id, options.message);
-    },
-    [selectedChannel.id, addMessage],
-  );
-
   const { uiMessages, status, addPrompt } = useChat({
-    id: selectedChannel.id,
-    provider,
-    modelId,
-    messages,
-    onBeforeSend,
-    onFinish,
+    id: selectedChannelId,
   });
 
   // add system prompt to the chat
@@ -63,7 +28,7 @@ export const Chatting = () => {
       'answer in markdown format.' +
       '\n code block should not be the child of the list item.';
     addPrompt(prompt);
-  }, [selectedChannel.id, addPrompt]);
+  }, [selectedChannelId, addPrompt]);
 
   const threads = useMemo(() => messagesToThreads(uiMessages), [uiMessages]);
 
