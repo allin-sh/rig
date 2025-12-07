@@ -10,8 +10,9 @@ type ThreadProps = {
   status: ReturnType<typeof useChat>['status'];
 };
 
-export const Thread = ({ thread, isLast }: ThreadProps) => {
+export const Thread = ({ thread, isLast, status }: ThreadProps) => {
   const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (isLast) {
       ref.current?.scrollIntoView({
@@ -22,12 +23,17 @@ export const Thread = ({ thread, isLast }: ThreadProps) => {
   }, [isLast]);
 
   return (
-    <div className='flex flex-col gap-4 [&:last-child]:min-h-[calc(-120px+100dvh)] [&:last-child]:mb-10'>
+    <div
+      ref={ref}
+      className='flex flex-col gap-4 [&:last-child]:min-h-[calc(-180px+100dvh)] [&:last-child]:mb-10'
+    >
       <UserMessage message={thread.userMessage} />
       {thread.assistantMessage && (
         <AssistantMessage
           key={thread.assistantMessage.id}
           message={thread.assistantMessage}
+          isLast={isLast}
+          status={status}
         ></AssistantMessage>
       )}
     </div>
