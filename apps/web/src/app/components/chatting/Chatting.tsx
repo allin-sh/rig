@@ -26,7 +26,7 @@ export const Chatting = () => {
       'answer in markdown format.' +
       '\n code block should not be the child of the list item.';
     setSystemPrompt(prompt);
-  }, [selectedChannelId, setSystemPrompt]);
+  }, [setSystemPrompt]);
 
   const threads = useMemo(() => messagesToThreads(uiMessages), [uiMessages]);
 
