@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ChatFacadeManager } from '@/core/chat/ChatFacadeManager';
-import { generateUIMessage } from '@/core/helper';
+import { generateUIMessage } from '@/core/chat/message-util';
 import {
   type AllModelIds,
   AllModelIdsSchema,
