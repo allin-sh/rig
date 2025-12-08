@@ -60,9 +60,6 @@ export const useChat = <UI_MESSAGE extends UIMessage>({
 
       return facade;
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: 'always',
   });
 
   useEffect(() => {
