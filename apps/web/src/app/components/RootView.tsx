@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import React, { Suspense } from 'react';
 import { ChatInput } from './chatting/ChatInput';
 import { Chatting } from './chatting/Chatting';
+import { ChattingSuspenseFallbackView } from './chatting/ChattingSuspenseFallbackView';
 import { CenterHeader } from './header/CenterHeader';
 import { LeftHeader } from './header/LeftHeader';
 import { RightHeader } from './header/RightHeader';
@@ -23,7 +24,7 @@ export const RootView = React.memo(() => {
         className='flex-1 flex h-full w-full flex-col relative'
       >
         <CenterHeader />
-        <Suspense fallback={<div className='grow w-full'></div>}>
+        <Suspense fallback={<ChattingSuspenseFallbackView />}>
           <Chatting />
         </Suspense>
         <Suspense fallback={<div>Loading...</div>}>
