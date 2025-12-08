@@ -16,7 +16,7 @@ export const Thread = ({ thread, isLast, status }: ThreadProps) => {
   useEffect(() => {
     if (isLast) {
       ref.current?.scrollIntoView({
-        behavior: 'smooth',
+        behavior: 'auto',
         block: 'start',
       });
     }
@@ -25,7 +25,7 @@ export const Thread = ({ thread, isLast, status }: ThreadProps) => {
   return (
     <div
       ref={ref}
-      className='flex flex-col gap-4 [&:last-child]:min-h-[calc(-180px+100dvh)] [&:last-child]:mb-10'
+      className='flex flex-col gap-4 [&:last-child]:min-h-[calc(-180px+100dvh)] [&:last-child]:mb-16'
     >
       <UserMessage message={thread.userMessage} />
       {thread.assistantMessage && (
