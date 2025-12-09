@@ -14,11 +14,11 @@ import type { ModelResponseOptionAdaptor } from '../ModelResponseOptionAdaptor';
 import { OpenAiResponseOptionAdaptor } from './OpenAiResponseOptionAdaptor';
 import { type OpenAiModelId, OpenAiModelIdSchema } from './openai-models';
 
-type OpenAILLMProviderOptions = {
+type OpenAiProviderOptions = {
   apiKey: string;
 };
 
-export class OpenAILLMProvider implements LLMProvider {
+export class OpenAiProvider implements LLMProvider {
   readonly name = 'openai';
   private apiKey: string;
   readonly responseOptionAdaptor: ModelResponseOptionAdaptor<OpenAIResponsesProviderOptions>;
@@ -26,7 +26,7 @@ export class OpenAILLMProvider implements LLMProvider {
   /**
    * apiKey must be registered after validation check.
    */
-  constructor({ apiKey }: OpenAILLMProviderOptions) {
+  constructor({ apiKey }: OpenAiProviderOptions) {
     this.apiKey = apiKey;
     this.responseOptionAdaptor = new OpenAiResponseOptionAdaptor();
   }
@@ -46,7 +46,7 @@ export class OpenAILLMProvider implements LLMProvider {
    * check if previously validated api key becomes stale or not.
    */
   public async validateConnection(): Promise<boolean> {
-    return OpenAILLMProvider.validateConnection(this.apiKey);
+    return OpenAiProvider.validateConnection(this.apiKey);
   }
 
   public getModel(modelId: string): LanguageModelV2 {

@@ -5,7 +5,7 @@ import {
   LLMProviderNameSchema,
 } from '@/core/provider/all-models';
 import { GoogleLLMProvider } from '@/core/provider/google/GoogleLLMProvider';
-import { OpenAILLMProvider } from '@/core/provider/openai/OpenAILLMProvider';
+import { OpenAiProvider } from '@/core/provider/openai/OpenAiProvider';
 import { providerRegistry } from '@/core/provider/providerRegistry';
 import type { ConfigSchema } from '@/idb/db';
 
@@ -24,7 +24,7 @@ export const registerProvider = (config: z.infer<typeof ConfigSchema>) => {
         providerRegistry.register('google', new GoogleLLMProvider({ apiKey }));
       })
       .with('openai', () => {
-        providerRegistry.register('openai', new OpenAILLMProvider({ apiKey }));
+        providerRegistry.register('openai', new OpenAiProvider({ apiKey }));
       })
       .exhaustive();
   });

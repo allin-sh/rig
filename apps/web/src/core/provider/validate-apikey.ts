@@ -1,7 +1,7 @@
 import { match } from 'ts-pattern';
 import type { LLMProviderName } from './all-models';
 import { GoogleLLMProvider } from './google/GoogleLLMProvider';
-import { OpenAILLMProvider } from './openai/OpenAILLMProvider';
+import { OpenAiProvider } from './openai/OpenAiProvider';
 
 export interface ValidateApiKeyParams {
   apiKey: string;
@@ -15,7 +15,7 @@ export const validateApiKey = async ({
   if (!apiKey) return false;
 
   return match(providerName)
-    .with('openai', () => OpenAILLMProvider.validateConnection(apiKey))
+    .with('openai', () => OpenAiProvider.validateConnection(apiKey))
     .with('google', () => GoogleLLMProvider.validateConnection(apiKey))
     .exhaustive();
 };
