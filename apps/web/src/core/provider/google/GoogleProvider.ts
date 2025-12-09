@@ -1,4 +1,7 @@
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import {
+  createGoogleGenerativeAI,
+  type GoogleGenerativeAIProviderOptions,
+} from '@ai-sdk/google';
 import type { LanguageModelV2 } from '@ai-sdk/provider';
 import {
   type ChatTransport,
@@ -7,18 +10,22 @@ import {
   type UIMessage,
 } from 'ai';
 import type { LLMProvider, ModelResponseOptions } from '../LLMProvider';
+import type { ModelResponseOptionAdaptor } from '../ModelResponseOptionAdaptor';
+import { GoogleResponseOptionAdaptor } from './GoogleResponseOptionAdaptor';
 import { type GoogleAiModelId, GoogleAiModelIdSchema } from './google-models';
 
 type GoogleProviderOptions = {
   apiKey: string;
 };
 
-export class GoogleLLMProvider implements LLMProvider {
+export class GoogleProvider implements LLMProvider {
   readonly name = 'google';
   private apiKey: string;
+  readonly responseOptionAdaptor: ModelResponseOptionAdaptor<GoogleGenerativeAIProviderOptions>;
 
   constructor({ apiKey }: GoogleProviderOptions) {
     this.apiKey = apiKey;
+    this.responseOptionAdaptor = new GoogleResponseOptionAdaptor();
   }
 
   public static async validateConnection(apiKey: string): Promise<boolean> {
@@ -33,7 +40,7 @@ export class GoogleLLMProvider implements LLMProvider {
   }
 
   public async validateConnection(): Promise<boolean> {
-    return GoogleLLMProvider.validateConnection(this.apiKey);
+    return GoogleProvider.validateConnection(this.apiKey);
   }
 
   public getModel(modelId: string): LanguageModelV2 {
@@ -49,30 +56,16 @@ export class GoogleLLMProvider implements LLMProvider {
     const modelId = model.modelId;
     const providerName = this.name;
 
-    const supportsThinking =
-      modelId &&
-      [
-        'gemini-2.5-flash-lite',
-        'gemini-2.5-flash',
-        'gemini-2.5-pro',
-        'gemini-3-pro-preview',
-      ].includes(modelId);
-
-    const providerOptions = supportsThinking
-      ? {
-          thinkingConfig: {
-            thinkingBudget: 8192,
-            includeThoughts: false,
-          },
-        }
-      : undefined;
+    const providerOptions = this.responseOptionAdaptor.adapt(modelId, options);
 
     return {
       sendMessages: async ({ messages }) => {
         return await streamText({
           model: model,
           messages: convertToModelMessages(messages),
-          providerOptions,
+          providerOptions: {
+            google: providerOptions,
+          },
           onError: err => {
             throw new Error(
               err instanceof Error
