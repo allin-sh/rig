@@ -55,8 +55,14 @@ export class GoogleProvider implements LLMProvider {
   ): ChatTransport<UIMessage> {
     const modelId = model.modelId;
     const providerName = this.name;
-
     const providerOptions = this.responseOptionAdaptor.adapt(modelId, options);
+
+    // for dev
+    console.group('%ccreateTransport', 'color: #999; font-weight: bold;');
+    console.log('%cproviderName', 'color: #0f9775;', providerName);
+    console.log('%cmodelId', 'color: #CA6673;', modelId);
+    console.log('%cproviderOptions', 'color: #9177C7;', providerOptions);
+    console.groupEnd();
 
     return {
       sendMessages: async ({ messages }) => {
