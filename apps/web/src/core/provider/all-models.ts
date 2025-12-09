@@ -1,6 +1,6 @@
 import z from 'zod';
-import { GoogleAiModelIdSchema } from './GoogleLLMProvider';
-import { OpenAiModelIdSchema } from './OpenAILLMProvider';
+import { GoogleAiModelIdSchema } from './google/GoogleLLMProvider';
+import { OpenAiModelIdSchema } from './openai/OpenAILLMProvider';
 
 export const LLMProviderNameSchema = z.enum(['openai', 'google']);
 export type LLMProviderName = z.infer<typeof LLMProviderNameSchema>;

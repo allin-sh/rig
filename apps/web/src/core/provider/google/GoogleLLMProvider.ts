@@ -7,7 +7,7 @@ import {
   type UIMessage,
 } from 'ai';
 import { z } from 'zod';
-import type { CreateTransportOptions, LLMProvider } from './LLMProvider';
+import type { CreateTransportOptions, LLMProvider } from '../LLMProvider';
 
 export const GoogleAiModelIdSchema = z.enum([
   'gemini-2.5-flash-lite',
