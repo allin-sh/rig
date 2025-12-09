@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
 import type { LLMProviderName } from './all-models';
-import { GoogleLLMProvider } from './google/GoogleLLMProvider';
+import { GoogleLLMProvider } from './google/GoogleProvider';
 import { OpenAiProvider } from './openai/OpenAiProvider';
 
 export interface ValidateApiKeyParams {

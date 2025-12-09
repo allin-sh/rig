@@ -9,7 +9,7 @@ import {
 import type { LLMProvider, ModelResponseOptions } from '../LLMProvider';
 import { type GoogleAiModelId, GoogleAiModelIdSchema } from './google-models';
 
-type GoogleLLMProviderOptions = {
+type GoogleProviderOptions = {
   apiKey: string;
 };
 
@@ -17,7 +17,7 @@ export class GoogleLLMProvider implements LLMProvider {
   readonly name = 'google';
   private apiKey: string;
 
-  constructor({ apiKey }: GoogleLLMProviderOptions) {
+  constructor({ apiKey }: GoogleProviderOptions) {
     this.apiKey = apiKey;
   }
 
