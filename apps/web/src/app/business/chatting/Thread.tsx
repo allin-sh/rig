@@ -1,8 +1,8 @@
 import type { useChat } from '@ai-sdk/react';
 import { useEffect, useRef } from 'react';
-import { AssistantMessage } from '@/app/components/chatting/AssistantMessage';
-import type { Thread as ThreadType } from '@/app/components/chatting/thread-util';
-import { UserMessage } from '@/app/components/chatting/UserMessage';
+import { AssistantMessage } from '@/app/business/chatting/AssistantMessage';
+import type { Thread as ThreadType } from '@/app/business/chatting/thread-util';
+import { UserMessage } from '@/app/business/chatting/UserMessage';
 
 type ThreadProps = {
   thread: ThreadType;

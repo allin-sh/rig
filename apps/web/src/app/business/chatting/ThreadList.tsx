@@ -1,5 +1,5 @@
 import type { ChatStatus } from 'ai';
-import { Thread } from '@/app/components/chatting/Thread';
+import { Thread } from '@/app/business/chatting/Thread';
 import type { Thread as ThreadType } from './thread-util';
 
 type ThreadListProps = {

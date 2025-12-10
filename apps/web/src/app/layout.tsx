@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
-import { HydrateAtomProvider } from './components/HydrateAtomProvider';
+import { HydrateAtomProvider } from './business/HydrateAtomProvider';
 import { COOKIES } from './cookie';
 
 const geistSans = Geist({
