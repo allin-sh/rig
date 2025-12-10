@@ -1,11 +1,12 @@
 import type { UIMessage } from 'ai';
 import { useSetAtom } from 'jotai';
+import { Settings2 } from 'lucide-react';
 import { type ChangeEvent, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Kbd, KbdGroup } from '@/components/ui/kbd';
-
 import { Textarea } from '@/components/ui/textarea';
 import { ChatFacadeManager } from '@/core/chat/ChatFacadeManager';
 import { generateUIMessage } from '@/core/chat/message-util';
@@ -130,23 +131,26 @@ export const ChatInput = () => {
           ref={textAreaRef}
           value={input}
           onChange={handleChange}
-          className='mx-auto max-w-2xl lg:max-w-4xl min-h-[40px] max-h-[500px] backdrop-blur-lg'
+          className='mx-auto max-w-2xl lg:max-w-4xl min-h-12 py-2.5 max-h-[500px] backdrop-blur-lg'
           placeholder='Ask AI Anything...'
         />
-        <div className='w-full flex flex-row gap-2 max-w-2xl lg:max-w-4xl mx-auto justify-between mt-1.5 mb-2'>
-          <div className='flex flex-row'>
+        <div className='w-full flex flex-row gap-2 max-w-2xl lg:max-w-4xl mx-auto justify-between mt-2 mb-4'>
+          <ButtonGroup className='flex flex-row h-8'>
             <ModelSelectView
               modelId={LLM.modelId}
               providerName={LLM.providerName}
               onChange={onChange}
               config={config}
             />
-          </div>
+            <Button variant={'outline'} size='icon' className='size-8'>
+              <Settings2 />
+            </Button>
+          </ButtonGroup>
           <div className='flex flex-row gap-2'>
             <Button
               variant={'outline'}
-              size='xs'
-              className='py-2 px-1 pr-0 text-xs gap-1'
+              size='sm'
+              className='pr-2'
               onClick={handleSubmit}
               disabled={input.trim().length === 0}
             >
