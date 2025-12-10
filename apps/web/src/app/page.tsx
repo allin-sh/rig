@@ -5,8 +5,8 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/components/ui/sonner';
-import { ModalRegistry } from './components/modal/ModalRegistry';
-import { RootErrorFallback } from './components/RootErrorFallback';
+import { ModalRegistry } from './business/modal/ModalRegistry';
+import { RootErrorFallback } from './business/RootErrorFallback';
 
 const queryClient = new QueryClient();
 
@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
  */
 const DynamicRootViewRenderer = dynamic(
   () =>
-    import('./components/RootViewRenderer').then(
+    import('./business/RootViewRenderer').then(
       module => module.RootViewRenderer,
     ),
   {
