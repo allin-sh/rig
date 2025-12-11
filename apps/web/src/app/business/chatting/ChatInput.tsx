@@ -22,6 +22,7 @@ import { assert } from '@/utils/assert';
 import { isProviderEnabled } from '../helper/is-provider-enabled';
 import { HotKeyList } from '../hotkey/hotkey-list';
 import { ModelSelectView } from './ModelSelectView';
+import { ModelSettingView } from './ModelSettingView';
 
 export const ChatInput = () => {
   const selectedChannel = useSwrAtomValue(dbAtoms.selectedChannelAtom);
@@ -142,9 +143,7 @@ export const ChatInput = () => {
               onChange={onChange}
               config={config}
             />
-            <Button variant={'outline'} size='icon' className='size-8'>
-              <Settings2 />
-            </Button>
+            <ModelSettingView />
           </ButtonGroup>
           <div className='flex flex-row gap-2'>
             <Button
