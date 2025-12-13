@@ -1,7 +1,7 @@
 import { match } from 'ts-pattern';
 import type z from 'zod';
 import type { LLMProviderName } from '@/core/provider/all-models';
-import type { ConfigSchema } from '@/idb/db';
+import type { ConfigSchema } from '@/idb/db-schema';
 
 /**
  * @example

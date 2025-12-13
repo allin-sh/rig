@@ -1,7 +1,6 @@
 import type { UIMessage } from 'ai';
 import { useSetAtom } from 'jotai';
-import { Settings2 } from 'lucide-react';
-import { type ChangeEvent, useRef, useState } from 'react';
+import { type ChangeEvent, useMemo, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,6 @@ import {
 import { useSwrAtomValue } from '@/hooks/use-swr-atom-value';
 import { dbAtoms } from '@/idb/db-store';
 import { assert } from '@/utils/assert';
-import { isProviderEnabled } from '../helper/is-provider-enabled';
 import { HotKeyList } from '../hotkey/hotkey-list';
 import { ModelSelectView } from './ModelSelectView';
 import { ModelSettingView } from './ModelSettingView';
@@ -100,25 +98,33 @@ export const ChatInput = () => {
     setInput('');
   };
 
+  const enabledProviders = useMemo(() => {
+    const providerNames = Object.keys(config.apiKeys) as LLMProviderName[];
+
+    return providerNames.filter(providerName =>
+      Boolean(config.apiKeys[providerName]),
+    );
+  }, [config]);
+
   const onChange = (modelWithProvider: string) => {
     const [providerName, modelId] = modelWithProvider.split('|');
 
-    const parsedProviderName = LLMProviderNameSchema.parse(providerName);
-    const parsedModelId = AllModelIdsSchema.parse(modelId);
+    const safeProviderName = LLMProviderNameSchema.parse(providerName);
+    const safeModelId = AllModelIdsSchema.parse(modelId);
 
-    if (!isProviderEnabled(parsedProviderName, config)) {
+    if (!enabledProviders.includes(safeProviderName)) {
       // this error must not be thrown.
       // because SelectItem is disabled when provider is not available.
       throw new Error(
-        `Chatinput.tsx Provider ${parsedProviderName} is not available.`,
+        `Chatinput.tsx Provider ${safeProviderName} is not available.`,
       );
     }
 
     setProviderAndModel({
-      providerName: parsedProviderName,
-      modelId: parsedModelId,
+      providerName: safeProviderName,
+      modelId: safeModelId,
     });
-    onChangeSelectedModel(parsedModelId, parsedProviderName);
+    onChangeSelectedModel(safeModelId, safeProviderName);
   };
 
   const onChangeSelectedModel = (
@@ -141,10 +147,10 @@ export const ChatInput = () => {
         <div className='w-full flex flex-row gap-2 max-w-2xl lg:max-w-4xl mx-auto justify-between mt-2 mb-4'>
           <ButtonGroup className='flex flex-row h-8'>
             <ModelSelectView
-              modelId={providerAndModel.modelId}
-              providerName={providerAndModel.providerName}
+              selectedModelId={providerAndModel.modelId}
+              selectedProvider={providerAndModel.providerName}
               onChange={onChange}
-              config={config}
+              enabledProviders={enabledProviders}
             />
             <ModelSettingView />
           </ButtonGroup>

@@ -1,7 +1,10 @@
 import type { LanguageModelV2 } from '@ai-sdk/provider';
 import type { ChatTransport, UIMessage } from 'ai';
 import type z from 'zod';
-import type { ReasoningEffortSchema, ReasoningSummarySchema } from '@/idb/db';
+import type {
+  ReasoningEffortSchema,
+  ReasoningSummarySchema,
+} from '@/idb/db-schema';
 import type { ModelResponseOptionAdaptor } from './ModelResponseOptionAdaptor';
 
 export type ReasoningEffort = z.infer<typeof ReasoningEffortSchema>;

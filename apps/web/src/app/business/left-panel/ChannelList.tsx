@@ -28,7 +28,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useSwrAtomValue } from '@/hooks/use-swr-atom-value';
-import type { ChannelSchema } from '@/idb/db';
+import type { ChannelSchema } from '@/idb/db-schema';
 import { dbAtoms } from '@/idb/db-store';
 import { assert } from '@/utils/assert';
 import { channelTitleOpenStatus$ } from '../header/ChannelTitle';

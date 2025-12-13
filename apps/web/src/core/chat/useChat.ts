@@ -5,6 +5,7 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { generateUIMessage } from '@/core/chat/message-util';
 import { dbAtoms } from '@/idb/db-store';
 import { assert } from '@/utils/assert';
+import { LLMProviderNameSchema } from '../provider/all-models';
 import { providerRegistry } from '../provider/providerRegistry';
 import { ChatFacade } from './ChatFacade';
 import { ChatFacadeManager } from './ChatFacadeManager';
@@ -47,7 +48,10 @@ export const useChat = <UI_MESSAGE extends UIMessage>({
       assert(ch, 'useChat: channel is not found.');
       assert(messages, 'useChat: channel messages are not found.');
 
-      const provider = providerRegistry.get(ch.providerName);
+      // in db, providerName is stored as string.
+      // so we need to parse it to LLMProviderName.
+      const safeProviderName = LLMProviderNameSchema.parse(ch.providerName);
+      const provider = providerRegistry.get(safeProviderName);
 
       const facade = new ChatFacade({
         id,

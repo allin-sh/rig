@@ -12,21 +12,19 @@ import {
   type LLMProviderName,
   MODEL_IDS_PER_PROVIDER,
 } from '@/core/provider/all-models';
-import type { ConfigType } from '@/idb/db';
-import { isProviderEnabled } from '../helper/is-provider-enabled';
 
 type ModelSelectViewProps = {
-  modelId: AllModelIds;
-  providerName: LLMProviderName;
+  selectedModelId: AllModelIds;
+  selectedProvider: LLMProviderName;
   onChange: (modelIdWithProvider: string) => void;
-  config: ConfigType;
+  enabledProviders: LLMProviderName[];
 };
 
 export const ModelSelectView = ({
-  modelId,
-  providerName,
+  selectedModelId: modelId,
+  selectedProvider: providerName,
   onChange,
-  config,
+  enabledProviders,
 }: ModelSelectViewProps) => {
   return (
     <Select value={`${providerName}|${modelId}`} onValueChange={onChange}>
@@ -43,8 +41,8 @@ export const ModelSelectView = ({
       <SelectContent>
         {Object.entries(MODEL_IDS_PER_PROVIDER)
           // show only valid models that are configured
-          .filter(([providerName]) =>
-            isProviderEnabled(providerName as LLMProviderName, config),
+          .filter(([providerName, _]) =>
+            enabledProviders.includes(providerName as LLMProviderName),
           )
           .map(([providerName, modelIds]) => (
             <SelectGroup key={providerName}>
