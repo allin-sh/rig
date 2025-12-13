@@ -1,124 +1,32 @@
 import type { UIMessage } from 'ai';
-import { type DBSchema, type IDBPDatabase, openDB } from 'idb';
-import { z } from 'zod';
+import { type IDBPDatabase, openDB } from 'idb';
+import type { z } from 'zod';
+import type { LLMProviderName } from '@/core/provider/all-models';
 import {
-  AllModelIdsSchema,
-  type LLMProviderName,
-  LLMProviderNameSchema,
-} from '@/core/provider/all-models';
+  type ALLIN_DB,
+  type ChannelSchema,
+  ConfigSchema,
+  DB_CONFIG_KEY,
+  DB_NAME,
+  DB_STORE,
+} from './db-schema';
+import { initDb } from './migrations/initDb';
+import { migrateToV3 } from './migrations/migrateToV3';
 
-export const DB_NAME = 'ALLIN';
-export const DEFAULT_CHANNEL_ID = 'DEFAULT-CHANNEL';
-const DB_VERSION = 2;
-
-export const ReasoningEffortSchema = z
-  .enum(['none', 'low', 'medium', 'high'])
-  .describe('Reasoning effort');
-export const ReasoningSummarySchema = z
-  .boolean()
-  .describe('Whether to include reasoning summary');
-
-export const ChannelSchema = z.object({
-  id: z.string(),
-  /**
-   * @description model id.
-   * @example 'gpt-5.1'
-   */
-  model: AllModelIdsSchema.describe('selected AI model'),
-  providerName: LLMProviderNameSchema.describe('selected AI provider'),
-  reasoningEffort: ReasoningEffortSchema.optional(),
-  reasoningSummary: ReasoningSummarySchema.optional(),
-  createdAt: z.number().min(0).describe('Timestamp of creation'),
-  updatedAt: z.number().min(0).describe('Timestamp of last update'),
-  title: z.string().optional().describe('Channel title'),
-  description: z.string().optional().describe('Channel description'),
-  prompt: z.string().optional().describe('AI system prompt'),
-  isEmpty: z
-    .boolean()
-    .default(true)
-    .describe(
-      'Whether the channel is empty. If true, it means the channel has no messages.',
-    ),
-  pin: z
-    .object({
-      order: z.number().min(0).describe('Pin order of the channel'),
-      createdAt: z.number().min(0).describe('Timestamp of pinning'),
-    })
-    .optional()
-    .describe('Pinned status of the channel'),
-});
-
-const ApiKeysSchema = z.object(
-  Object.fromEntries(
-    LLMProviderNameSchema.options.map(provider => [
-      provider,
-      z.string().optional(),
-    ]),
-  ) as Record<
-    z.infer<typeof LLMProviderNameSchema>,
-    z.ZodOptional<z.ZodString>
-  >,
-);
-
-export const ConfigSchema = z.object({
-  lastSelectedChannelId: z.string().optional(),
-  apiKeys: ApiKeysSchema,
-});
-
-export type ConfigType = z.infer<typeof ConfigSchema>;
-
-export type DB_MESSAGE = UIMessage & { channelId: string };
-
-export enum DB_STORE {
-  CHANNELS = 'channels',
-  MESSAGES = 'messages',
-  CONFIG = 'config',
-}
-
-const CONFIG_KEY = 'userConfig';
-interface ALLIN_DB extends DBSchema {
-  [DB_STORE.CHANNELS]: {
-    key: string;
-    value: z.infer<typeof ChannelSchema>;
-  };
-  [DB_STORE.MESSAGES]: {
-    key: string;
-    value: DB_MESSAGE;
-    indexes: { channelId: string };
-  };
-  [DB_STORE.CONFIG]: {
-    key: typeof CONFIG_KEY;
-    value: z.infer<typeof ConfigSchema>;
-  };
-}
+const DB_VERSION = 3;
 
 let db: IDBPDatabase<ALLIN_DB>;
 
 const getDB = async () => {
   if (!db) {
     db = await openDB<ALLIN_DB>(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion, newVersion, transaction, event) {
-        if (!db.objectStoreNames.contains(DB_STORE.CHANNELS)) {
-          db.createObjectStore(DB_STORE.CHANNELS, {
-            keyPath: 'id',
-          });
-        }
-        if (!db.objectStoreNames.contains(DB_STORE.MESSAGES)) {
-          const messagesStore = db.createObjectStore(DB_STORE.MESSAGES, {
-            autoIncrement: true,
-          });
-          // this makes it quicker to get messages by channel id.
-          messagesStore.createIndex('channelId', 'channelId');
-        }
-        if (!db.objectStoreNames.contains(DB_STORE.CONFIG)) {
-          const configStore = db.createObjectStore(DB_STORE.CONFIG);
-          configStore.put(
-            {
-              lastSelectedChannelId: undefined,
-              apiKeys: {},
-            },
-            CONFIG_KEY,
-          );
+      async upgrade(db, oldVersion, _newVersion, transaction) {
+        initDb(db);
+
+        // migrations
+        // v3: add reasoning fields to channels with defaults
+        if (oldVersion < 3) {
+          await migrateToV3(transaction);
         }
       },
     });
@@ -181,7 +89,7 @@ const updateChannel = async (
 
 const getConfig = async () => {
   const db = await getDB();
-  const config = await db.get(DB_STORE.CONFIG, CONFIG_KEY);
+  const config = await db.get(DB_STORE.CONFIG, DB_CONFIG_KEY);
 
   /**
    * check if config is valid.
@@ -197,7 +105,7 @@ const updateApiKey = async (providerName: LLMProviderName, apiKey: string) => {
   const db = await getDB();
   const tx = db.transaction(DB_STORE.CONFIG, 'readwrite');
   const store = tx.objectStore(DB_STORE.CONFIG);
-  const existingConfig = (await store.get(CONFIG_KEY)) ?? { apiKeys: {} };
+  const existingConfig = (await store.get(DB_CONFIG_KEY)) ?? { apiKeys: {} };
 
   await store.put(
     {
@@ -207,7 +115,7 @@ const updateApiKey = async (providerName: LLMProviderName, apiKey: string) => {
         [providerName]: apiKey,
       },
     },
-    CONFIG_KEY,
+    DB_CONFIG_KEY,
   );
   await tx.done;
 };
@@ -216,7 +124,7 @@ const updateConfig = async (config: Partial<z.infer<typeof ConfigSchema>>) => {
   const db = await getDB();
   const tx = db.transaction(DB_STORE.CONFIG, 'readwrite');
   const store = tx.objectStore(DB_STORE.CONFIG);
-  const existingConfig = (await store.get(CONFIG_KEY)) ?? { apiKeys: {} };
+  const existingConfig = (await store.get(DB_CONFIG_KEY)) ?? { apiKeys: {} };
 
   await store.put(
     {
@@ -227,7 +135,7 @@ const updateConfig = async (config: Partial<z.infer<typeof ConfigSchema>>) => {
         ...config.apiKeys,
       },
     },
-    CONFIG_KEY,
+    DB_CONFIG_KEY,
   );
   await tx.done;
 };
