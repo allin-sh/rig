@@ -34,7 +34,7 @@ export const ChatInput = () => {
   const ignoreNextChangeRef = useRef(false);
 
   const [input, setInput] = useState('');
-  const [LLM, setLLM] = useState<{
+  const [providerAndModel, setProviderAndModel] = useState<{
     providerName: LLMProviderName;
     modelId: AllModelIds;
   }>({
@@ -114,7 +114,10 @@ export const ChatInput = () => {
       );
     }
 
-    setLLM({ providerName: parsedProviderName, modelId: parsedModelId });
+    setProviderAndModel({
+      providerName: parsedProviderName,
+      modelId: parsedModelId,
+    });
     onChangeSelectedModel(parsedModelId, parsedProviderName);
   };
 
@@ -138,8 +141,8 @@ export const ChatInput = () => {
         <div className='w-full flex flex-row gap-2 max-w-2xl lg:max-w-4xl mx-auto justify-between mt-2 mb-4'>
           <ButtonGroup className='flex flex-row h-8'>
             <ModelSelectView
-              modelId={LLM.modelId}
-              providerName={LLM.providerName}
+              modelId={providerAndModel.modelId}
+              providerName={providerAndModel.providerName}
               onChange={onChange}
               config={config}
             />
