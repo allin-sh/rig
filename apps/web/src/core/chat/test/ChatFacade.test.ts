@@ -133,12 +133,12 @@ describe('ChatFacade', () => {
     });
 
     expect(chatFacade.getModelId()).toBe('gpt-4');
-    const beforeChat = chatFacade.__getChat();
+    const chatWithGPT4 = chatFacade.__getChat();
 
     chatFacade.updateModelId('gpt-5');
 
     expect(chatFacade.getModelId()).toBe('gpt-5');
-    expect(chatFacade.__getChat()).not.toBe(beforeChat);
+    expect(chatFacade.__getChat()).not.toBe(chatWithGPT4);
   });
 
   it('updateProvider: updates Chat instance when provider changes', () => {
@@ -158,7 +158,7 @@ describe('ChatFacade', () => {
     });
 
     expect(chatFacade.getProviderName()).toBe('openai');
-    const beforeChat = chatFacade.__getChat();
+    const chatWithOpenAI = chatFacade.__getChat();
 
     chatFacade.updateProvider(
       createMockProvider({
@@ -170,6 +170,6 @@ describe('ChatFacade', () => {
     );
 
     expect(chatFacade.getProviderName()).toBe('opencode');
-    expect(chatFacade.__getChat()).not.toBe(beforeChat);
+    expect(chatFacade.__getChat()).not.toBe(chatWithOpenAI);
   });
 });
