@@ -79,6 +79,8 @@ export const ApiKeyFormModal = ({
       createdAt: Date.now(),
       isEmpty: true,
       updatedAt: Date.now(),
+      reasoningEffort: 'low',
+      reasoningSummary: false,
     });
 
     await setConfig({

@@ -8,13 +8,17 @@ import type {
 } from 'ai';
 import { BehaviorSubject, type Observable, Subject } from 'rxjs';
 import type { Setter } from '@/utils/setter';
-import type { LLMProvider } from '../provider/LLMProvider';
+import type {
+  LLMProvider,
+  ModelResponseOptions,
+} from '../provider/LLMProvider';
 import { UIMessageStore } from '../UiMessageStore';
 
 type CreateChatFacadeParams = {
   id: string;
   messages: UIMessage[];
   provider: LLMProvider;
+  responseOptions: ModelResponseOptions;
   modelId: string;
   throttleTime?: number;
 };
@@ -49,18 +53,21 @@ export class ChatFacade {
   private provider: LLMProvider;
   private _isDisposed = false;
   private model: LanguageModelV2;
+  private responseOptions: ModelResponseOptions;
   private throttleTime: number;
 
   constructor({
     id,
     provider,
     modelId,
+    responseOptions,
     messages,
     throttleTime = 50,
   }: CreateChatFacadeParams) {
     this.uiMessageStore = new UIMessageStore<UIMessage>();
     this.id = id;
     this.provider = provider;
+    this.responseOptions = responseOptions;
     this.model = provider.getModel(modelId);
     this.throttleTime = throttleTime;
 
@@ -68,6 +75,7 @@ export class ChatFacade {
       id,
       messages,
       provider,
+      responseOptions: this.responseOptions,
       model: this.model,
       throttleTime,
     });
@@ -171,15 +179,17 @@ export class ChatFacade {
     messages,
     provider,
     model,
+    responseOptions,
     throttleTime,
   }: {
     id: string;
     messages: UIMessage[];
     provider: LLMProvider;
     model: LanguageModelV2;
+    responseOptions: ModelResponseOptions;
     throttleTime: number;
   }) {
-    const transport = provider.createTransport(model);
+    const transport = provider.createTransport(model, responseOptions);
 
     const chat = new Chat({
       id,
@@ -228,6 +238,7 @@ export class ChatFacade {
       messages: this.chat.messages,
       provider: this.provider,
       model: this.model,
+      responseOptions: this.responseOptions,
       throttleTime: this.throttleTime,
     });
   }
@@ -247,17 +258,23 @@ export class ChatFacade {
       messages: this.chat.messages,
       provider: this.provider,
       model: this.model,
+      responseOptions: this.responseOptions,
       throttleTime: this.throttleTime,
     });
   }
 
-  // TODO: getModel options and update the transport
-  // like header, baseURL, etc.
-  public updateModelOptions() {}
+  public updateModelResponseOptions(options: ModelResponseOptions) {
+    this.responseOptions = options;
 
-  // TODO: update the transport options
-  // like thinking, webSearch, etc.
-  public updateTransportOptions() {}
+    this.updateChat({
+      id: this.chat.id,
+      messages: this.chat.messages,
+      provider: this.provider,
+      model: this.model,
+      responseOptions: this.responseOptions,
+      throttleTime: this.throttleTime,
+    });
+  }
 
   public dispose() {
     this._isDisposed = true;

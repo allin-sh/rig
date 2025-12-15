@@ -5,6 +5,7 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { generateUIMessage } from '@/core/chat/message-util';
 import { dbAtoms } from '@/idb/db-store';
 import { assert } from '@/utils/assert';
+import { LLMProviderNameSchema } from '../provider/all-models';
 import { providerRegistry } from '../provider/providerRegistry';
 import { ChatFacade } from './ChatFacade';
 import { ChatFacadeManager } from './ChatFacadeManager';
@@ -41,18 +42,27 @@ export const useChat = <UI_MESSAGE extends UIMessage>({
       const allMessages = await store.get(dbAtoms.allMessagesAtom);
       const channels = await store.get(dbAtoms.allChannelsAtom);
 
-      const ch = channels.find(channel => channel.id === id);
+      const currentChannel = channels.find(channel => channel.id === id);
       const messages = allMessages.filter(message => message.channelId === id);
 
-      assert(ch, 'useChat: channel is not found.');
+      assert(currentChannel, 'useChat: channel is not found.');
       assert(messages, 'useChat: channel messages are not found.');
 
-      const provider = providerRegistry.get(ch.providerName);
+      // in db, providerName is stored as string.
+      // so we need to parse it to LLMProviderName.
+      const safeProviderName = LLMProviderNameSchema.parse(
+        currentChannel.providerName,
+      );
+      const provider = providerRegistry.get(safeProviderName);
 
       const facade = new ChatFacade({
         id,
         provider,
-        modelId: ch.model,
+        modelId: currentChannel.model,
+        responseOptions: {
+          reasoning: currentChannel.reasoningEffort,
+          reasoningSummary: currentChannel.reasoningSummary,
+        },
         messages,
       });
 

@@ -7,7 +7,7 @@ import {
 import { GoogleProvider } from '@/core/provider/google/GoogleProvider';
 import { OpenAiProvider } from '@/core/provider/openai/OpenAiProvider';
 import { providerRegistry } from '@/core/provider/providerRegistry';
-import type { ConfigSchema } from '@/idb/db';
+import type { ConfigSchema } from '@/idb/db-schema';
 
 export const registerProvider = (config: z.infer<typeof ConfigSchema>) => {
   const { apiKeys } = config;

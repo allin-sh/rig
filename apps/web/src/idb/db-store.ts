@@ -1,13 +1,13 @@
 import type { UIMessage } from '@ai-sdk/react';
 import { atom } from 'jotai';
-import type z from 'zod';
-import { assert } from '@/utils/assert';
+import z from 'zod';
 import {
-  type ChannelSchema,
-  type ConfigSchema,
-  DB,
-  type DB_MESSAGE,
-} from './db';
+  AllModelIdsSchema,
+  LLMProviderNameSchema,
+} from '@/core/provider/all-models';
+import { assert } from '@/utils/assert';
+import { DB } from './db';
+import type { ChannelSchema, ConfigSchema, DB_MESSAGE } from './db-schema';
 
 export const isDataBaseInitializedAtom = atom(false);
 
@@ -51,7 +51,15 @@ const selectedChannelAtom = atom(async get => {
     `channel is not found, selectedChannelId: ${selectedChannelId}`,
   );
 
-  return channel;
+  // type assertion: string -> providerName, string -> AllModelIds
+  const parsedProviderName = LLMProviderNameSchema.parse(channel.providerName);
+  const parsedModelId = AllModelIdsSchema.parse(channel.model);
+
+  return {
+    ...channel,
+    providerName: parsedProviderName,
+    model: parsedModelId,
+  };
 });
 
 const updateChannelAtom = atom(
@@ -73,9 +81,18 @@ const configRefreshAtom = atom(0);
 
 const configAtom = atom(
   async get => {
-    get(configRefreshAtom); // dependency
+    get(configRefreshAtom);
     const config = await DB.getConfig();
-    return config;
+
+    const apiKeys = config.apiKeys;
+    const safeApiKeys = z
+      .record(LLMProviderNameSchema, z.string())
+      .parse(apiKeys);
+
+    return {
+      ...config,
+      apiKeys: safeApiKeys,
+    };
   },
   async (get, set, newConfig: Partial<z.infer<typeof ConfigSchema>>) => {
     await DB.updateConfig(newConfig);

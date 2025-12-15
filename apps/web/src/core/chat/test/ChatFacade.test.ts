@@ -23,6 +23,10 @@ describe('ChatFacade', () => {
         modelIds: ['mock-model-id'],
       }),
       modelId: 'mock-model-id',
+      responseOptions: {
+        reasoning: 'low',
+        reasoningSummary: false,
+      },
     });
 
     const response = await chatFacade.sendMessage(
@@ -49,6 +53,10 @@ describe('ChatFacade', () => {
         modelIds: ['mock-model-id'],
       }),
       modelId: 'mock-model-id',
+      responseOptions: {
+        reasoning: 'low',
+        reasoningSummary: false,
+      },
     });
 
     chatFacade.getUiMessages$().subscribe(currentMessages => {
@@ -71,6 +79,10 @@ describe('ChatFacade', () => {
           modelIds: ['mock-model-id'],
         }),
         modelId: 'mock-model-id',
+        responseOptions: {
+          reasoning: 'low',
+          reasoningSummary: false,
+        },
       });
 
       chatFacade.sendMessage(generateUIMessage('user', 'Say Hello World.'));
@@ -113,15 +125,20 @@ describe('ChatFacade', () => {
         modelIds: ['gpt-4', 'gpt-5'],
       }),
       modelId: 'gpt-4',
+      responseOptions: {
+        reasoning: 'low',
+        reasoningSummary: false,
+      },
+      throttleTime: 50,
     });
 
     expect(chatFacade.getModelId()).toBe('gpt-4');
-    const beforeChat = chatFacade.__getChat();
+    const chatWithGPT4 = chatFacade.__getChat();
 
     chatFacade.updateModelId('gpt-5');
 
     expect(chatFacade.getModelId()).toBe('gpt-5');
-    expect(chatFacade.__getChat()).not.toBe(beforeChat);
+    expect(chatFacade.__getChat()).not.toBe(chatWithGPT4);
   });
 
   it('updateProvider: updates Chat instance when provider changes', () => {
@@ -134,10 +151,14 @@ describe('ChatFacade', () => {
         modelIds: ['gpt-4', 'gpt-5'],
       }),
       modelId: 'gpt-4',
+      responseOptions: {
+        reasoning: 'low',
+        reasoningSummary: false,
+      },
     });
 
     expect(chatFacade.getProviderName()).toBe('openai');
-    const beforeChat = chatFacade.__getChat();
+    const chatWithOpenAI = chatFacade.__getChat();
 
     chatFacade.updateProvider(
       createMockProvider({
@@ -149,6 +170,6 @@ describe('ChatFacade', () => {
     );
 
     expect(chatFacade.getProviderName()).toBe('opencode');
-    expect(chatFacade.__getChat()).not.toBe(beforeChat);
+    expect(chatFacade.__getChat()).not.toBe(chatWithOpenAI);
   });
 });

@@ -42,6 +42,8 @@ export const RightHeader = () => {
         createdAt: createdAt,
         isEmpty: true,
         updatedAt: Date.now(),
+        reasoningEffort: 'low',
+        reasoningSummary: false,
       });
 
       await setConfig({

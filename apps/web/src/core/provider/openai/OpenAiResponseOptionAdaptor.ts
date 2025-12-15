@@ -19,7 +19,6 @@ export class OpenAiResponseOptionAdaptor
   ) => {
     return match(reasoning)
       .with('none', () => (modelId === 'gpt-5.1' ? 'none' : 'minimal'))
-      .with('minimal', () => 'minimal')
       .with('low', () => 'low')
       .with('medium', () => 'medium')
       .with('high', () => 'high')
@@ -44,7 +43,7 @@ export class OpenAiResponseOptionAdaptor
     }
 
     if (isSupportReasoning && reasoningSummary) {
-      ret.reasoningSummary = reasoningSummary;
+      ret.reasoningSummary = reasoningSummary ? 'detailed' : 'none';
     }
 
     return ret;

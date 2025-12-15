@@ -26,7 +26,6 @@ export class GoogleResponseOptionAdaptor
     }
 
     return match(reasoning)
-      .with('minimal', () => 'low' as const)
       .with('low', () => 'low' as const)
       .with('medium', () => 'high' as const)
       .with('high', () => 'high' as const)
@@ -66,7 +65,7 @@ export class GoogleResponseOptionAdaptor
       }
 
       const thinkingBudget = this.mapThinkingBudget(reasoning);
-      if (thinkingBudget) {
+      if (thinkingBudget !== undefined) {
         ret.thinkingConfig = {
           ...(ret.thinkingConfig || {}),
           thinkingBudget,

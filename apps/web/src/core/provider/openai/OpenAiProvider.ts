@@ -64,12 +64,13 @@ export class OpenAiProvider implements LLMProvider {
 
     const providerOptions = this.responseOptionAdaptor.adapt(modelId, options);
 
-    // for dev
-    console.group('%ccreateTransport', 'color: #999; font-weight: bold;');
-    console.log('%cproviderName', 'color: #0f9775;', providerName);
-    console.log('%cmodelId', 'color: #CA6673;', modelId);
-    console.log('%cproviderOptions', 'color: #9177C7;', providerOptions);
-    console.groupEnd();
+    if (process.env.NODE_ENV === 'development') {
+      console.group('%ccreateTransport', 'color: #999; font-weight: bold;');
+      console.log('%cproviderName', 'color: #0f9775;', providerName);
+      console.log('%cmodelId', 'color: #CA6673;', modelId);
+      console.log('%cproviderOptions', 'color: #9177C7;', providerOptions);
+      console.groupEnd();
+    }
 
     return {
       sendMessages: async ({ messages }) => {
