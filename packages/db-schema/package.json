@@ -20,8 +20,14 @@
     "dev": "tsup --watch",
     "build": "tsup"
   },
+  "peerDependencies": {
+    "ai": "catalog:ai",
+    "zod": "catalog:utils"
+  },
   "devDependencies": {
-    "typescript": "catalogs:types",
-    "tsup": "catalogs:build"
+    "typescript": "catalog:types",
+    "tsup": "catalog:build",
+    "ai": "catalog:ai",
+    "zod": "catalog:utils"
   }
 }
