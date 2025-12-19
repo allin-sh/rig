@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react';
-import { useChat } from '@/core/chat/useChat';
 import { useSwrAtomValue } from '@/hooks/use-swr-atom-value';
 import { dbAtoms } from '@/idb/db-store';
 import { assert } from '@/utils/assert';
 import { registerProvider } from '../helper/register-provider';
 import { ThreadList } from './ThreadList';
 import { messagesToThreads } from './thread-util';
+import { useChat } from './useChat';
 
 export const Chatting = () => {
   const selectedChannelId = useSwrAtomValue(dbAtoms.selectedChannelIdAtom);
