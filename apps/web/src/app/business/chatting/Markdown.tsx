@@ -5,7 +5,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
-import { CodeBlock } from '@/components/ui/code-block/CodeBlock';
+import { CodeBlock } from '@/app/business/chatting/code-block/CodeBlock';
 
 const toTokens = (text: string): Array<string> =>
   marked.lexer(text).map(token => token.raw);
