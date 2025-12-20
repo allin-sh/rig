@@ -11,6 +11,7 @@ import {
 } from 'ai';
 import type { LLMProvider, ModelResponseOptions } from '../LLMProvider';
 import type { ModelResponseOptionAdaptor } from '../ModelResponseOptionAdaptor';
+import type { UIMessageMetadata } from '../metadata';
 import { GoogleResponseOptionAdaptor } from './GoogleResponseOptionAdaptor';
 import { type GoogleAiModelId, GoogleAiModelIdSchema } from './google-models';
 
@@ -85,7 +86,7 @@ export class GoogleProvider implements LLMProvider {
                 modelId,
                 provider: providerName,
                 createdAt: Date.now(),
-              };
+              } as UIMessageMetadata;
             } else if (part.type === 'finish') {
               return {
                 inputTokens: part.totalUsage.inputTokens,
@@ -93,7 +94,7 @@ export class GoogleProvider implements LLMProvider {
                 reasoningTokens: part.totalUsage.reasoningTokens,
                 cachedInputTokens: part.totalUsage.cachedInputTokens,
                 totalTokens: part.totalUsage.totalTokens,
-              };
+              } as UIMessageMetadata;
             }
           },
         });
