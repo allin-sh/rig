@@ -1,4 +1,3 @@
-import { AllModelIdsSchema, LLMProviderNameSchema } from '@allin/chat';
 import { type AllinDbAdapter, createDbAtoms } from '@allin/db-atom';
 import type { UIMessage } from 'ai';
 import { DB } from './db';
@@ -19,10 +18,6 @@ const dbAdapter = {
   },
 } satisfies AllinDbAdapter;
 
-const { isDataBaseInitializedAtom, dbAtoms } = createDbAtoms({
-  db: dbAdapter,
-  parseProviderName: LLMProviderNameSchema.parse,
-  parseModelId: AllModelIdsSchema.parse,
-});
+const dbAtoms = createDbAtoms(dbAdapter);
 
-export { isDataBaseInitializedAtom, dbAtoms };
+export { dbAtoms };
