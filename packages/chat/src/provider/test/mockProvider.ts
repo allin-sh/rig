@@ -1,4 +1,4 @@
-import type { LanguageModelV2 } from '@ai-sdk/provider';
+import type { LanguageModelV3 } from '@ai-sdk/provider';
 import type { UIMessageMetadata } from '@allin/message-metadata-schema';
 import {
   type ChatTransport,
@@ -32,7 +32,7 @@ class MockProvider implements LLMProvider {
     return Promise.resolve(true);
   }
 
-  getModel(modelId: string): LanguageModelV2 {
+  getModel(modelId: string): LanguageModelV3 {
     if (!this.modelIds.includes(modelId)) {
       throw new Error(`Model ID ${modelId} is not supported by this provider`);
     }
@@ -48,7 +48,7 @@ class MockProvider implements LLMProvider {
   }
 
   createTextStream(
-    model: LanguageModelV2,
+    model: LanguageModelV3,
   ): ChatTransport<UIMessage<UIMessageMetadata>> {
     return {
       sendMessages: async ({ messages }) => {

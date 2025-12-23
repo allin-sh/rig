@@ -37,7 +37,7 @@ export const ModelSpecSchema = z.object({
   name: z.string(),
   family: z.string().optional(),
   attachment: z.boolean(),
-  reasoningText: z.boolean(),
+  reasoning: z.boolean(),
   tool_call: z.boolean(),
   structured_output: z.boolean().optional(),
   temperature: z.boolean(),
