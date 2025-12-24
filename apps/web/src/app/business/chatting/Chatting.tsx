@@ -42,7 +42,7 @@ export const Chatting = () => {
       >
         <ThreadList threads={threads} status={status} regenerate={regenerate} />
       </div>
-      {/* scroll shadow to top of the container */}
+      {/* scroll shadow to top of the container! */}
       <div className='w-full from-background via-background/80 to-background/50 -top-2 absolute h-8 shrink-0 bg-gradient-to-b blur-sm'></div>
     </>
   );
