@@ -22,6 +22,7 @@
     "@allin/ui": "workspace:*",
     "@allin/db-schema": "workspace:*",
     "@allin/message-metadata-schema": "workspace:*",
+    "@allin/extension-api": "workspace:*",
     "@gsap/react": "catalog:animation",
     "@hookform/resolvers": "^5.2.2",
     "@lobehub/icons": "^2.43.1",

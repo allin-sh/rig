@@ -1,7 +1,10 @@
 import type { ConfigSchema } from '@allin/db-schema';
+import { Popover, PopoverContent } from '@allin/ui';
 import { useEffect, useMemo } from 'react';
 import type { z } from 'zod/v3';
+import { SelectionPopoverRenderer } from '@/extensions/components/SelectionPopoverRenderer';
 import { useSwrAtomValue } from '@/hooks/use-swr-atom-value';
+import { useTextSelection } from '@/hooks/use-text-selection';
 import { dbAtoms } from '@/idb/db-store';
 import { assert } from '@/utils/assert';
 import { registerProvider } from '../helper/register-provider';
@@ -12,6 +15,10 @@ import { useChat } from './useChat';
 export const Chatting = () => {
   const selectedChannelId = useSwrAtomValue(dbAtoms.selectedChannelIdAtom);
   const config = useSwrAtomValue(dbAtoms.configAtom);
+
+  // Text selection hook
+  const { selectedText, isTextSelected, selectionBoundingRect, containerRef } =
+    useTextSelection();
 
   // TODO: add selectedChannel change sideEffect that update the chatFacade.
 
@@ -35,15 +42,31 @@ export const Chatting = () => {
 
   return (
     <>
+      {/* scroll shadow to top of the container! */}
+      <div className='w-full from-background via-background/80 to-background/50 -top-2 absolute h-8 shrink-0 bg-gradient-to-b blur-sm'></div>
       <div
+        ref={containerRef}
         className={
           'bg-background grow justify-center flex max-h-dvh overflow-y-auto mb-[-36px] '
         }
       >
         <ThreadList threads={threads} status={status} regenerate={regenerate} />
       </div>
-      {/* scroll shadow to top of the container! */}
-      <div className='w-full from-background via-background/80 to-background/50 -top-2 absolute h-8 shrink-0 bg-gradient-to-b blur-sm'></div>
+      <Popover open={isTextSelected}>
+        <PopoverContent
+          side='top'
+          align='center'
+          className='w-auto p-0'
+          style={{
+            position: 'fixed',
+            left: selectionBoundingRect.left,
+            top: selectionBoundingRect.top,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          <SelectionPopoverRenderer selectedText={selectedText} />
+        </PopoverContent>
+      </Popover>
     </>
   );
 };

@@ -225,6 +225,9 @@ importers:
       '@allin/db-schema':
         specifier: workspace:*
         version: link:../../packages/db-schema
+      '@allin/extension-api':
+        specifier: workspace:*
+        version: link:../../packages/extension-api
       '@allin/message-metadata-schema':
         specifier: workspace:*
         version: link:../../packages/message-metadata-schema
