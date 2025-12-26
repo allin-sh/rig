@@ -22,8 +22,6 @@
     "@allin/ui": "workspace:*",
     "@allin/db-schema": "workspace:*",
     "@allin/message-metadata-schema": "workspace:*",
-    "@allin/auto-clipboard-copy-plugin": "workspace:*",
-    "@allin/plugin-sdk": "workspace:*",
     "@gsap/react": "catalog:animation",
     "@hookform/resolvers": "^5.2.2",
     "@lobehub/icons": "^2.43.1",
