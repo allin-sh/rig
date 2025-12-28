@@ -32,7 +32,7 @@ export function useTextSelection(): UseTextSelectionReturn {
 
     // Create observables for selection and pointer events
     const selectionChange$ = fromEvent(document, 'selectionchange').pipe(
-      throttleTime(100), // Throttle rapid selection changes
+      throttleTime(100, undefined, { leading: true, trailing: false }), // Throttle rapid selection changes
       map<
         Event,
         | {
