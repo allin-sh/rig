@@ -1,23 +1,23 @@
 import type { Observable } from 'rxjs';
 
 export interface Event {
-  'extension.loaded': Observable<{
+  'extension.loaded': (id: string) => Observable<{
     id: string;
     name: string;
   }>;
-  'extension.activate': Observable<{
+  'extension.activate': (id: string) => Observable<{
     id: string;
     name: string;
   }>;
-  'extension.deactivate': Observable<{
+  'extension.deactivate': (id: string) => Observable<{
     id: string;
     name: string;
   }>;
-  'extension.open': Observable<{
+  'extension.open': (id: string) => Observable<{
     id: string;
     name: string;
   }>;
-  'extension.close': Observable<{
+  'extension.close': (id: string) => Observable<{
     id: string;
     name: string;
   }>;

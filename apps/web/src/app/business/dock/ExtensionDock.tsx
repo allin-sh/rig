@@ -5,6 +5,7 @@ import { HelpCircle, MessageSquare } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { extensionOpen$ } from '@/extension/loader';
+import { RootViewRenderComponent$ } from '../RootView';
 
 interface ExtensionItem {
   id: string;
@@ -32,6 +33,12 @@ interface DockItemProps {
 
 const DockItem = ({ extension, isHovered }: DockItemProps) => {
   const handleClick = () => {
+    // if the extension is chat, close other extensions.
+    if (extension.id === 'chat') {
+      RootViewRenderComponent$.next(null);
+      return;
+    }
+
     extensionOpen$.next({
       id: extension.id,
       name: extension.name,
@@ -57,7 +64,7 @@ const DockItem = ({ extension, isHovered }: DockItemProps) => {
                      backdrop-blur-md
                      shadow-[0_4px_16px_rgba(0,0,0,0.08),inset_0_1px_1px_rgba(255,255,255,0.6)]
                      dark:shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.1)]
-                     flex items-center justify-center p-2.5
+                     flex items-center justify-center p-2
                      border border-white/40 dark:border-white/10
                      text-gray-600 dark:text-gray-300
                      hover:bg-white/80 dark:hover:bg-white/20
