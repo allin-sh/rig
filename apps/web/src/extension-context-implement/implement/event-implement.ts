@@ -1,25 +1,16 @@
 import type { Event } from '@allin/context';
-import { Subject } from 'rxjs';
+import {
+  extensionActivate$,
+  extensionClose$,
+  extensionDeactivate$,
+  extensionLoaded$,
+  extensionOpen$,
+} from '@/extension/loader';
 
 export const EventImpl: Event = {
-  'extension.loaded': new Subject<{
-    id: string;
-    name: string;
-  }>(),
-  'extension.activate': new Subject<{
-    id: string;
-    name: string;
-  }>(),
-  'extension.deactivate': new Subject<{
-    id: string;
-    name: string;
-  }>(),
-  'extension.open': new Subject<{
-    id: string;
-    name: string;
-  }>(),
-  'extension.close': new Subject<{
-    id: string;
-    name: string;
-  }>(),
+  'extension.loaded': extensionLoaded$,
+  'extension.activate': extensionActivate$,
+  'extension.deactivate': extensionDeactivate$,
+  'extension.open': extensionOpen$,
+  'extension.close': extensionClose$,
 };
