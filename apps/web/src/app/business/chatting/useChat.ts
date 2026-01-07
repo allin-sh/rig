@@ -148,7 +148,6 @@ export const useChat = <UI_MESSAGE extends UIMessage<UIMessageMetadata>>({
 
           const messages = chatFacade.getMessages();
           Agent.generate({
-            system: [Prompt.title],
             messages,
             description: Prompt.title,
             model,
