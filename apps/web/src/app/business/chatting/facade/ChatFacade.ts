@@ -121,7 +121,10 @@ export class ChatFacade {
     return this.onData$.asObservable();
   }
 
-  public getOnFinish$() {
+  /**
+   * emit when chat is finished.
+   */
+  public get finish$() {
     return this.onFinish$.asObservable();
   }
 

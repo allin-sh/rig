@@ -1,5 +1,11 @@
 import type { LanguageModelV3 } from '@ai-sdk/provider';
-import { generateText, type ModelMessage, Output } from 'ai';
+import {
+  convertToModelMessages,
+  generateText,
+  type ModelMessage,
+  Output,
+  type UIMessage,
+} from 'ai';
 import type { z } from 'zod/v3';
 
 export namespace Agent {
@@ -7,10 +13,12 @@ export namespace Agent {
     system,
     description,
     model,
+    messages,
     schema,
   }: {
     system?: string[];
     description: string;
+    messages?: UIMessage[];
     model: LanguageModelV3;
     schema?: z.ZodSchema<T>;
   }) {
@@ -26,6 +34,7 @@ export namespace Agent {
             content: item,
           }),
         ),
+        ...(messages ? await convertToModelMessages(messages) : []),
         {
           role: 'user',
           content: `${description}. ${outputSchema ? 'Return ONLY the JSON object, no other text, do not wrap in backticks' : ''}`,
