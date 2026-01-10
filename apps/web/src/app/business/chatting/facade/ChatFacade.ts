@@ -1,5 +1,6 @@
 import type { LanguageModelV3 } from '@ai-sdk/provider';
 import { Chat } from '@ai-sdk/react';
+import type { LLMProvider, ModelResponseOptions } from '@allin/chat';
 import type { UIMessageMetadata } from '@allin/message-metadata-schema';
 import type {
   ChatOnDataCallback,
@@ -8,11 +9,7 @@ import type {
   UIMessage,
 } from 'ai';
 import { BehaviorSubject, type Observable, Subject } from 'rxjs';
-import type {
-  LLMProvider,
-  ModelResponseOptions,
-} from '../provider/LLMProvider';
-import type { Setter } from '../utils/setter';
+import type { Setter } from './setter';
 import { UIMessageStore } from './UiMessageStore';
 
 type ChatUiMessage = UIMessage<UIMessageMetadata>;
@@ -124,7 +121,10 @@ export class ChatFacade {
     return this.onData$.asObservable();
   }
 
-  public getOnFinish$() {
+  /**
+   * emit when chat is finished.
+   */
+  public get finish$() {
     return this.onFinish$.asObservable();
   }
 
@@ -237,7 +237,7 @@ export class ChatFacade {
   }) {
     const transport = provider.createTextStream(model, responseOptions);
 
-    const chat = new Chat({
+    const chat = new Chat<ChatUiMessage>({
       id,
       transport,
       messages,

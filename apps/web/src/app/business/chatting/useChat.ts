@@ -1,8 +1,9 @@
 import {
-  ChatFacade,
-  ChatFacadeManager,
+  Agent,
   generateUIMessage,
+  type LLMProviderName,
   LLMProviderNameSchema,
+  Prompt,
   providerRegistry,
 } from '@allin/chat';
 import type { UIMessageMetadata } from '@allin/message-metadata-schema';
@@ -10,10 +11,18 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import type { UIMessage } from 'ai';
 import { merge } from 'es-toolkit';
 import { getDefaultStore, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+import z from 'zod/v3';
 import { dbAtoms } from '@/idb/db-store';
 import { assert } from '@/utils/assert';
 import { isMessagesConsistent } from './consistency-check';
+import { ChatFacade, ChatFacadeManager } from './facade';
 import { handleExceptionOnOpenAi } from './open-ai-exception-handling';
 
 /**
@@ -35,6 +44,8 @@ export const useChat = <UI_MESSAGE extends UIMessage<UIMessageMetadata>>({
 }: UseChatOptions) => {
   const addMessageOnDB = useSetAtom(dbAtoms.addMessageAtom);
   const deleteMessageOnDB = useSetAtom(dbAtoms.deleteMessageAtom);
+  const updateChannel = useSetAtom(dbAtoms.updateChannelAtom);
+  const needUpdateTitleRef = useRef(false);
   /**
    * useSuspenseQuery's only purpose is to trigger the suspense.
    */
@@ -53,6 +64,8 @@ export const useChat = <UI_MESSAGE extends UIMessage<UIMessageMetadata>>({
 
       assert(currentChannel, 'useChat: channel is not found.');
       assert(messages, 'useChat: channel messages are not found.');
+
+      needUpdateTitleRef.current = Boolean(!currentChannel.title);
 
       console.log('valid', isMessagesConsistent(messages));
       // in db, providerName is stored as string.
@@ -94,9 +107,8 @@ export const useChat = <UI_MESSAGE extends UIMessage<UIMessageMetadata>>({
     });
 
     // save assistant response to db after finishing
-    const subscription2 = chatFacade
-      .getOnFinish$()
-      .subscribe(({ message, isAbort, isDisconnect, isError }) => {
+    const subscription2 = chatFacade.finish$.subscribe(
+      ({ message, isAbort, isDisconnect, isError }) => {
         const isAbnormalFinish = isAbort || isDisconnect || isError;
         let messageToSave: UIMessage<UIMessageMetadata> = message;
 
@@ -126,8 +138,32 @@ export const useChat = <UI_MESSAGE extends UIMessage<UIMessageMetadata>>({
           chatFacade.upsertUiMessage(messageToSave);
         }
 
+        // update channel title if it is not set yet.
+        if (needUpdateTitleRef.current) {
+          needUpdateTitleRef.current = false;
+
+          const model = providerRegistry
+            .get(chatFacade.getProviderName() as LLMProviderName)
+            .getModel(chatFacade.getModelId());
+
+          const messages = chatFacade.getMessages();
+          Agent.generate({
+            messages,
+            description: Prompt.title,
+            model,
+            schema: z.object({
+              title: z.string(),
+            }),
+          }).then(res => {
+            updateChannel(chatFacade.getId(), {
+              title: res.title,
+            });
+          });
+        }
+
         addMessageOnDB(chatFacade.getId(), messageToSave);
-      });
+      },
+    );
 
     return () => {
       subscription1.unsubscribe();
