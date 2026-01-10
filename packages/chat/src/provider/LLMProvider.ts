@@ -21,12 +21,18 @@ export interface LLMProvider {
   readonly responseOptionAdaptor: ModelResponseOptionAdaptor;
 
   validateConnection: () => Promise<boolean>;
+  /**
+   * if the modelId is not supported by the provider, an error is thrown.
+   */
   getModel: (modelId: string) => LanguageModelV3;
   /**
    * If the provider supports TTS (text-to-speech), return the SpeechModelV2.
    * Otherwise, return null.
    */
   getSpeechModel: (modelId: string) => SpeechModelV3 | null;
+  /**
+   * create a text stream transport
+   */
   createTextStream: (
     model: LanguageModelV3,
     options?: ModelResponseOptions,
