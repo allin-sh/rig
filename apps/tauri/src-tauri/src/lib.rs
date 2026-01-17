@@ -1,6 +1,6 @@
 mod api_key;
 mod chat;
-mod migrations;
+mod storage;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -9,11 +9,6 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_keyring::init())
-        .plugin(
-            tauri_plugin_sql::Builder::default()
-                .add_migrations("sqlite:ALLIN.sqlite", migrations::sql_migrations())
-                .build(),
-        )
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -30,6 +25,13 @@ pub fn run() {
             api_key::commands::get_api_key,
             api_key::commands::delete_api_key,
             api_key::commands::has_api_key,
+            storage::commands::get_channels,
+            storage::commands::get_channel,
+            storage::commands::create_channel,
+            storage::commands::update_channel,
+            storage::commands::delete_channel,
+            storage::commands::get_messages,
+            storage::commands::save_messages,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
