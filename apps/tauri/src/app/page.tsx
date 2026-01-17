@@ -1,62 +1,38 @@
 'use client';
 
-import { Channel, invoke } from '@tauri-apps/api/core';
-import type { UIMessage } from 'ai';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useChat } from '@ai-sdk/react';
+import { invoke } from '@tauri-apps/api/core';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { TauriChatTransport } from '../chat/tauri-chat-transport';
 
-// Vercel AI SDK UI stream types
-type VercelUIStream =
-  | { type: 'text-start'; id: string; provider_metadata?: unknown }
-  | {
-      type: 'text-delta';
-      id: string;
-      delta: string;
-      provider_metadata?: unknown;
-    }
-  | { type: 'text-end'; id: string; provider_metadata?: unknown }
-  | { type: 'reasoning-start'; id: string; provider_metadata?: unknown }
-  | {
-      type: 'reasoning-delta';
-      id: string;
-      delta: string;
-      provider_metadata?: unknown;
-    }
-  | { type: 'reasoning-end'; id: string; provider_metadata?: unknown }
-  | { type: 'error'; error_text: string }
-  | { type: 'not-supported'; error_text: string };
+// Storage types
+interface ChannelInfo {
+  id: string;
+  model: string;
+  providerName: string;
+  reasoningEffort: string;
+  reasoningSummary: boolean;
+  title: string | null;
+  description: string | null;
+  prompt: string | null;
+  isEmpty: boolean;
+  pin: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
 
-type StreamEvent =
-  | { event: 'chunk'; data: VercelUIStream }
-  | { event: 'done' }
-  | { event: 'error'; message: string };
+interface StorageMessage {
+  id: string;
+  role: string;
+  parts: Array<{ type: string; text?: string; [key: string]: unknown }>;
+  createdAt?: number;
+}
 
 // Helper function to generate unique IDs
 const generateId = () => crypto.randomUUID();
 
-// Helper to create UIMessage
-const createUIMessage = (
-  role: 'user' | 'assistant',
-  content: string,
-): UIMessage => ({
-  id: generateId(),
-  role,
-  parts: [{ type: 'text', text: content }],
-});
-
-// Helper to get text content from UIMessage
-const getMessageText = (message: UIMessage): string => {
-  return message.parts
-    .filter(
-      (part): part is { type: 'text'; text: string } => part.type === 'text',
-    )
-    .map(part => part.text)
-    .join('');
-};
-
 export default function Home() {
-  const [messages, setMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [hasApiKey, setHasApiKey] = useState<boolean | null>(null);
   const [apiKeyInput, setApiKeyInput] = useState('');
@@ -66,6 +42,57 @@ export default function Home() {
     text: string;
   } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Channel state
+  const [currentChannelId, setCurrentChannelId] = useState<string | null>(null);
+  const [channels, setChannels] = useState<ChannelInfo[]>([]);
+
+  // Create Tauri transport instance
+  const transport = useMemo(() => new TauriChatTransport(), []);
+
+  // useChat with custom Tauri transport
+  const { messages, status, sendMessage, setMessages } = useChat({
+    id: currentChannelId ?? undefined,
+    transport,
+    onFinish: async () => {
+      // Save messages when stream finishes
+      if (currentChannelId) {
+        await saveMessagesToStorage(currentChannelId);
+      }
+    },
+    onError: (error: Error) => {
+      console.error('Chat error:', error);
+    },
+  });
+
+  const isLoading = status === 'streaming' || status === 'submitted';
+
+  // Save messages to storage
+  const saveMessagesToStorage = useCallback(
+    async (channelId: string) => {
+      try {
+        const storageMessages: StorageMessage[] = messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          parts: msg.parts.map(p => ({
+            type: p.type,
+            text: 'text' in p ? p.text : undefined,
+          })),
+          createdAt: Date.now(),
+        }));
+
+        console.log('storageMes sages:', storageMessages);
+        await invoke('save_messages', {
+          channelId,
+          messages: storageMessages,
+        });
+      } catch (error) {
+        console.log('error:', error);
+        console.error('Failed to save messages:', error);
+      }
+    },
+    [messages],
+  );
 
   const checkApiKey = useCallback(async () => {
     try {
@@ -77,9 +104,88 @@ export default function Home() {
     }
   }, []);
 
+  // Load channels on mount
+  const loadChannels = useCallback(async () => {
+    try {
+      const channelList = await invoke<ChannelInfo[]>('get_channels');
+      setChannels(channelList);
+
+      // If no current channel, create one or select the first
+      if (!currentChannelId && channelList.length === 0) {
+        await createNewChannel();
+      } else if (!currentChannelId && channelList.length > 0) {
+        setCurrentChannelId(channelList[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to load channels:', error);
+    }
+  }, [currentChannelId]);
+
+  // Create a new channel
+  const createNewChannel = useCallback(async () => {
+    const newChannel: ChannelInfo = {
+      id: generateId(),
+      model: 'gpt-4',
+      providerName: 'openai',
+      reasoningEffort: 'none',
+      reasoningSummary: false,
+      title: null,
+      description: null,
+      prompt: null,
+      isEmpty: true,
+      pin: null,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    try {
+      await invoke('create_channel', { info: newChannel });
+      setChannels(prev => [newChannel, ...prev]);
+      setCurrentChannelId(newChannel.id);
+      setMessages([]);
+    } catch (error) {
+      console.error('Failed to create channel:', error);
+    }
+  }, [setMessages]);
+
+  // Load messages for current channel
+  const loadMessages = useCallback(
+    async (channelId: string) => {
+      try {
+        const storedMessages = await invoke<StorageMessage[]>('get_messages', {
+          channelId,
+        });
+
+        // Convert storage messages to UIMessage format
+        const uiMessages = storedMessages.map(msg => ({
+          id: msg.id,
+          role: msg.role as 'user' | 'assistant',
+          parts: msg.parts.map(p => ({
+            type: p.type as 'text',
+            text: p.text || '',
+          })),
+        }));
+
+        setMessages(uiMessages);
+      } catch (error) {
+        console.error('Failed to load messages:', error);
+        setMessages([]);
+      }
+    },
+    [setMessages],
+  );
+
   useEffect(() => {
     checkApiKey();
-  }, [checkApiKey]);
+    loadChannels();
+  }, [checkApiKey, loadChannels]);
+
+  // Load messages when channel changes
+  useEffect(() => {
+    if (currentChannelId) {
+      loadMessages(currentChannelId);
+    }
+  }, [currentChannelId, loadMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -139,68 +245,23 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !currentChannelId) return;
 
     const userMessage = input.trim();
     setInput('');
 
-    const newUserMessage = createUIMessage('user', userMessage);
-    setMessages(prev => [...prev, newUserMessage]);
-    setIsLoading(true);
+    // Save user message first
+    await sendMessage({ text: userMessage });
+  };
 
-    try {
-      const onEvent = new Channel<StreamEvent>();
-
-      // Include the new user message in messages to send
-      const messagesToSend = [...messages, newUserMessage];
-
-      onEvent.onmessage = event => {
-        if (event.event === 'chunk') {
-          const { data } = event;
-
-          if (data.type === 'text-delta') {
-            setMessages(prev => {
-              const lastMessage = prev[prev.length - 1];
-              if (lastMessage && lastMessage.role === 'assistant') {
-                // Update existing assistant message by appending to text part
-                const currentText = getMessageText(lastMessage);
-                const updatedMessage = createUIMessage(
-                  'assistant',
-                  currentText + data.delta,
-                );
-                updatedMessage.id = lastMessage.id; // Keep same ID
-                return [...prev.slice(0, -1), updatedMessage];
-              }
-              return [...prev, createUIMessage('assistant', data.delta)];
-            });
-          } else if (data.type === 'error') {
-            setMessages(prev => [
-              ...prev,
-              createUIMessage('assistant', `Error: ${data.error_text}`),
-            ]);
-            setIsLoading(false);
-          }
-          // text-start, text-end, reasoning-* 등은 필요시 처리
-        } else if (event.event === 'done') {
-          setIsLoading(false);
-        } else if (event.event === 'error') {
-          setMessages(prev => [
-            ...prev,
-            createUIMessage('assistant', `Error: ${event.message}`),
-          ]);
-          setIsLoading(false);
-        }
-      };
-
-      await invoke('chat_stream', { messages: messagesToSend, onEvent });
-    } catch (error) {
-      console.error('Error:', error);
-      setMessages(prev => [
-        ...prev,
-        createUIMessage('assistant', `Error: ${error}`),
-      ]);
-      setIsLoading(false);
-    }
+  // Helper to get text content from message
+  const getMessageText = (message: (typeof messages)[number]): string => {
+    return message.parts
+      .filter(
+        (part): part is { type: 'text'; text: string } => part.type === 'text',
+      )
+      .map(part => part.text)
+      .join('');
   };
 
   return (
@@ -313,7 +374,27 @@ export default function Home() {
       {/* Header */}
       <header className='border-b border-zinc-200 p-4 dark:border-zinc-700'>
         <div className='flex items-center justify-between'>
-          <div className='w-10' />
+          <button
+            type='button'
+            onClick={createNewChannel}
+            className='rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-300'
+            title='New Chat'
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              className='h-5 w-5'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 4v16m8-8H4'
+              />
+            </svg>
+          </button>
           <h1 className='text-xl font-semibold text-zinc-800 dark:text-zinc-100'>
             AI Chat
           </h1>

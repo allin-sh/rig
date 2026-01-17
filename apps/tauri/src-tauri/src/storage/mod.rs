@@ -112,7 +112,10 @@ impl Storage {
 
         let mut channels = Vec::new();
         for id in channel_ids {
-            if let Ok(info) = self.read::<types::ChannelInfo>(&["channel", &id, "info"]).await {
+            if let Ok(info) = self
+                .read::<types::ChannelInfo>(&["channel", &id, "info"])
+                .await
+            {
                 channels.push(info);
             }
         }
@@ -154,11 +157,11 @@ impl Storage {
         channel_id: &str,
         messages: &[types::Message],
     ) -> Result<(), String> {
+        println!("save_messages: {:?}", messages);
         let file = types::MessagesFile {
             messages: messages.to_vec(),
         };
         self.write(&["channel", channel_id, "messages"], &file)
             .await
     }
-
 }
