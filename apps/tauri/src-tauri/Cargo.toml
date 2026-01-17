@@ -28,3 +28,4 @@ aisdk = { version = "0.3.0", features = ["openai"] }
 tokio = { version = "1.49.0", features = ["full"] }
 futures = "0.3.31"
 dotenvy = "0.15.7"
+tauri-plugin-keyring = "0.1.0"
