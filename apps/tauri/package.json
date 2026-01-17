@@ -10,6 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@ai-sdk/react": "catalog:ai",
     "@ai-sdk/ui-utils": "^1.2.11",
     "@allin/db-atom": "workspace:*",
     "@allin/db-schema": "workspace:*",
