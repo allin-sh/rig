@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "desktop-app",
+  "productName": "ALLIN",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "sh.allin.app",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
@@ -17,7 +17,7 @@
   "app": {
     "windows": [
       {
-        "title": "desktop-app",
+        "title": "ALLIN",
         "width": 800,
         "height": 600,
         "resizable": true,
