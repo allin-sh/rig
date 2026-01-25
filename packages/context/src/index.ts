@@ -2,6 +2,7 @@ import type { AI } from './ai';
 import type { Event } from './event';
 import type { Modal } from './modal';
 import type { Sidebar } from './sidebar';
+import type { SlashCommand } from './slash-command/slash-command-interface';
 import type { TextSelectionFloatingButtonList } from './text-selection';
 import type { UI } from './ui';
 
@@ -19,4 +20,5 @@ export interface ExtensionContext {
   TextSelectionFloatingButtonList: TextSelectionFloatingButtonList;
   ui: UI;
   event: Event;
+  slashCommand: SlashCommand;
 }
