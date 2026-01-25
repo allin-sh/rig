@@ -10,7 +10,8 @@
     "build": "turbo build",
     "test": "pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --if-present --stream test:watch",
     "test:once": "pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --if-present --stream test",
-    "check-ts": "pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --if-present --stream check-ts"
+    "check-ts": "pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --if-present --stream check-ts",
+    "new-extension": "node scripts/new-extension.mjs"
   },
   "keywords": [],
   "author": "",
