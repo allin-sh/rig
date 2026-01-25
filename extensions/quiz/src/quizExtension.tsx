@@ -1,13 +1,13 @@
 import type { Extension } from '@allin/extension';
 
-export const quizExtension: Extension = ({ event, aui }) => {
+export const quizExtension: Extension = ({ event, ui }) => {
   const sub1 = event['extension.activate']('quiz').subscribe(({ id, name }) => {
     console.log('==> extension activated', id, name);
   });
 
   const sub2 = event['extension.open']('quiz').subscribe(({ id, name }) => {
     console.log('==> extension opened', id, name);
-    aui.render({
+    ui.render({
       id: 'quiz',
       component: (
         <div className='w-full h-full flex justify-center items-center'>

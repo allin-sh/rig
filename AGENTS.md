@@ -7,7 +7,7 @@ Guide for AI coding agents operating in this monorepo.
 ```
 apps/
 ├── tauri/     # Desktop app (Next.js + Tauri)
-├── web/       # Web app (Next.js)
+├── web/       # Web app (Next.js) // !important: deprecated. 
 └── docs/      # Documentation
 packages/
 ├── ui/        # Shared UI components (@allin/ui)
