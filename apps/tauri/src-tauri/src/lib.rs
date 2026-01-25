@@ -20,7 +20,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            chat::commands::chat_stream,
+            chat::commands::stream_text,
             api_key::commands::save_api_key,
             api_key::commands::get_api_key,
             api_key::commands::delete_api_key,
@@ -32,6 +32,13 @@ pub fn run() {
             storage::commands::delete_channel,
             storage::commands::get_messages,
             storage::commands::save_messages,
+            storage::commands::get_all_agents,
+            storage::commands::get_agent,
+            storage::commands::create_agent,
+            storage::commands::update_agent,
+            storage::commands::delete_agent,
+            storage::commands::get_app_settings,
+            storage::commands::save_app_settings,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
