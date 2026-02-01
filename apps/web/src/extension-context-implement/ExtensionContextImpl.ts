@@ -13,4 +13,9 @@ export const extensionContextImpl: ExtensionContext = {
   TextSelectionFloatingButtonList: TextSelectionFloatingButtonListImpl,
   ui: UIImpl,
   event: EventImpl,
+  slashCommand: {
+    add: () => {},
+    remove: () => {},
+    list: () => [],
+  },
 };
