@@ -29,7 +29,29 @@ export const ChatInputView = ({ session }: ChatInputViewProps) => {
   };
 
   const handleSubmit = () => {
-    if (!input.trim() || !session) return;
+    if (!session) return;
+
+    const trimmedInput = input.trimStart();
+
+    if (trimmedInput.startsWith('/')) {
+      const parts = trimmedInput.split(/\s+/);
+      const commandName = parts[0].slice(1);
+      const userText = trimmedInput.slice(commandName.length + 1).trimStart();
+
+      const command = slashCommandManager.findCommandByName(commandName);
+
+      if (command && command.mode === 'template') {
+        const resolved = slashCommandManager.resolveTemplate(
+          command as any,
+          userText,
+        );
+        // TODO: send message via session with resolved text
+        setInput('');
+        return;
+      }
+    }
+
+    if (!input.trim()) return;
     // TODO: send message via session
     setInput('');
   };
