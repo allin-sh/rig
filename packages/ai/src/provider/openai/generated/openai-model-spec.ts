@@ -140,6 +140,7 @@
     "attachment": true,
     "reasoning": true,
     "tool_call": true,
+    "structured_output": true,
     "temperature": false,
     "knowledge": "2024-09-30",
     "release_date": "2025-11-13",
