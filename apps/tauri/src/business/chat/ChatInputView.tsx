@@ -34,11 +34,20 @@ export const ChatInputView = ({ session }: ChatInputViewProps) => {
     const trimmedInput = input.trimStart();
 
     if (trimmedInput.startsWith('/')) {
-      const parts = trimmedInput.split(/\s+/);
-      const commandName = parts[0].slice(1);
-      const userText = trimmedInput.slice(commandName.length + 1).trimStart();
+      const withoutSlash = trimmedInput.slice(1);
 
-      const command = slashCommandManager.findCommandByName(commandName);
+      // Longest-match prefix approach for multi-word commands
+      const allCommands = slashCommandManager.getCommands();
+      const matchingCommands = allCommands
+        .filter(cmd =>
+          withoutSlash.toLowerCase().startsWith(cmd.name.toLowerCase()),
+        )
+        .sort((a, b) => b.name.length - a.name.length);
+
+      const command = matchingCommands[0];
+      const userText = command
+        ? withoutSlash.slice(command.name.length).trimStart()
+        : '';
 
       if (command && command.mode === 'template') {
         const resolved = slashCommandManager.resolveTemplate(
