@@ -8,7 +8,8 @@
     "app-frontend:start": "next start",
     "lint": "eslint",
     "tauri": "tauri",
-    "test": "vitest run"
+    "test": "vitest run",
+    "format": "biome check --write ."
   },
   "dependencies": {
     "@ai-sdk/anthropic": "catalog:ai",
@@ -32,7 +33,8 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "rxjs": "catalog:utils",
-    "ts-pattern": "catalog:utils"
+    "ts-pattern": "catalog:utils",
+    "uuid": "catalog:utils"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

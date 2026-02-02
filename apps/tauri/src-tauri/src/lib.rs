@@ -1,5 +1,6 @@
 mod api_key;
 mod chat;
+mod provider;
 mod storage;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -21,6 +22,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             chat::commands::stream_text,
+            chat::commands::abort_stream,
             api_key::commands::save_api_key,
             api_key::commands::get_api_key,
             api_key::commands::delete_api_key,
@@ -31,6 +33,8 @@ pub fn run() {
             storage::commands::update_channel,
             storage::commands::delete_channel,
             storage::commands::get_messages,
+            storage::commands::append_message,
+            storage::commands::upsert_message,
             storage::commands::save_messages,
             storage::commands::get_all_agents,
             storage::commands::get_agent,

@@ -151,6 +151,22 @@ export class SessionMap {
 
 ## Owner's Coding Style
 
+### React Component Syntax
+- Use arrow function syntax: `const Component = () => { ... }`
+- NOT function declaration: `function Component() { ... }`
+
+```typescript
+// Good
+export const MyComponent = () => {
+  return <div>...</div>;
+};
+
+// Bad
+export function MyComponent() {
+  return <div>...</div>;
+}
+```
+
 ### Architecture: View / State Separation
 - React components handle **rendering only**
 - State logic lives in separate Singleton classes with RxJS `BehaviorSubject`
@@ -184,22 +200,6 @@ const modifierKeyEvent$ = useMemo(
 - Manager/Singleton classes should only handle registration and data access
 - **No filtering, searching, or UI logic inside Managers**
 - Filtering belongs in the UI layer (e.g., `Fzf` fuzzy search in component)
-
-### Cursor-Aware Input Handling
-- Use `selectionStart` to determine cursor position in textarea
-- Input behavior should depend on **where** the cursor is, not just **what** the value is
-- Example: Popover opens only when cursor is within the `/command` token
-
-```typescript
-const firstPhrase = currentInput.split(/\s+/)[0];
-if (firstPhrase.startsWith('/') && currentSelection <= firstPhrase.length) {
-  setIsOpen(true);
-}
-```
-
-### Fuzzy Search with fzf
-- Use `fzf` library for fuzzy matching instead of simple `includes()` filtering
-- Create `Fzf` instance with `selector` for object lists, memoize with `useMemo`
 
 ### File Naming
 - View components: `*View.tsx` (e.g., `ChatInputView.tsx`)
