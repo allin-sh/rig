@@ -1,11 +1,11 @@
-export type CommandViewId =
+export type CommandPaneId =
   | 'home'
   | 'providers'
   | 'provider-config'
   | 'model-select'
   | 'channels';
 
-export type CommandViewState = {
-  viewId: CommandViewId | null;
+export type CommandPaneState = {
+  viewId: CommandPaneId | null;
   props?: Record<string, unknown>;
 };

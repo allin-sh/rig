@@ -1,9 +1,9 @@
 import { BehaviorSubject, filter, fromEvent, type Observable } from 'rxjs';
-import type { CommandViewId, CommandViewState } from './types';
+import type { CommandPaneId, CommandPaneState } from '../command-palette/types';
 
-export class CommandDialogManager {
-  private static instance: CommandDialogManager;
-  private currentView$ = new BehaviorSubject<CommandViewState>({
+export class CommandPaletteManager {
+  private static instance: CommandPaletteManager;
+  private currentView$ = new BehaviorSubject<CommandPaneState>({
     viewId: null,
   });
   private isKeyboardShortcutSetup = false;
@@ -12,22 +12,22 @@ export class CommandDialogManager {
     this.setupKeyboardShortcut();
   }
 
-  public static getInstance(): CommandDialogManager {
-    if (!CommandDialogManager.instance) {
-      CommandDialogManager.instance = new CommandDialogManager();
+  public static getInstance(): CommandPaletteManager {
+    if (!CommandPaletteManager.instance) {
+      CommandPaletteManager.instance = new CommandPaletteManager();
     }
-    return CommandDialogManager.instance;
+    return CommandPaletteManager.instance;
   }
 
-  public getViewState$(): Observable<CommandViewState> {
+  public getViewState$(): Observable<CommandPaneState> {
     return this.currentView$.asObservable();
   }
 
-  public getCurrentViewState(): CommandViewState {
+  public getCurrentViewState(): CommandPaneState {
     return this.currentView$.getValue();
   }
 
-  public open(viewId: CommandViewId, props?: Record<string, unknown>): void {
+  public open(viewId: CommandPaneId, props?: Record<string, unknown>): void {
     this.currentView$.next({ viewId, props });
   }
 
@@ -52,4 +52,4 @@ export class CommandDialogManager {
   }
 }
 
-export const commandDialogManager = CommandDialogManager.getInstance();
+export const commandDialogManager = CommandPaletteManager.getInstance();
