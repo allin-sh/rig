@@ -3,8 +3,8 @@ import type { CommandPaneId, CommandPaneState } from '../command-palette/types';
 
 export class CommandPaletteManager {
   private static instance: CommandPaletteManager;
-  private currentView$ = new BehaviorSubject<CommandPaneState>({
-    viewId: null,
+  private currentPane$ = new BehaviorSubject<CommandPaneState>({
+    paneId: null,
   });
   private isKeyboardShortcutSetup = false;
 
@@ -20,19 +20,19 @@ export class CommandPaletteManager {
   }
 
   public getViewState$(): Observable<CommandPaneState> {
-    return this.currentView$.asObservable();
+    return this.currentPane$.asObservable();
   }
 
   public getCurrentViewState(): CommandPaneState {
-    return this.currentView$.getValue();
+    return this.currentPane$.getValue();
   }
 
   public open(viewId: CommandPaneId, props?: Record<string, unknown>): void {
-    this.currentView$.next({ viewId, props });
+    this.currentPane$.next({ paneId: viewId, paneProps: props });
   }
 
   public close(): void {
-    this.currentView$.next({ viewId: null });
+    this.currentPane$.next({ paneId: null });
   }
 
   private setupKeyboardShortcut(): void {
@@ -43,7 +43,7 @@ export class CommandPaletteManager {
     fromEvent<KeyboardEvent>(document, 'keydown')
       .pipe(
         filter(e => e.key === 'j' && (e.metaKey || e.ctrlKey)),
-        filter(() => this.currentView$.getValue().viewId === null),
+        filter(() => this.currentPane$.getValue().paneId === null),
       )
       .subscribe(e => {
         e.preventDefault();

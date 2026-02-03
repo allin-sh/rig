@@ -6,6 +6,6 @@ export type CommandPaneId =
   | 'channels';
 
 export type CommandPaneState = {
-  viewId: CommandPaneId | null;
-  props?: Record<string, unknown>;
+  paneId: CommandPaneId | null;
+  paneProps?: Record<string, unknown>;
 };

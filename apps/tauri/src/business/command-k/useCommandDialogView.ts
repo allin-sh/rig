@@ -27,9 +27,11 @@ export function useCommandDialogView<
       .getViewState$()
       .subscribe(viewState => {
         setState({
-          isOpen: viewState.viewId === viewId,
+          isOpen: viewState.paneId === viewId,
           props:
-            viewState.viewId === viewId ? (viewState.props as T) : undefined,
+            viewState.paneId === viewId
+              ? (viewState.paneProps as T)
+              : undefined,
         });
       });
 
