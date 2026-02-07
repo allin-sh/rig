@@ -18,10 +18,10 @@ import {
   User,
 } from 'lucide-react';
 import * as React from 'react';
-import { useCommandDialog } from '../useCommandDialogView';
+import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 
 export function HomeCommandView() {
-  const { navigate, close } = useCommandDialog();
+  const { navigate, close } = useCommandPalette();
   const [value, setValue] = React.useState('');
 
   const handleOpenChange = (open: boolean) => {

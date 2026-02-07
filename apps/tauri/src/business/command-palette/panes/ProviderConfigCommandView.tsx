@@ -1,15 +1,12 @@
 'use client';
 
 import { Button, CommandDialog, CommandList, Input, toast } from '@allin/ui';
-import { invoke } from '@tauri-apps/api/core';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { getProviderIcon } from '@/business/logo/ProviderIconMap';
 import { validateApiKey } from '@/business/validate-api-key/validate-api-key';
-import {
-  useCommandDialog,
-  useCommandDialogView,
-} from '../useCommandDialogView';
+import { useSaveApiKey } from '@/lib/gateway/useApiKeyQuery';
 
 export type ProviderId = 'openai' | 'google' | 'anthropic';
 
@@ -19,26 +16,17 @@ type ProviderConfigViewProps = {
 
 const PROVIDER_INFO: Record<ProviderId, { name: string; placeholder: string }> =
   {
-    openai: {
-      name: 'OpenAI',
-      placeholder: 'sk-...',
-    },
-    google: {
-      name: 'Google AI',
-      placeholder: 'AIza...',
-    },
-    anthropic: {
-      name: 'Anthropic',
-      placeholder: 'sk-ant-...',
-    },
+    openai: { name: 'OpenAI', placeholder: 'sk-...' },
+    google: { name: 'Google AI', placeholder: 'AIza...' },
+    anthropic: { name: 'Anthropic', placeholder: 'sk-ant-...' },
   };
 
-export function ProviderConfigCommandView({
+export const ProviderConfigCommandView = ({
   providerId,
-}: ProviderConfigViewProps) {
-  const { close } = useCommandDialog();
+}: ProviderConfigViewProps) => {
+  const { close } = useCommandPalette();
   const [apiKey, setApiKey] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const saveApiKey = useSaveApiKey();
 
   const info = providerId ? PROVIDER_INFO[providerId] : null;
 
@@ -50,36 +38,37 @@ export function ProviderConfigCommandView({
   };
 
   const handleSave = async () => {
-    if (!apiKey.trim() || isLoading || !providerId) return;
+    if (!apiKey.trim() || saveApiKey.isPending || !providerId) return;
 
-    setIsLoading(true);
-    try {
-      const isValid = await validateApiKey({
-        apiKey: apiKey.trim(),
-        providerName: providerId,
-      });
-      if (!isValid) {
-        toast.error(
-          'Invalid API key. Please check your key and try again. Your balance may be insufficient.',
-          {
-            position: 'top-center',
-            duration: 15000,
-            closeButton: true,
-          },
-        );
-        return;
-      }
-
-      await invoke('save_api_key', { providerName: providerId, apiKey });
-      toast.success('API key saved successfully', {
-        position: 'top-center',
-        duration: 3000,
-      });
-    } finally {
-      close();
-      setApiKey('');
-      setIsLoading(false);
+    const isValid = await validateApiKey({
+      apiKey: apiKey.trim(),
+      providerName: providerId,
+    });
+    if (!isValid) {
+      toast.error(
+        'Invalid API key. Please check your key and try again. Your balance may be insufficient.',
+        {
+          position: 'top-center',
+          duration: 15000,
+          closeButton: true,
+        },
+      );
+      return;
     }
+
+    saveApiKey.mutate(
+      { providerName: providerId, apiKey: apiKey.trim() },
+      {
+        onSuccess: () => {
+          toast.success('API key saved successfully', {
+            position: 'top-center',
+            duration: 3000,
+          });
+          close();
+          setApiKey('');
+        },
+      },
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -111,17 +100,17 @@ export function ProviderConfigCommandView({
               onKeyDown={handleKeyDown}
               placeholder={info.placeholder}
               autoFocus
-              disabled={isLoading}
+              disabled={saveApiKey.isPending}
             />
           </div>
           <div className='flex justify-end'>
             <Button
               size='sm'
-              disabled={!apiKey.trim() || isLoading}
+              disabled={!apiKey.trim() || saveApiKey.isPending}
               className='gap-2'
               onClick={handleSave}
             >
-              {isLoading ? (
+              {saveApiKey.isPending ? (
                 <Loader2 className='size-4 animate-spin' />
               ) : (
                 <>
@@ -137,4 +126,4 @@ export function ProviderConfigCommandView({
       </CommandList>
     </CommandDialog>
   );
-}
+};

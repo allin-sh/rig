@@ -1,5 +1,5 @@
 import { BehaviorSubject, filter, fromEvent, type Observable } from 'rxjs';
-import type { CommandPaneId, CommandPaneState } from '../command-palette/types';
+import type { CommandPaneId, CommandPaneState } from './types';
 
 export class CommandPaletteManager {
   private static instance: CommandPaletteManager;

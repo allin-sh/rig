@@ -15,13 +15,13 @@ import {
   CommandList,
 } from '@allin/ui';
 import { useState } from 'react';
+import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { getProviderIcon } from '@/business/logo/ProviderIconMap';
-import { useCommandDialog } from '../useCommandDialogView';
 
 const PROVIDERS = LLMProviderNameSchema.options;
 
 export function ModelSelectView() {
-  const { close } = useCommandDialog();
+  const { close } = useCommandPalette();
   const [value, setValue] = useState('');
 
   const handleOpenChange = (open: boolean) => {
@@ -31,10 +31,7 @@ export function ModelSelectView() {
     }
   };
 
-  const handleSelectModel = (
-    providerId: LLMProviderName,
-    modelId: AllModelIds,
-  ) => {
+  const changeModel = (providerId: LLMProviderName, modelId: AllModelIds) => {
     close();
   };
 
@@ -67,7 +64,7 @@ export function ModelSelectView() {
               <CommandItem
                 key={modelId}
                 value={`${providerId} ${modelId}`}
-                onSelect={() => handleSelectModel(providerId, modelId)}
+                onSelect={() => changeModel(providerId, modelId)}
                 className='py-0 px-2 text-xs min-h-0'
               >
                 <span>{modelId}</span>

@@ -11,10 +11,10 @@ import {
 import { MessageSquare, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { ChannelState } from '@/business/chatting/ChannelState';
-import { useCommandDialog } from '../useCommandDialogView';
+import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 
 export function ChannelsCommandView() {
-  const { close } = useCommandDialog();
+  const { close } = useCommandPalette();
   const [value, setValue] = useState('');
   const { pinned, unpinned } = useMemo(
     () => ChannelState.getInstance().getSortedChannels(),

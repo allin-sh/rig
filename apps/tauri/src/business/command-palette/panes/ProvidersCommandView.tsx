@@ -8,10 +8,10 @@ import {
   CommandItem,
   CommandList,
 } from '@allin/ui';
-import { invoke } from '@tauri-apps/api/core';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { getProviderIcon } from '@/business/logo/ProviderIconMap';
-import { useCommandDialog } from '../useCommandDialogView';
+import { useHasApiKeys } from '@/lib/gateway/useApiKeyQuery';
 import type { ProviderId } from './ProviderConfigCommandView';
 
 const PROVIDERS = [
@@ -20,43 +20,10 @@ const PROVIDERS = [
   { id: 'anthropic', name: 'Anthropic', description: 'Claude 3.5, Claude 3' },
 ] as const;
 
-type ConnectionStatus = Record<ProviderId, boolean>;
-
-function useProviderConnectionStatus() {
-  const [status, setStatus] = useState<ConnectionStatus>({
-    openai: false,
-    google: false,
-    anthropic: false,
-  });
-
-  useEffect(() => {
-    async function checkAll() {
-      const results = await Promise.all(
-        PROVIDERS.map(async prov => {
-          try {
-            const has = await invoke<boolean>('has_api_key', {
-              providerName: prov.id,
-            });
-            return [prov.id, has] as const;
-          } catch {
-            return [prov.id, false] as const;
-          }
-        }),
-      );
-
-      setStatus(Object.fromEntries(results) as ConnectionStatus);
-    }
-
-    checkAll();
-  }, []);
-
-  return status;
-}
-
-export function ProvidersCommandView() {
-  const { navigate, close } = useCommandDialog();
+export const ProvidersCommandView = () => {
+  const { navigate, close } = useCommandPalette();
   const [value, setValue] = useState('');
-  const connectionStatus = useProviderConnectionStatus();
+  const { data: connectionStatus } = useHasApiKeys();
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -92,7 +59,7 @@ export function ProvidersCommandView() {
               {getProviderIcon(provider.id, 'size-4')}
               <div className='flex flex-1 items-center justify-between'>
                 <span>{provider.name}</span>
-                {connectionStatus[provider.id] && (
+                {connectionStatus?.[provider.id] && (
                   <span className='text-xs text-green-500 font-medium'>
                     Connected
                   </span>
@@ -104,4 +71,4 @@ export function ProvidersCommandView() {
       </CommandList>
     </CommandDialog>
   );
-}
+};
