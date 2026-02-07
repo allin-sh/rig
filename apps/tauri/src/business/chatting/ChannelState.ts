@@ -3,6 +3,7 @@ import {
   createChannel,
   deleteChannel as deleteChannelApi,
   getChannels,
+  getMessages,
 } from './storage/tauriStorageClient';
 import type { StorageChannel } from './storage/types';
 
@@ -67,12 +68,13 @@ export class ChannelState {
 
   public async selectChannel(channelId: string) {
     const prev = this.getSelectedChannel();
-    const isGhost = prev && !prev.title;
-
     this.selectedChannelId$.next(channelId);
 
-    if (isGhost && prev.id !== channelId) {
-      await this.deleteChannel(prev.id);
+    if (prev && prev.id !== channelId) {
+      const messages = await getMessages(prev.id);
+      if (messages.length === 0) {
+        await this.deleteChannel(prev.id);
+      }
     }
   }
 
