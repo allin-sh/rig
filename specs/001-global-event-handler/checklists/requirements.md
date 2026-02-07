@@ -32,5 +32,7 @@
 ## Notes
 
 - All items passed validation.
-- The Assumptions section references specific codebase patterns (Singleton + RxJS, `CommandPaletteManager`) as architectural context, not as implementation prescriptions. This is acceptable since it documents constraints, not solutions.
+- Spec updated (v2) to reflect subscription-based architecture (Observable streams) instead of registration-based (imperative callbacks).
+- Key design decisions documented: HotkeyEvent with isInputContext flag, HotKeyContext + useHotKey React integration, Manager as pure stream provider.
+- The Assumptions section references specific codebase patterns (Singleton + RxJS, `CommandPaletteManager`) as architectural context, not as implementation prescriptions.
 - Pre-existing LSP error in `ChatFacade.ts` (unrelated to this feature).
