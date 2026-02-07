@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 import { filter } from 'rxjs';
 import { match } from 'ts-pattern';
 import { useHotKey } from '@/business/hotkey/useHotKey';
+import { AgentCreateView } from './panes/AgentCreateView';
+import { AgentListView } from './panes/AgentListView';
 import { ChannelsCommandView } from './panes/ChannelsCommandView';
 import { HomeCommandView } from './panes/HomeCommandView';
 import { ModelSelectView } from './panes/ModelSelectView';
@@ -18,9 +20,7 @@ export const CommandPalette = () => {
 
   useEffect(() => {
     const sub = hotkey$
-      .pipe(
-        filter(() => currentPane.paneId === null),
-      )
+      .pipe(filter(() => currentPane.paneId === null))
       .subscribe(e => {
         e.originalEvent.preventDefault();
         navigate('home');
@@ -45,6 +45,10 @@ export const CommandPalette = () => {
         ))
         .with('model-select', () => (
           <ModelSelectView {...currentPane.paneProps} />
+        ))
+        .with('agent-list', () => <AgentListView {...currentPane.paneProps} />)
+        .with('agent-create', () => (
+          <AgentCreateView {...currentPane.paneProps} />
         ))
         .with(null, () => null)
         .exhaustive()}

@@ -41,7 +41,7 @@ impl Default for Agent {
     fn default() -> Self {
         Self {
             id: "default".to_string(),
-            name: "Default Agent".to_string(),
+            name: "Default".to_string(),
             provider_name: "openai".to_string(),
             model: "gpt-4.1-nano".to_string(),
             prompt: None,
@@ -49,6 +49,11 @@ impl Default for Agent {
             updated_at: Utc::now().timestamp(),
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentsFile {
+    pub agents: Vec<Agent>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

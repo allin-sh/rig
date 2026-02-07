@@ -50,3 +50,15 @@ export async function deleteChannel(id: string): Promise<void> {
 export async function getAllAgents(): Promise<StorageAgent[]> {
   return invoke('get_all_agents');
 }
+
+export async function createAgent(agent: StorageAgent): Promise<void> {
+  await invoke('create_agent', { agent });
+}
+
+export async function updateAgent(agent: StorageAgent): Promise<void> {
+  await invoke('update_agent', { agent });
+}
+
+export async function deleteAgent(id: string): Promise<void> {
+  await invoke('delete_agent', { id });
+}

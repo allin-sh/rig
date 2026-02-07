@@ -82,6 +82,14 @@ export function HomeCommandView() {
             <span>Switch Model</span>
           </CommandItem>
         </CommandGroup>
+        <CommandGroup
+          heading={<span className='text-blue-500 font-semibold'>Agents</span>}
+        >
+          <CommandItem onSelect={() => navigate('agent-list')}>
+            <User />
+            <span>Manage Agents</span>
+          </CommandItem>
+        </CommandGroup>
         <CommandGroup heading='Settings'>
           <CommandItem>
             <User />

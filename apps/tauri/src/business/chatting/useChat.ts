@@ -11,6 +11,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
+import { AgentManager } from '@/business/agent/AgentManager';
 import { TauriChatTransport } from '@/business/chatting/tauri-chat-transport';
 import { ChannelState } from './ChannelState';
 import { ChatFacade, ChatFacadeManager } from './facade';
@@ -109,6 +110,29 @@ export function useChat(channel: StorageChannel | null) {
       };
       chatFacade.sendMessage(msg);
     }
+  }, [chatFacade]);
+
+  useEffect(() => {
+    if (!chatFacade) return;
+
+    const sub = AgentManager.getInstance().activeAgentId$.subscribe(
+      activeAgentId => {
+        const activeAgent = AgentManager.getInstance().activeAgent;
+        if (!activeAgentId || !activeAgent) return;
+
+        const transport = new TauriChatTransport({
+          providerName: activeAgent.providerName as ProviderId,
+          modelId: activeAgent.model,
+        });
+        chatFacade.updateTransport(
+          transport,
+          activeAgent.providerName as ProviderId,
+          activeAgent.model,
+        );
+      },
+    );
+
+    return () => sub.unsubscribe();
   }, [chatFacade]);
 
   useEffect(() => {

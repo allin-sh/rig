@@ -3,7 +3,9 @@ export type CommandPaneId =
   | 'providers'
   | 'provider-config'
   | 'model-select'
-  | 'channels';
+  | 'channels'
+  | 'agent-list'
+  | 'agent-create';
 
 export type CommandPaneState = {
   paneId: CommandPaneId | null;

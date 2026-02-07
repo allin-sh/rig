@@ -1,8 +1,18 @@
 'use client';
 
 import { Button, Kbd, KbdGroup, Textarea } from '@allin/ui';
-import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { filter, Subject } from 'rxjs';
+import { AgentManager } from '@/business/agent/AgentManager';
+import type { AgentPreset } from '@/business/agent/types';
 import { useHotKey } from '@/business/hotkey/useHotKey';
 import { defaultSlashCommands } from '../../slash-command/defaultCommands';
 import { slashCommandManager } from '../../slash-command/SlashCommandManager';
@@ -28,6 +38,16 @@ export const ChatInputView = ({
   const modifierKeyEvent$ = useMemo(
     () => new Subject<'ArrowUp' | 'ArrowDown' | 'Enter'>(),
     [],
+  );
+
+  const subscribeToActiveAgent = useCallback((onChange: () => void) => {
+    const sub = AgentManager.getInstance().activeAgentId$.subscribe(onChange);
+    return () => sub.unsubscribe();
+  }, []);
+  const activeAgent = useSyncExternalStore<AgentPreset | null>(
+    subscribeToActiveAgent,
+    () => AgentManager.getInstance().activeAgent,
+    () => AgentManager.getInstance().activeAgent,
   );
 
   const setInput = (value: string) => {
@@ -109,6 +129,12 @@ export const ChatInputView = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab' && !isSlashCommandOpen) {
+      e.preventDefault();
+      AgentManager.getInstance().cycleNext();
+      return;
+    }
+
     if (e.key === 'Escape') {
       setIsSlashCommandOpen(false);
     } else if (
@@ -146,7 +172,27 @@ export const ChatInputView = ({
           placeholder='Ask AI Anything...'
         />
         <div className='w-full flex flex-row gap-2 max-w-2xl lg:max-w-4xl mx-auto justify-between mt-2 mb-4'>
-          <div className='flex flex-row gap-2'>
+          <div className='flex flex-row gap-2 items-center'>
+            <Button
+              variant='ghost'
+              size='sm'
+              className='text-xs text-muted-foreground gap-1'
+              onClick={() => {
+                AgentManager.getInstance().cycleNext();
+              }}
+            >
+              {activeAgent ? (
+                <>
+                  {activeAgent.name}
+                  <span className='opacity-50'>{activeAgent.model}</span>
+                </>
+              ) : (
+                'Default'
+              )}
+              <KbdGroup>
+                <Kbd>Tab</Kbd>
+              </KbdGroup>
+            </Button>
             {isStreaming && (
               <Button
                 variant={'outline'}
