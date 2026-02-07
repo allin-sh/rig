@@ -2,7 +2,8 @@
 
 import { Button, Kbd, KbdGroup, Textarea } from '@allin/ui';
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { Subject } from 'rxjs';
+import { filter, Subject } from 'rxjs';
+import { useHotKey } from '@/business/hotkey/useHotKey';
 import { defaultSlashCommands } from '../../slash-command/defaultCommands';
 import { slashCommandManager } from '../../slash-command/SlashCommandManager';
 import { SlashCommandPopover } from '../../slash-command/SlashCommandPopover';
@@ -69,9 +70,28 @@ export const ChatInputView = ({
     setInput('');
   };
 
+  const slashKey$ = useHotKey('/');
+  const escapeKey$ = useHotKey('escape');
+
   useEffect(() => {
     slashCommandManager.registerCommands(defaultSlashCommands);
   }, []);
+
+  useEffect(() => {
+    const sub = slashKey$.pipe(filter(e => !e.isInputContext)).subscribe(e => {
+      e.originalEvent.preventDefault();
+      textAreaRef.current?.focus();
+    });
+    return () => sub.unsubscribe();
+  }, [slashKey$]);
+
+  useEffect(() => {
+    if (!isStreaming || !onStop) return;
+    const sub = escapeKey$.subscribe(() => {
+      onStop();
+    });
+    return () => sub.unsubscribe();
+  }, [escapeKey$, isStreaming, onStop]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const currentInput = e.target.value;
@@ -119,7 +139,7 @@ export const ChatInputView = ({
           disabled={disabled}
           onKeyDown={handleKeyDown}
           onChange={handleChange}
-          className='mx-auto max-w-2xl lg:max-w-4xl min-h-12 py-2.5 max-h-[500px] backdrop-blur-lg'
+          className='mx-auto max-w-2xl lg:max-w-4xl min-h-12 py-2.5 max-h-[500px] backdrop-blur-lg focus-visible:ring-ring/50 focus-visible:ring-[2px]'
           spellCheck={false}
           autoCorrect='off'
           autoCapitalize='off'

@@ -8,7 +8,7 @@ import { QueryProvider } from '@/lib/QueryProvider';
 export default function Home() {
   return (
     <QueryProvider>
-      <Toaster richColors duration={3000} />
+      <Toaster richColors duration={3000} theme='light' />
       <CommandPalette />
       <ChattingView />
     </QueryProvider>

@@ -1,5 +1,6 @@
 'use client';
 
+import { Kbd, toast } from '@allin/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { match } from 'ts-pattern';
 import { EnergyBar } from './EnergyBar';
@@ -120,12 +121,22 @@ function ChannelChatView({ channel }: { channel: StorageChannel }) {
               {isStreaming ? 'Streaming...' : 'Ready'}
             </div>
             <div className='w-36'>{isStreaming && <EnergyBar />}</div>
+            {isStreaming && (
+              <span className='flex items-center gap-1 text-xs'>
+                <Kbd>esc</Kbd>
+                <span className='text-muted-foreground/40'>stop</span>
+              </span>
+            )}
           </div>
           <ChatInputView
             disabled={!isReady || isStreaming}
             isStreaming={isStreaming}
             onStop={() => {
               stop();
+              toast.warning('Message cancelled', {
+                closeButton: true,
+                position: 'top-right',
+              });
             }}
             onSubmitText={async text => {
               await sendText(text);

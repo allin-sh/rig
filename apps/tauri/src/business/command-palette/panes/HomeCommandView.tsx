@@ -14,14 +14,25 @@ import {
   CreditCard,
   MessageSquare,
   Plug,
+  Plus,
   Settings,
   User,
 } from 'lucide-react';
 import * as React from 'react';
+import { ChannelState } from '@/business/chatting/ChannelState';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 
 export function HomeCommandView() {
   const { navigate, close } = useCommandPalette();
+
+  const handleNewChat = () => {
+    close();
+    ChannelState.getInstance()
+      .createNewChannel()
+      .catch(err => {
+        console.error('Failed to create new channel:', err);
+      });
+  };
   const [value, setValue] = React.useState('');
 
   const handleOpenChange = (open: boolean) => {
@@ -42,10 +53,12 @@ export function HomeCommandView() {
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandList>
         <CommandGroup
-          heading={
-            <span className='text-blue-500 font-semibold'>Channels</span>
-          }
+          heading={<span className='text-blue-500 font-semibold'>Chat</span>}
         >
+          <CommandItem onSelect={handleNewChat}>
+            <Plus />
+            <span>New Chat</span>
+          </CommandItem>
           <CommandItem onSelect={() => navigate('channels')}>
             <MessageSquare />
             <span>Switch Channel</span>
