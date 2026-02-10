@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { getProviderIcon } from '@/business/logo/ProviderIconMap';
-import { useSaveApiKey } from '@/lib/gateway/useApiKeyQuery';
+import { useSaveApiKey } from '@/lib/gateway/api-key/useApiKeyQuery';
 
 type ProviderConfigViewProps = {
   providerId: ProviderId;
