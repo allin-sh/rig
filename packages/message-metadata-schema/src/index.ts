@@ -1,3 +1,4 @@
+import type { UIMessage } from 'ai';
 import { z } from 'zod/v3';
 
 export const UIMessageMetadataSchema = z
@@ -19,3 +20,5 @@ export const UIMessageMetadataSchema = z
   .optional();
 
 export type UIMessageMetadata = z.infer<typeof UIMessageMetadataSchema>;
+
+export type ChatUIMessage = UIMessage<UIMessageMetadata>;

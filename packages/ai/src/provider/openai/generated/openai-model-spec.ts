@@ -63,8 +63,7 @@
       "cache_read": 0.125
     },
     "limit": {
-      "context": 400000,
-      "input": 272000,
+      "context": 272000,
       "output": 128000
     }
   },
@@ -128,8 +127,7 @@
       "cache_read": 0.025
     },
     "limit": {
-      "context": 400000,
-      "input": 272000,
+      "context": 272000,
       "output": 128000
     }
   },
@@ -161,8 +159,7 @@
       "cache_read": 0.13
     },
     "limit": {
-      "context": 400000,
-      "input": 272000,
+      "context": 272000,
       "output": 128000
     }
   },
@@ -194,8 +191,7 @@
       "cache_read": 0.005
     },
     "limit": {
-      "context": 400000,
-      "input": 272000,
+      "context": 272000,
       "output": 128000
     }
   },
@@ -227,8 +223,7 @@
       "cache_read": 0.125
     },
     "limit": {
-      "context": 400000,
-      "input": 272000,
+      "context": 272000,
       "output": 128000
     }
   },
@@ -292,8 +287,7 @@
       "cache_read": 0.025
     },
     "limit": {
-      "context": 400000,
-      "input": 272000,
+      "context": 272000,
       "output": 128000
     }
   },
@@ -325,8 +319,7 @@
       "cache_read": 0.125
     },
     "limit": {
-      "context": 400000,
-      "input": 272000,
+      "context": 272000,
       "output": 128000
     }
   }

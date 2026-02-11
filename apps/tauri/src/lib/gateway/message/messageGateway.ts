@@ -1,13 +1,32 @@
+import type { ChatUIMessage } from '@allin/message-metadata-schema';
 import { invoke } from '@tauri-apps/api/core';
-import type { StorageMessage } from '@/business/chatting/storage/types';
+import {
+  storageMessageToUiMessage,
+  uiMessageToStorageMessage,
+} from './messageMapper';
+import type { StorageMessage } from './types';
 
 export const messageGateway = {
-  getAll: (channelId: string) =>
-    invoke<StorageMessage[]>('get_messages', { channelId }),
+  getAll: async (channelId: string) => {
+    const storageMessages = await invoke<StorageMessage[]>('get_messages', {
+      channelId,
+    });
+    return storageMessages.map(storageMessageToUiMessage);
+  },
 
-  append: (channelId: string, message: StorageMessage) =>
-    invoke<void>('append_message', { channelId, message }),
+  append: async (channelId: string, message: ChatUIMessage) => {
+    const storageMessage = uiMessageToStorageMessage(message);
+    return await invoke<void>('append_message', {
+      channelId,
+      message: storageMessage,
+    });
+  },
 
-  upsert: (channelId: string, message: StorageMessage) =>
-    invoke<void>('upsert_message', { channelId, message }),
+  upsert: async (channelId: string, message: ChatUIMessage) => {
+    const storageMessage = uiMessageToStorageMessage(message);
+    return await invoke<void>('upsert_message', {
+      channelId,
+      message: storageMessage,
+    });
+  },
 };

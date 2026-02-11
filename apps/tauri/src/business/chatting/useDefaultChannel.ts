@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { channelGateway } from '@/lib/gateway/channel/channelGateway';
-import type { StorageChannel } from './storage/types';
+import type { StorageChannel } from '@/lib/gateway/channel/types';
 
 const DEFAULT_CHANNEL_ID = 'default';
 

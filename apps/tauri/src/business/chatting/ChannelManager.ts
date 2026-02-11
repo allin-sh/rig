@@ -1,7 +1,7 @@
 import { BehaviorSubject, type Observable } from 'rxjs';
 import { channelGateway } from '@/lib/gateway/channel/channelGateway';
+import type { StorageChannel } from '@/lib/gateway/channel/types';
 import { messageGateway } from '@/lib/gateway/message/messageGateway';
-import type { StorageChannel } from './storage/types';
 
 export class ChannelManager {
   private static instance: ChannelManager;
@@ -110,7 +110,9 @@ export class ChannelManager {
 
   public async deleteChannel(channelId: string) {
     await channelGateway.delete(channelId);
-    const remaining = this._channels$.getValue().filter(c => c.id !== channelId);
+    const remaining = this._channels$
+      .getValue()
+      .filter(c => c.id !== channelId);
     this._channels$.next(remaining);
 
     if (this._selectedChannelId$.getValue() === channelId) {

@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import type { StorageChannel } from '@/lib/gateway/channel/types';
 import { ChannelManager } from './ChannelManager';
-import type { StorageChannel } from './storage/types';
 
 const channelManager = ChannelManager.getInstance();
 

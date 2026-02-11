@@ -14,6 +14,7 @@ import {
 import { AgentManager } from '@/business/agent/AgentManager';
 import { TauriChatTransport } from '@/business/chatting/tauri-chat-transport';
 import { agentGateway } from '@/lib/gateway/agent/agentGateway';
+import type { StorageChannel } from '@/lib/gateway/channel/types';
 import { messageGateway } from '@/lib/gateway/message/messageGateway';
 import { ChannelManager } from './ChannelManager';
 import { ChatFacade, ChatFacadeManager } from './facade';
@@ -21,7 +22,6 @@ import {
   storageMessageToUiMessage,
   uiMessageToStorageMessage,
 } from './storage/messageMapper';
-import type { StorageChannel } from './storage/types';
 
 const EMPTY_MESSAGES: UIMessage<UIMessageMetadata>[] = [];
 
@@ -53,8 +53,7 @@ export function useChat(channel: StorageChannel | null) {
           return agents[0];
         });
 
-        const storageMessages = await messageGateway.getAll(channelId);
-        const uiMessages = storageMessages.map(storageMessageToUiMessage);
+        const uiMessages = await messageGateway.getAll(channelId);
 
         const transport = new TauriChatTransport({
           providerName: agent.providerName as ProviderId,
@@ -147,11 +146,9 @@ export function useChat(channel: StorageChannel | null) {
           ...metadata,
         },
       };
-      messageGateway
-        .append(chatFacade.getId(), uiMessageToStorageMessage(toSave))
-        .catch(err => {
-          console.error('appendMessage failed:', err);
-        });
+      messageGateway.append(chatFacade.getId(), toSave).catch(err => {
+        console.error('appendMessage failed:', err);
+      });
     });
 
     const subscription2 = chatFacade.finish$.subscribe(
@@ -170,10 +167,7 @@ export function useChat(channel: StorageChannel | null) {
         };
 
         messageGateway
-          .upsert(
-            chatFacade.getId(),
-            uiMessageToStorageMessage(enrichedMessage),
-          )
+          .upsert(chatFacade.getId(), enrichedMessage)
           .catch(err => {
             console.error('upsertMessage failed:', err);
           });
