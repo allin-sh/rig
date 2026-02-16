@@ -10,6 +10,7 @@
     "lint": "eslint",
     "tauri": "tauri",
     "test": "vitest run",
+    "test:watch": "vitest",
     "format": "biome check --write ."
   },
   "dependencies": {
