@@ -60,8 +60,6 @@ export function useChat(channel: StorageChannel | null) {
           id: channelId,
           messages: uiMessages,
           transport,
-          providerName: agent.providerName as ProviderId,
-          modelId: agent.model,
         });
 
         if (agent.prompt?.trim()) {
@@ -117,11 +115,8 @@ export function useChat(channel: StorageChannel | null) {
           providerName: activeAgent.providerName as ProviderId,
           modelId: activeAgent.model,
         });
-        chatFacade.updateTransport(
-          transport,
-          activeAgent.providerName as ProviderId,
-          activeAgent.model,
-        );
+
+        chatFacade.updateTransport(transport);
       },
     );
 
@@ -153,8 +148,8 @@ export function useChat(channel: StorageChannel | null) {
           ...message,
           metadata: {
             ...(message.metadata ?? {}),
-            provider: chatFacade.getProviderName(),
-            modelId: chatFacade.getModelId(),
+            provider: chatFacade.providerId,
+            modelId: chatFacade.modelId,
             isAborted: isAbort || undefined,
             isDisconnected: isDisconnect || undefined,
             isError: isError || undefined,

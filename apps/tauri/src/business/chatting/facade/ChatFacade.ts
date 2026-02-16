@@ -9,6 +9,7 @@ import type {
   UIMessage,
 } from 'ai';
 import { BehaviorSubject, type Observable, Subject } from 'rxjs';
+import type { TauriChatTransport } from '../tauri-chat-transport';
 import type { Setter } from './setter';
 import { UIMessageStore } from './UiMessageStore';
 
@@ -17,9 +18,7 @@ type ChatUiMessage = UIMessage<UIMessageMetadata>;
 type CreateChatFacadeParams = {
   id: string;
   messages: ChatUiMessage[];
-  transport: ChatTransport<ChatUiMessage>;
-  providerName: ProviderId;
-  modelId: string;
+  transport: TauriChatTransport;
   throttleTime?: number;
 };
 
@@ -28,7 +27,6 @@ export class ChatFacade {
   private chat: Chat<ChatUiMessage>;
   private uiMessageStore: UIMessageStore<ChatUiMessage>;
   private status$ = new BehaviorSubject<ChatStatus>('ready');
-
   private onData$ = new Subject<
     Parameters<ChatOnDataCallback<ChatUiMessage>>[0]
   >();
@@ -37,25 +35,22 @@ export class ChatFacade {
   >();
   private onError$ = new Subject<Error>();
   private onBeforeSend$ = new Subject<ChatUiMessage & { role: 'user' }>();
-
-  private providerName: ProviderId;
-  private modelId: string;
   private _isDisposed = false;
   private throttleTime: number;
+  public modelId: string;
+  public providerId: ProviderId;
 
   constructor({
     id,
     transport,
-    providerName,
-    modelId,
     messages,
     throttleTime = 50,
   }: CreateChatFacadeParams) {
     this.uiMessageStore = new UIMessageStore<ChatUiMessage>();
     this.id = id;
-    this.providerName = providerName;
-    this.modelId = modelId;
     this.throttleTime = throttleTime;
+    this.providerId = transport.getProviderName();
+    this.modelId = transport.getModelId();
 
     this.chat = this.createChat({
       id,
@@ -95,10 +90,6 @@ export class ChatFacade {
     return this.chat.error;
   }
 
-  public getModelId() {
-    return this.modelId;
-  }
-
   public getOnData$() {
     return this.onData$.asObservable();
   }
@@ -115,33 +106,8 @@ export class ChatFacade {
     return this.onBeforeSend$.asObservable();
   }
 
-  public __getChat() {
-    return this.chat;
-  }
-
-  public getProviderName() {
-    return this.providerName;
-  }
-
-  public setUiMessages(setter: Setter<ChatUiMessage[]>) {
+  private setUiMessages(setter: Setter<ChatUiMessage[]>) {
     this.uiMessageStore.setUiMessages(setter);
-  }
-
-  public createOrReplaceMessage(message: ChatUiMessage) {
-    const existingMessageIndex = this.getUiMessages().findIndex(
-      m => m.id === message.id,
-    );
-
-    const newMessages =
-      existingMessageIndex !== -1
-        ? [
-            ...this.getUiMessages().slice(0, existingMessageIndex),
-            message,
-            ...this.getUiMessages().slice(existingMessageIndex + 1),
-          ]
-        : [...this.getUiMessages(), message];
-
-    this.setUiMessages(newMessages);
   }
 
   public addSystemMessage(message: ChatUiMessage & { role: 'system' }) {
@@ -199,10 +165,7 @@ export class ChatFacade {
     });
 
     chat['~registerMessagesCallback'](() => {
-      const streamingMessage = chat.lastMessage;
-      if (streamingMessage) {
-        this.createOrReplaceMessage(streamingMessage);
-      }
+      this.setUiMessages(chat.messages);
     }, throttleTime);
 
     this.chat = chat;
@@ -210,14 +173,9 @@ export class ChatFacade {
     return chat;
   }
 
-  public updateTransport(
-    transport: ChatTransport<ChatUiMessage>,
-    providerName: ProviderId,
-    modelId: string,
-  ) {
-    this.providerName = providerName;
-    this.modelId = modelId;
-
+  public updateTransport(transport: TauriChatTransport) {
+    this.providerId = transport.getProviderName();
+    this.modelId = transport.getModelId();
     this.createChat({
       id: this.chat.id,
       messages: this.chat.messages,

@@ -179,6 +179,14 @@ export class TauriChatTransport implements ChatTransport<UIMessage> {
     this.modelId = modelId;
   }
 
+  public getModelId() {
+    return this.modelId;
+  }
+
+  public getProviderName() {
+    return this.providerName;
+  }
+
   /**
    * Sends messages to the Tauri backend and returns a ReadableStream
    * that emits UIMessageChunk events compatible with useChat.
