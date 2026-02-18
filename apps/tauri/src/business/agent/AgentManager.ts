@@ -1,18 +1,13 @@
 import { BehaviorSubject } from 'rxjs';
 import { agentGateway } from '@/lib/gateway/agent/agentGateway';
-import type { AgentPreset } from './types';
+import type { Agent } from './types';
 
 export class AgentManager {
   private static instance: AgentManager;
-
-  private initialized = false;
-  private _agents$ = new BehaviorSubject<AgentPreset[]>([]);
-  private _activeAgentId$ = new BehaviorSubject<string>('');
+  private _agents$ = new BehaviorSubject<Agent[]>([]);
+  private _selectedAgentId$ = new BehaviorSubject<string | null>('');
 
   private constructor() {}
-  private updateActiveAgentId(agentId: string) {
-    this._activeAgentId$.next(agentId);
-  }
 
   public static getInstance() {
     if (!AgentManager.instance) {
@@ -21,21 +16,14 @@ export class AgentManager {
     return AgentManager.instance;
   }
 
-  public async initialize() {
-    if (this.initialized) return;
-    this.initialized = true;
-
-    await this.loadAgents();
+  public get selectedAgentId() {
+    return this._selectedAgentId$.getValue();
   }
-
-  public get activeAgentId() {
-    return this._activeAgentId$.getValue();
+  public get selectedAgentId$() {
+    return this._selectedAgentId$.asObservable();
   }
-  public get activeAgentId$() {
-    return this._activeAgentId$.asObservable();
-  }
-  public get activeAgent() {
-    return this.agents.find(a => a.id === this.activeAgentId) ?? null;
+  public get selectedAgent() {
+    return this.agents.find(a => a.id === this.selectedAgentId) ?? null;
   }
 
   public get agents() {
@@ -44,35 +32,46 @@ export class AgentManager {
   public get agents$() {
     return this._agents$.asObservable();
   }
-
-  private async loadAgents() {
-    const agents = await agentGateway.getAll();
-    agents.sort((a, b) => a.createdAt - b.createdAt);
+  private setAgents(agents: Agent[]) {
     this._agents$.next(agents);
-    this.updateActiveAgentId(agents[0].id);
+  }
+
+  public async loadAgents() {
+    const agents = await agentGateway.getAll();
+    agents.sort((a, b) => b.createdAt - a.createdAt);
+    this.setAgents(agents);
     return agents;
+  }
+
+  public setSelectedAgent(agentId: string) {
+    if (!this.agents.map(a => a.id).includes(agentId)) {
+      throw new Error(`Agent with id ${agentId} not found`);
+    }
+    this._selectedAgentId$.next(agentId);
   }
 
   public async delete(agentId: string) {
     await agentGateway.delete(agentId);
     const agents = await this.loadAgents();
 
-    if (!agents.map(a => a.id).includes(this.activeAgentId)) {
-      this.updateActiveAgentId(agents[0].id);
+    if (!agents.map(a => a.id).includes(this.selectedAgentId ?? '')) {
+      this.setSelectedAgent(agents[0].id);
     }
   }
 
-  public cycleNext() {
+  public cycleSelectedAgent() {
     if (this.agents.length <= 1) {
       return;
     }
 
-    const currentIndex = this.agents.map(a => a.id).indexOf(this.activeAgentId);
+    const currentIndex = this.agents
+      .map(a => a.id)
+      .indexOf(this.selectedAgentId ?? '');
     if (currentIndex === -1) {
       return;
     }
 
     const nextIndex = (currentIndex + 1) % this.agents.length;
-    this.updateActiveAgentId(this.agents[nextIndex].id);
+    this.setSelectedAgent(this.agents[nextIndex].id);
   }
 }

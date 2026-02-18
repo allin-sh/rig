@@ -13,7 +13,7 @@ import {
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useState, useSyncExternalStore } from 'react';
 import { AgentManager } from '@/business/agent/AgentManager';
-import type { AgentPreset } from '@/business/agent/types';
+import type { Agent } from '@/business/agent/types';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { getProviderIcon } from '@/business/logo/ProviderIconMap';
 
@@ -25,7 +25,7 @@ export const AgentListView = () => {
     const sub = AgentManager.getInstance().agents$.subscribe(onChange);
     return () => sub.unsubscribe();
   }, []);
-  const agents = useSyncExternalStore<AgentPreset[]>(
+  const agents = useSyncExternalStore<Agent[]>(
     subscribeToAgents,
     () => AgentManager.getInstance().agents,
     () => AgentManager.getInstance().agents,
@@ -38,7 +38,7 @@ export const AgentListView = () => {
     }
   };
 
-  const handleDelete = async (agent: AgentPreset) => {
+  const handleDelete = async (agent: Agent) => {
     try {
       await AgentManager.getInstance().delete(agent.id);
       toast.success(`Deleted "${agent.name}"`, {

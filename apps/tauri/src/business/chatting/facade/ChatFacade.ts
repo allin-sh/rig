@@ -102,7 +102,7 @@ export class ChatFacade {
     return this.onError$.asObservable();
   }
 
-  public getOnBeforeSend$() {
+  public beforeMessageSend$() {
     return this.onBeforeSend$.asObservable();
   }
 

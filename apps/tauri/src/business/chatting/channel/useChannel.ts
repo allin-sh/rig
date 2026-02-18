@@ -1,22 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
-import type { StorageChannel } from '@/lib/gateway/channel/types';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { ChannelManager } from './ChannelManager';
 
 const channelManager = ChannelManager.getInstance();
 
 export function useChannel() {
-  const [initialized, setInitialized] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    channelManager
-      .initialize()
-      .then(() => setInitialized(true))
-      .catch(e => setError(e instanceof Error ? e : new Error(String(e))));
-  }, []);
-
   const subscribeToChannels = useCallback((onChange: () => void) => {
     const sub = channelManager.channels$.subscribe(onChange);
     return () => sub.unsubscribe();
@@ -46,43 +35,28 @@ export function useChannel() {
     getSelectedChannelId,
   );
 
-  const selectedChannel: StorageChannel | null =
-    channels.find(c => c.id === selectedChannelId) ?? null;
+  const selectedChannel = useMemo(() => {
+    return channels.find(c => c.id === selectedChannelId) ?? null;
+  }, [channels, selectedChannelId]);
 
   const createNewChannel = useCallback(async () => {
-    return channelManager.createNewChannel();
-  }, []);
-
-  const createChannelWithMessage = useCallback(async (message: string) => {
-    return channelManager.createChannelWithMessage(message);
+    const channel = await channelManager.createNewChannel();
+    return channel;
   }, []);
 
   const selectChannel = useCallback(async (channelId: string) => {
     await channelManager.selectChannel(channelId);
   }, []);
 
-  const startNewChat = useCallback(() => {
-    channelManager.clearSelection();
-  }, []);
-
-  const getPendingMessage = useCallback(() => {
-    return channelManager.pendingMessage;
-  }, []);
-
-  const clearPendingMessage = useCallback(() => {
-    channelManager.setPendingMessage(null);
+  const fetchChannels = useCallback(async () => {
+    await channelManager.fetchChannels();
   }, []);
 
   return {
-    initialized,
-    error,
     channels,
     selectedChannel,
     createNewChannel,
-    createChannelWithMessage,
     selectChannel,
-    startNewChat,
-    getPendingMessage,
-    clearPendingMessage,
+    fetchChannels,
   };
 }

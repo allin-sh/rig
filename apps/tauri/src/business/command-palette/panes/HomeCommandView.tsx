@@ -19,7 +19,7 @@ import {
   User,
 } from 'lucide-react';
 import * as React from 'react';
-import { ChannelManager } from '@/business/chatting/ChannelManager';
+import { ChannelManager } from '@/business/chatting/channel/ChannelManager';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 
 export function HomeCommandView() {

@@ -12,7 +12,7 @@ import {
 } from 'react';
 import { filter, Subject } from 'rxjs';
 import { AgentManager } from '@/business/agent/AgentManager';
-import type { AgentPreset } from '@/business/agent/types';
+import type { Agent } from '@/business/agent/types';
 import { useHotKey } from '@/business/hotkey/useHotKey';
 import { defaultSlashCommands } from '../../slash-command/defaultCommands';
 import { slashCommandManager } from '../../slash-command/SlashCommandManager';
@@ -41,13 +41,13 @@ export const ChatInputView = ({
   );
 
   const subscribeToActiveAgent = useCallback((onChange: () => void) => {
-    const sub = AgentManager.getInstance().activeAgentId$.subscribe(onChange);
+    const sub = AgentManager.getInstance().selectedAgentId$.subscribe(onChange);
     return () => sub.unsubscribe();
   }, []);
-  const activeAgent = useSyncExternalStore<AgentPreset | null>(
+  const activeAgent = useSyncExternalStore<Agent | null>(
     subscribeToActiveAgent,
-    () => AgentManager.getInstance().activeAgent,
-    () => AgentManager.getInstance().activeAgent,
+    () => AgentManager.getInstance().selectedAgent,
+    () => AgentManager.getInstance().selectedAgent,
   );
 
   const setInput = (value: string) => {
@@ -131,7 +131,7 @@ export const ChatInputView = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab' && !isSlashCommandOpen) {
       e.preventDefault();
-      AgentManager.getInstance().cycleNext();
+      AgentManager.getInstance().cycleSelectedAgent();
       return;
     }
 
@@ -178,7 +178,7 @@ export const ChatInputView = ({
               size='sm'
               className='text-xs text-muted-foreground gap-1'
               onClick={() => {
-                AgentManager.getInstance().cycleNext();
+                AgentManager.getInstance().cycleSelectedAgent();
               }}
             >
               {activeAgent ? (

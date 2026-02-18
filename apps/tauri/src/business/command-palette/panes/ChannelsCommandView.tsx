@@ -10,14 +10,14 @@ import {
 } from '@allin/ui';
 import { MessageSquare, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { ChannelManager } from '@/business/chatting/ChannelManager';
+import { ChannelManager } from '@/business/chatting/channel/ChannelManager';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 
 export function ChannelsCommandView() {
   const { close } = useCommandPalette();
   const [value, setValue] = useState('');
   const { pinned, unpinned } = useMemo(
-    () => ChannelManager.getInstance().sortedChannels,
+    () => ChannelManager.getInstance().pinnedChannels,
     [],
   );
 

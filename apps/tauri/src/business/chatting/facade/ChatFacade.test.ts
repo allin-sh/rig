@@ -73,7 +73,7 @@ describe('ChatFacade', () => {
         initialMessages: [],
       });
 
-      chatFacade.getOnBeforeSend$().subscribe(message => {
+      chatFacade.beforeMessageSend$().subscribe(message => {
         expect(getUserMessageText(message)).toBe('Hello, how are you?');
       });
 
