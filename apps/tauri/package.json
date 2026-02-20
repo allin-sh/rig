@@ -48,7 +48,8 @@
     "rxjs": "catalog:utils",
     "shiki": "^3.6.0",
     "ts-pattern": "catalog:utils",
-    "uuid": "catalog:utils"
+    "uuid": "catalog:utils",
+    "zod": "catalog:utils"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

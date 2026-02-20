@@ -4,7 +4,6 @@ import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import { AgentManager } from './agent/AgentManager';
 import { ChannelManager } from './chatting/channel/ChannelManager';
 import { ChatFacadeManager } from './chatting/facade/ChatFacadeManager';
-import { ChatInputState } from './chatting/input/ChatInputState';
 import { CommandPaletteManager } from './command-palette/CommandPaletteManager';
 import { SlashCommandManager } from './slash-command/SlashCommandManager';
 
@@ -12,7 +11,6 @@ export type Services = {
   agentManager: AgentManager;
   channelManager: ChannelManager;
   chatFacadeManager: ChatFacadeManager;
-  chatInputState: ChatInputState;
   commandPaletteManager: CommandPaletteManager;
   slashCommandManager: SlashCommandManager;
 };
@@ -23,7 +21,6 @@ export const createServices = (): Services => {
   const agentManager = AgentManager.getInstance();
   const channelManager = ChannelManager.getInstance();
   const chatFacadeManager = ChatFacadeManager.getInstance();
-  const chatInputState = ChatInputState.getInstance();
   const commandPaletteManager = CommandPaletteManager.getInstance();
   const slashCommandManager = SlashCommandManager.getInstance();
 
@@ -31,7 +28,6 @@ export const createServices = (): Services => {
     agentManager,
     channelManager,
     chatFacadeManager,
-    chatInputState,
     commandPaletteManager,
     slashCommandManager,
   };

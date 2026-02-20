@@ -182,20 +182,25 @@ export class SessionMap {
 
 ## Owner's Coding Style
 
-### React Component Syntax
-- Use arrow function syntax: `const Component = () => { ... }`
-- NOT function declaration: `function Component() { ... }`
+### Arrow Function Syntax (All Functions)
+- **Always** use arrow function syntax for components, hooks, utilities, and test helpers
+- NOT function declaration: `function foo() { ... }`
+- Only exception: class methods
 
 ```typescript
 // Good
 export const MyComponent = () => {
   return <div>...</div>;
 };
+const setup = () => { ... };
+const handleClick = () => { ... };
 
 // Bad
 export function MyComponent() {
   return <div>...</div>;
 }
+function setup() { ... }
+function handleClick() { ... }
 ```
 
 ### Architecture: View / State Separation
@@ -285,6 +290,25 @@ const CommandPalette = () => {
   <HomePane />      {/* internally: if (currentPane === 'home') */}
   <ChannelsPane />  {/* internally: if (currentPane === 'channels') */}
 </>
+```
+
+### Testing: Singleton Services
+- Hooks/components that depend on singleton services (via `useService`) must be tested with `renderHookWithServices` / `renderWithServices` from `@/test-utils/renderWithServices`
+- Do NOT mock `@/business/ServiceContext` directly — use the override parameter instead
+
+```typescript
+// Good
+import { renderHookWithServices } from '@/test-utils/renderWithServices';
+
+const { result } = renderHookWithServices(
+  () => useMyHook(),
+  { slashCommandManager: manager },
+);
+
+// Bad
+vi.mock('@/business/ServiceContext', () => ({
+  useService: () => ({ ... }),
+}));
 ```
 
 ## Error Handling

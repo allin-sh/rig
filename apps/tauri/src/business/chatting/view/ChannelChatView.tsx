@@ -23,8 +23,6 @@ export const ChannelChatView = ({ channel }: { channel: StorageChannel }) => {
   const { uiMessages, status, sendText, stop } = useChat(chatFacade);
   const isStreaming = status === 'streaming' || status === 'submitted';
 
-  console.log('uiMessages', uiMessages);
-
   const visibleMessages = useMemo(
     () => uiMessages.filter(m => m.role !== 'system'),
     [uiMessages],
@@ -35,6 +33,7 @@ export const ChannelChatView = ({ channel }: { channel: StorageChannel }) => {
 
   return (
     <div className='h-dvh w-full flex flex-col bg-background'>
+      <input type='text' />
       <div className='flex-1 overflow-y-auto px-4 py-6'>
         <div className='mx-auto max-w-3xl'>
           {visibleMessages.map((msg, index) =>

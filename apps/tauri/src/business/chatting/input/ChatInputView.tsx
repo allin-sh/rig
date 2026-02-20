@@ -15,7 +15,7 @@ import type { Agent } from '@/business/agent/types';
 import { useHotKey } from '@/business/hotkey/useHotKey';
 import { useService } from '@/business/ServiceContext';
 import { defaultSlashCommands } from '../../slash-command/defaultCommands';
-import { SlashCommandPopover } from '../../slash-command/SlashCommandPopover';
+import { SlashCommandPopover } from '../../slash-command/view/SlashCommandPopover';
 
 type ChatInputViewProps = {
   onSubmitText: (text: string) => Promise<void>;
@@ -30,8 +30,8 @@ export const ChatInputView = ({
   disabled = false,
   isStreaming = false,
 }: ChatInputViewProps) => {
-  const { agentManager, slashCommandManager, chatInputState } = useService();
-  const [input, _setInput] = useState('');
+  const { agentManager, slashCommandManager } = useService();
+  const [input, setInput] = useState('');
   const [isSlashCommandOpen, setIsSlashCommandOpen] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const modifierKeyEvent$ = useMemo(
@@ -52,16 +52,7 @@ export const ChatInputView = ({
     () => agentManager.selectedAgent,
   );
 
-  const setInput = (value: string) => {
-    _setInput(value);
-    chatInputState.setValue(value);
-  };
-
   const handleSubmit = async () => {
-    if (disabled) return;
-
-    const trimmedInput = input.trimStart();
-
     if (trimmedInput.startsWith('/')) {
       const withoutSlash = trimmedInput.slice(1);
 
@@ -69,18 +60,17 @@ export const ChatInputView = ({
       const allCommands = slashCommandManager.getCommands();
       const matchingCommands = allCommands
         .filter(cmd =>
-          withoutSlash.toLowerCase().startsWith(cmd.name.toLowerCase()),
+          withoutSlash.toLowerCase().startsWith(cmd.commandName.toLowerCase()),
         )
-        .sort((a, b) => b.name.length - a.name.length);
+        .sort((a, b) => b.commandName.length - a.commandName.length);
 
       const command = matchingCommands[0];
       const userText = command
-        ? withoutSlash.slice(command.name.length).trimStart()
+        ? withoutSlash.slice(command.commandName.length).trimStart()
         : '';
 
       if (command && command.mode === 'template') {
-        const resolved = slashCommandManager.resolveTemplate(command, userText);
-        await onSubmitText(resolved);
+        await onSubmitText(command.toPrompt(userText));
         setInput('');
         return;
       }
@@ -241,7 +231,7 @@ export const ChatInputView = ({
                 console.error('Action execute error:', err);
               });
             } else if (command.mode === 'template') {
-              setInput('/' + command.name + ' ');
+              setInput('/' + command.commandName + ' ');
               textAreaRef.current?.focus();
             }
           }}

@@ -13,7 +13,8 @@ import { Fzf } from 'fzf';
 import { useEffect, useMemo, useState } from 'react';
 import type { Subject } from 'rxjs';
 import { useService } from '@/business/ServiceContext';
-import type { SlashCommand } from './types';
+import { useSlashCommandSearch } from '../hooks/useSlashCommandSearch';
+import type { SlashCommand } from '../ISlashCommand';
 
 type SlashCommandPopoverProps = {
   query: string;
@@ -28,21 +29,8 @@ export function SlashCommandPopover({
   anchorRef,
   modifierKeyEvent$,
 }: SlashCommandPopoverProps) {
-  const { slashCommandManager } = useService();
-  const [commands] = useState<SlashCommand[]>(
-    slashCommandManager.getCommands(),
-  );
   const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const fzf = useMemo(
-    () => new Fzf(commands, { selector: (cmd: SlashCommand) => cmd.name }),
-    [commands],
-  );
-
-  const filteredCommands = useMemo(
-    () => (query ? fzf.find(query).map(result => result.item) : commands),
-    [fzf, query, commands],
-  );
+  const filteredCommands = useSlashCommandSearch(query);
 
   useEffect(() => {
     const subscription = modifierKeyEvent$.subscribe(key => {
@@ -79,7 +67,7 @@ export function SlashCommandPopover({
       >
         <Command
           shouldFilter={false}
-          value={filteredCommands[selectedIndex]?.name}
+          value={filteredCommands[selectedIndex]?.commandName}
           onValueChange={() => {}}
         >
           <CommandList>
@@ -87,11 +75,11 @@ export function SlashCommandPopover({
             {filteredCommands.map(command => (
               <CommandItem
                 key={command.id}
-                value={command.name}
+                value={command.commandName}
                 onSelect={() => onSelect(command)}
               >
                 <span className='text-sm font-medium w-[160px]'>
-                  {command.name}
+                  {command.commandName}
                 </span>
                 <span className='text-xs text-muted-foreground'>
                   {command.description}

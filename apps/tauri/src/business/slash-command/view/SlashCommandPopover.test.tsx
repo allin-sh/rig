@@ -1,9 +1,9 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { Subject } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SlashCommandManager } from './SlashCommandManager';
+import { SlashCommandManager } from '../SlashCommandManager';
+import type { SlashCommand } from '../types';
 import { SlashCommandPopover } from './SlashCommandPopover';
-import type { SlashCommand } from './types';
 
 vi.mock('@allin/ui', () => ({
   Popover: ({ children }: { children: React.ReactNode }) => (

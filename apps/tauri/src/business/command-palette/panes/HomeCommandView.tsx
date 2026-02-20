@@ -27,7 +27,7 @@ export function HomeCommandView() {
   const { navigate, close } = useCommandPalette();
 
   const handleNewChat = () => {
-    channelManager.clearSelection();
+    channelManager.clearSelectedChannel();
     close();
   };
   const [value, setValue] = React.useState('');

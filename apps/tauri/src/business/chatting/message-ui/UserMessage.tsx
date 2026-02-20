@@ -18,7 +18,7 @@ export const UserMessage = ({ message }: UserMessageProps) => {
   const userMessage: string = getUserMessageText(message);
 
   return (
-    <div className='not-prose flex flex-col my-4 ml-auto max-w-[80%]'>
+    <div className='not-prose flex flex-col my-4 ml-auto max-w-[80%] w-fit'>
       <Badge className='text-sm p-1.5 px-2 rounded-xl text-wrap whitespace-pre-wrap break-keep'>
         {userMessage}
       </Badge>

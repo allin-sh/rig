@@ -35,10 +35,6 @@ export class ChannelManager {
     if (!id) return null;
     return this._channels$.getValue().find(c => c.id === id) ?? null;
   }
-  public get pinnedChannels(): StorageChannel[] {
-    const channels = this._channels$.getValue();
-    return channels.filter(c => Boolean(c.pin));
-  }
 
   public async fetchChannels() {
     const channels = await channelGateway.getAll();
@@ -47,6 +43,10 @@ export class ChannelManager {
 
   public async selectChannel(channelId: string) {
     this._selectedChannelId$.next(channelId);
+  }
+
+  public clearSelectedChannel() {
+    this._selectedChannelId$.next(null);
   }
 
   public async createNewChannel(): Promise<StorageChannel> {

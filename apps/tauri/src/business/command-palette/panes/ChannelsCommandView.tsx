@@ -13,13 +13,20 @@ import { useMemo, useState } from 'react';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { useService } from '@/business/ServiceContext';
 
-export function ChannelsCommandView() {
+export const ChannelsCommandView = () => {
   const { channelManager } = useService();
   const { close } = useCommandPalette();
   const [value, setValue] = useState('');
-  const { pinned, unpinned } = useMemo(
-    () => channelManager.pinnedChannels,
-    [channelManager],
+  const allChannels = useMemo(() => {
+    return channelManager.channels;
+  }, []);
+  const channels_pinned = useMemo(
+    () => allChannels.filter(c => c.pin),
+    [allChannels],
+  );
+  const channels_normal = useMemo(
+    () => allChannels.filter(c => !c.pin),
+    [allChannels],
   );
 
   const handleOpenChange = (open: boolean) => {
@@ -35,7 +42,7 @@ export function ChannelsCommandView() {
   };
 
   const handleNewChat = () => {
-    channelManager.clearSelection();
+    channelManager.clearSelectedChannel();
     close();
   };
 
@@ -70,13 +77,13 @@ export function ChannelsCommandView() {
           </CommandItem>
         </CommandGroup>
 
-        {pinned.length > 0 && (
+        {channels_pinned.length > 0 && (
           <CommandGroup
             heading={
               <span className='text-amber-500 font-semibold'>Pinned</span>
             }
           >
-            {pinned.map(channel => (
+            {channels_pinned.map(channel => (
               <CommandItem
                 key={channel.id}
                 value={channel.id}
@@ -96,13 +103,13 @@ export function ChannelsCommandView() {
           </CommandGroup>
         )}
 
-        {unpinned.length > 0 && (
+        {channels_normal.length > 0 && (
           <CommandGroup
             heading={
               <span className='text-blue-500 font-semibold'>Recent</span>
             }
           >
-            {unpinned.map(channel => (
+            {channels_normal.map(channel => (
               <CommandItem
                 key={channel.id}
                 value={channel.id}
@@ -124,4 +131,4 @@ export function ChannelsCommandView() {
       </CommandList>
     </CommandDialog>
   );
-}
+};
