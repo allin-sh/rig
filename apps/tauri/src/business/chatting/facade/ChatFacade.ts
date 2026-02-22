@@ -9,6 +9,7 @@ import type {
   ChatTransport,
   UIMessage,
 } from 'ai';
+import { throttle } from 'es-toolkit';
 import { type Observable, Subject } from 'rxjs';
 import type { TauriChatTransport } from '../transport/TauriChatTransport';
 import type { Setter } from './setter';
@@ -32,7 +33,7 @@ export class ChatFacade {
     Parameters<ChatOnDataCallback<ChatUiMessage>>[0]
   >();
   private onFinish$ = new Subject<
-    Parameters<ChatOnFinishCallback<ChatUiMessage>>[0]
+    Omit<Parameters<ChatOnFinishCallback<ChatUiMessage>>[0], 'messages'>
   >();
   private onError$ = new Subject<Error>();
   private onBeforeSend$ = new Subject<ChatUiMessage & { role: 'user' }>();
@@ -153,8 +154,53 @@ export class ChatFacade {
       onData: data => {
         this.onData$.next(data);
       },
-      onFinish: options => {
-        this.onFinish$.next(options);
+      onFinish: ({ message, isAbort, isDisconnect, isError }) => {
+        const metadata: UIMessageMetadata = {
+          ...(message.metadata ?? {}),
+          provider: this.providerId,
+          modelId: this.modelId,
+          isAborted: isAbort || undefined,
+          isDisconnected: isDisconnect || undefined,
+          isError: isError || undefined,
+          errorMessage: JSON.stringify(this.chat.error),
+        };
+
+        const messageWithMetadata: ChatUiMessage = {
+          ...message,
+          metadata,
+        };
+
+        const throttledSetUiMessages = throttle(
+          () => {
+            if (
+              this.uiMessageStore.getUiMessages().some(m => m.id === message.id)
+            ) {
+              this.setUiMessages(prev =>
+                prev.map(m => {
+                  if (m.id === message.id) {
+                    return messageWithMetadata;
+                  }
+                  return m;
+                }),
+              );
+            } else {
+              this.setUiMessages(prev => [...prev, messageWithMetadata]);
+            }
+
+            this.onFinish$.next({
+              message: messageWithMetadata,
+              isAbort,
+              isDisconnect,
+              isError,
+            });
+          },
+          this.throttleTime * 1.2,
+          {
+            edges: ['trailing'],
+          },
+        );
+
+        throttledSetUiMessages();
       },
       onError: error => {
         this.onError$.next(error);

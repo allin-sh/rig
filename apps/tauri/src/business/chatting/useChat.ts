@@ -45,9 +45,7 @@ export function useChat(chatFacade: ChatFacade | null) {
 
   const stop = useCallback(() => {
     if (!chatFacade) return;
-    chatFacade.stop().catch(err => {
-      console.error('stop failed:', err);
-    });
+    chatFacade.stop();
   }, [chatFacade]);
 
   const sendText = useCallback(
@@ -67,10 +65,28 @@ export function useChat(chatFacade: ChatFacade | null) {
     [chatFacade],
   );
 
+  const subscribeToError = useCallback(
+    (onChange: () => void) => {
+      if (!chatFacade) return () => {};
+      const subscription = chatFacade.getOnError$().subscribe(onChange);
+      return () => {
+        subscription.unsubscribe();
+      };
+    },
+    [chatFacade],
+  );
+
+  const error = useSyncExternalStore(
+    subscribeToError,
+    () => chatFacade?.getError() ?? null,
+    () => chatFacade?.getError() ?? null,
+  );
+
   return {
     uiMessages,
     status,
     stop,
     sendText,
+    error,
   };
 }

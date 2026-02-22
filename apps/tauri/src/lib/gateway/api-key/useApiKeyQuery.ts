@@ -7,8 +7,9 @@ const apiKeyKeys = {
   has: (id: ProviderId) => ['apiKey', 'has', id] as const,
 };
 
-export const useHasApiKeys = () =>
-  useQuery({
+export const useApiKey = () => {
+  const queryClient = useQueryClient();
+  const { data } = useQuery({
     queryKey: apiKeyKeys.all,
     queryFn: async () => {
       const entries = await Promise.all(
@@ -20,9 +21,7 @@ export const useHasApiKeys = () =>
     },
   });
 
-export const useSaveApiKey = () => {
-  const qc = useQueryClient();
-  return useMutation({
+  const saveApiKey = useMutation({
     mutationFn: ({
       providerName,
       apiKey,
@@ -30,15 +29,20 @@ export const useSaveApiKey = () => {
       providerName: ProviderId;
       apiKey: string;
     }) => apiKeyGateway.save(providerName, apiKey),
-    onSuccess: () => qc.invalidateQueries({ queryKey: apiKeyKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: apiKeyKeys.all }),
   });
-};
 
-export const useDeleteApiKey = () => {
-  const qc = useQueryClient();
-  return useMutation({
+  const deleteApiKey = useMutation({
     mutationFn: (providerName: ProviderId) =>
       apiKeyGateway.delete(providerName),
-    onSuccess: () => qc.invalidateQueries({ queryKey: apiKeyKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: apiKeyKeys.all }),
   });
+
+  return {
+    apiKeyStatus: data,
+    saveApiKey,
+    deleteApiKey,
+  };
 };

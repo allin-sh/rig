@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { getProviderIcon } from '@/business/logo/ProviderIconMap';
-import { useSaveApiKey } from '@/lib/gateway/api-key/useApiKeyQuery';
+import { useApiKey } from '@/lib/gateway/api-key/useApiKeyQuery';
 
 type ProviderConfigViewProps = {
   providerId: ProviderId;
@@ -25,7 +25,7 @@ export const ProviderConfigCommandView = ({
 }: ProviderConfigViewProps) => {
   const { close } = useCommandPalette();
   const [apiKey, setApiKey] = useState('');
-  const saveApiKey = useSaveApiKey();
+  const { saveApiKey } = useApiKey();
 
   const info = providerId ? PROVIDER_INFO[providerId] : null;
 

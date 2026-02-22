@@ -18,24 +18,9 @@ export const useSaveUserMessage = (chatFacade: ChatFacade | null) => {
   useEffect(() => {
     if (!chatFacade) return;
 
-    const subscription = chatFacade.finish$.subscribe(
-      ({ message, isAbort, isDisconnect, isError }) => {
-        const metadata = {
-          ...(message.metadata ?? {}),
-          provider: chatFacade.providerId,
-          modelId: chatFacade.modelId,
-          isAborted: isAbort || undefined,
-          isDisconnected: isDisconnect || undefined,
-          isError: isError || undefined,
-          errorMessage: isError ? chatFacade.getError()?.message : undefined,
-        };
-
-        messageGateway.upsert(chatFacade.getId(), {
-          ...message,
-          metadata,
-        });
-      },
-    );
+    const subscription = chatFacade.finish$.subscribe(({ message }) => {
+      messageGateway.upsert(chatFacade.getId(), message);
+    });
 
     return () => {
       subscription.unsubscribe();

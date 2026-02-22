@@ -12,7 +12,7 @@ import {
 import { useState } from 'react';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { getProviderIcon } from '@/business/logo/ProviderIconMap';
-import { useHasApiKeys } from '@/lib/gateway/api-key/useApiKeyQuery';
+import { useApiKey } from '@/lib/gateway/api-key/useApiKeyQuery';
 
 const PROVIDERS = [
   { id: 'openai', name: 'OpenAI', description: 'GPT-4o, GPT-4, GPT-3.5' },
@@ -23,7 +23,7 @@ const PROVIDERS = [
 export const ProvidersCommandView = () => {
   const { navigate, close } = useCommandPalette();
   const [value, setValue] = useState('');
-  const { data: connectionStatus } = useHasApiKeys();
+  const { apiKeyStatus } = useApiKey();
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -59,7 +59,7 @@ export const ProvidersCommandView = () => {
               {getProviderIcon(provider.id, 'size-4')}
               <div className='flex flex-1 items-center justify-between'>
                 <span>{provider.name}</span>
-                {connectionStatus?.[provider.id] && (
+                {apiKeyStatus?.[provider.id] && (
                   <span className='text-xs text-green-500 font-medium'>
                     Connected
                   </span>

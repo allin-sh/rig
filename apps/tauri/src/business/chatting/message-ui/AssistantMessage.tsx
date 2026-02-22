@@ -29,9 +29,11 @@ export const AssistantMessage = ({
     ),
   );
 
+  console.log(message.metadata);
+
   const textMessage = getAssistantMessageText(message);
   const isAborted = message.metadata?.isAborted === true;
-  const isGenerating = status === 'streaming' && !isAborted;
+  // const isGenerating = status === 'streaming' && !isAborted;
   const errorMessage = message.metadata?.errorMessage;
   const hasError = message.metadata?.isError === true || Boolean(errorMessage);
   const doRetry = useCallback(() => {

@@ -1,7 +1,6 @@
 import { Kbd, toast } from '@allin/ui';
 import { useCallback, useMemo } from 'react';
 import { match } from 'ts-pattern';
-import { useAgent } from '@/business/agent/useAgent';
 import type { StorageChannel } from '@/lib/gateway/channel/types';
 import { EnergyBar } from '../EnergyBar';
 import { useChatFacadeCreation } from '../facade/useChatFacade';
@@ -31,18 +30,22 @@ export const ChannelChatView = ({ channel }: { channel: StorageChannel }) => {
   // TODO: implement regenerate in useChat
   const regenerate = useCallback((_messageId: string) => {}, []);
 
+  console.log(visibleMessages);
+
   return (
     <div className='h-dvh w-full flex flex-col bg-background'>
       <input type='text' />
       <div className='flex-1 overflow-y-auto px-4 py-6'>
         <div className='mx-auto max-w-3xl'>
-          {visibleMessages.map((msg, index) =>
-            match(msg.role)
-              .with('user', () => <UserMessage key={msg.id} message={msg} />)
+          {visibleMessages.map((message, index) =>
+            match(message.role)
+              .with('user', () => (
+                <UserMessage key={message.id} message={message} />
+              ))
               .with('assistant', () => (
                 <AssistantMessage
-                  key={msg.id}
-                  message={msg}
+                  key={message.id}
+                  message={message}
                   isLast={index === visibleMessages.length - 1}
                   status={status}
                   regenerate={regenerate}
