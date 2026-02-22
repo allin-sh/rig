@@ -9,7 +9,7 @@ import {
   CommandList,
 } from '@allin/ui';
 import { MessageSquare, Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useCommandPalette } from '@/business/command-palette/useCommandPalette';
 import { useService } from '@/business/ServiceContext';
 
@@ -17,16 +17,30 @@ export const ChannelListView = () => {
   const { channelManager } = useService();
   const { close } = useCommandPalette();
   const [value, setValue] = useState('');
+  const selectedChannelId = channelManager.selectedChannelId;
   const allChannels = useMemo(() => {
     return channelManager.channels;
   }, [channelManager]);
+
+  const sortSelectedFirst = useCallback(
+    (channels: typeof allChannels) => {
+      if (!selectedChannelId) return channels;
+      return [...channels].sort((a, b) => {
+        if (a.id === selectedChannelId) return -1;
+        if (b.id === selectedChannelId) return 1;
+        return 0;
+      });
+    },
+    [selectedChannelId],
+  );
+
   const channels_pinned = useMemo(
-    () => allChannels.filter(c => c.pin),
-    [allChannels],
+    () => sortSelectedFirst(allChannels.filter(c => c.pin)),
+    [allChannels, sortSelectedFirst],
   );
   const channels_normal = useMemo(
-    () => allChannels.filter(c => !c.pin),
-    [allChannels],
+    () => sortSelectedFirst(allChannels.filter(c => !c.pin)),
+    [allChannels, sortSelectedFirst],
   );
 
   const handleOpenChange = (open: boolean) => {
@@ -87,9 +101,16 @@ export const ChannelListView = () => {
                   <span className='truncate'>
                     {channel.title || 'Untitled'}
                   </span>
-                  <span className='text-xs text-muted-foreground ml-2 shrink-0'>
-                    {formatDate(channel.updatedAt)}
-                  </span>
+                  <div className='flex items-center gap-2 ml-2 shrink-0'>
+                    {channel.id === selectedChannelId && (
+                      <span className='rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-medium text-white'>
+                        Current
+                      </span>
+                    )}
+                    <span className='text-xs text-muted-foreground'>
+                      {formatDate(channel.updatedAt)}
+                    </span>
+                  </div>
                 </div>
               </CommandItem>
             ))}
@@ -113,9 +134,16 @@ export const ChannelListView = () => {
                   <span className='truncate'>
                     {channel.title || 'Untitled'}
                   </span>
-                  <span className='text-xs text-muted-foreground ml-2 shrink-0'>
-                    {formatDate(channel.updatedAt)}
-                  </span>
+                  <div className='flex items-center gap-2 ml-2 shrink-0'>
+                    {channel.id === selectedChannelId && (
+                      <span className='rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-medium text-white'>
+                        Current
+                      </span>
+                    )}
+                    <span className='text-xs text-muted-foreground'>
+                      {formatDate(channel.updatedAt)}
+                    </span>
+                  </div>
                 </div>
               </CommandItem>
             ))}

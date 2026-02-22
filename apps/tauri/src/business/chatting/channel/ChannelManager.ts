@@ -80,4 +80,15 @@ export class ChannelManager {
       title,
     });
   }
+
+  public async touchChannel(channelId: string) {
+    const channel = this.channels.find(c => c.id === channelId);
+    if (!channel) return;
+
+    await channelGateway.update({
+      ...channel,
+      updatedAt: Date.now(),
+    });
+    await this.fetchChannels();
+  }
 }

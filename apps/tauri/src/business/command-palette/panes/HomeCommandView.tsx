@@ -33,6 +33,7 @@ export function HomeCommandView() {
   return (
     <CommandDialog
       open
+      loop
       onOpenChange={handleOpenChange}
       value={value}
       onValueChange={setValue}
