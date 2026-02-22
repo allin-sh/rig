@@ -36,72 +36,6 @@ export const anthropicModelSpec = {
       "output": 8192
     }
   },
-  "claude-3-5-haiku-20241022": {
-    "id": "claude-3-5-haiku-20241022",
-    "name": "Claude Haiku 3.5",
-    "family": "claude-haiku",
-    "attachment": true,
-    "reasoning": false,
-    "tool_call": true,
-    "temperature": true,
-    "knowledge": "2024-07-31",
-    "release_date": "2024-10-22",
-    "last_updated": "2024-10-22",
-    "modalities": {
-      "input": [
-        "text",
-        "image",
-        "pdf"
-      ],
-      "output": [
-        "text"
-      ]
-    },
-    "open_weights": false,
-    "cost": {
-      "input": 0.8,
-      "output": 4,
-      "cache_read": 0.08,
-      "cache_write": 1
-    },
-    "limit": {
-      "context": 200000,
-      "output": 8192
-    }
-  },
-  "claude-3-7-sonnet-20250219": {
-    "id": "claude-3-7-sonnet-20250219",
-    "name": "Claude Sonnet 3.7",
-    "family": "claude-sonnet",
-    "attachment": true,
-    "reasoning": true,
-    "tool_call": true,
-    "temperature": true,
-    "knowledge": "2024-10-31",
-    "release_date": "2025-02-19",
-    "last_updated": "2025-02-19",
-    "modalities": {
-      "input": [
-        "text",
-        "image",
-        "pdf"
-      ],
-      "output": [
-        "text"
-      ]
-    },
-    "open_weights": false,
-    "cost": {
-      "input": 3,
-      "output": 15,
-      "cache_read": 0.3,
-      "cache_write": 3.75
-    },
-    "limit": {
-      "context": 200000,
-      "output": 64000
-    }
-  },
   "claude-3-opus-20240229": {
     "id": "claude-3-opus-20240229",
     "name": "Claude Opus 3",
@@ -146,6 +80,72 @@ export const anthropicModelSpec = {
     "knowledge": "2025-03-31",
     "release_date": "2025-05-22",
     "last_updated": "2025-05-22",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "open_weights": false,
+    "cost": {
+      "input": 3,
+      "output": 15,
+      "cache_read": 0.3,
+      "cache_write": 3.75
+    },
+    "limit": {
+      "context": 200000,
+      "output": 64000
+    }
+  },
+  "claude-3-5-haiku-20241022": {
+    "id": "claude-3-5-haiku-20241022",
+    "name": "Claude Haiku 3.5",
+    "family": "claude-haiku",
+    "attachment": true,
+    "reasoning": false,
+    "tool_call": true,
+    "temperature": true,
+    "knowledge": "2024-07-31",
+    "release_date": "2024-10-22",
+    "last_updated": "2024-10-22",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "open_weights": false,
+    "cost": {
+      "input": 0.8,
+      "output": 4,
+      "cache_read": 0.08,
+      "cache_write": 1
+    },
+    "limit": {
+      "context": 200000,
+      "output": 8192
+    }
+  },
+  "claude-3-7-sonnet-20250219": {
+    "id": "claude-3-7-sonnet-20250219",
+    "name": "Claude Sonnet 3.7",
+    "family": "claude-sonnet",
+    "attachment": true,
+    "reasoning": true,
+    "tool_call": true,
+    "temperature": true,
+    "knowledge": "2024-10-31",
+    "release_date": "2025-02-19",
+    "last_updated": "2025-02-19",
     "modalities": {
       "input": [
         "text",
