@@ -45,7 +45,7 @@ export const ChannelTitleView = ({ channel }: ChannelTitleViewProps) => {
       onChange={e => setValue(e.target.value)}
       onBlur={save}
       onKeyDown={handleKeyDown}
-      className='w-full max-w-[320px] truncate rounded-md text-sm font-medium text-foreground/80 hover:bg-muted/90 focus:bg-muted/90 focus:ring-1 focus:ring-ring/30 outline-none px-2 py-1 transition-colors'
+      className='w-full truncate rounded-md text-sm font-medium text-foreground/80 hover:bg-muted/90 focus:bg-muted/90 focus:ring-1 focus:ring-ring/30 outline-none px-2 py-1 transition-colors'
       placeholder='Untitled'
     />
   );

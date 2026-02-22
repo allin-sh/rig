@@ -12,13 +12,7 @@ export const SelectedAgentView = () => {
           <span className='opacity-50'>{selectedAgent.model}</span>
         </>
       ) : (
-        <Button
-          variant='ghost'
-          size='sm'
-          className='text-xs text-muted-foreground gap-1'
-        >
-          Add Agent
-        </Button>
+        <span className='text-xs text-muted-foreground gap-1'>Add Agent</span>
       )}
     </>
   );

@@ -1,24 +1,20 @@
 'use client';
 
 import { Button, Kbd, KbdGroup, Textarea } from '@allin/ui';
-import {
-  type ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from 'react';
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { filter, Subject } from 'rxjs';
-import type { Agent } from '@/business/agent/types';
-import { useAgent } from '@/business/agent/useAgent';
 import { useHotKey } from '@/business/hotkey/useHotKey';
 import { useService } from '@/business/ServiceContext';
-import { defaultSlashCommands } from '../../slash-command/defaultCommands';
+import { InlineOptionSelect } from '@/components/InlineOptionSelect';
+import type { TemplateCommand } from '../../slash-command/ISlashCommand';
 import { SlashCommandPopover } from '../../slash-command/view/SlashCommandPopover';
 import { getTargetTemplateCommand } from './getTargetTemplateCommand';
 import { SelectedAgentView } from './SelectedAgentView';
+
+type PendingHintSelection = {
+  command: TemplateCommand;
+  input: string;
+};
 
 type ChatInputViewProps = {
   onSubmitText: (text: string) => Promise<void>;
@@ -36,6 +32,9 @@ export const ChatInputView = ({
   const { agentManager, slashCommandManager } = useService();
   const [input, setInput] = useState('');
   const [isSlashCommandOpen, setIsSlashCommandOpen] = useState(false);
+  const [pendingHint, setPendingHint] = useState<PendingHintSelection | null>(
+    null,
+  );
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const modifierKeyEvent$ = useMemo(
     () => new Subject<'ArrowUp' | 'ArrowDown' | 'Enter'>(),
@@ -51,11 +50,30 @@ export const ChatInputView = ({
     );
 
     if (templateCommand) {
+      if (templateCommand.hints && templateCommand.hints.length > 0) {
+        setPendingHint({ command: templateCommand, input });
+        return;
+      }
       toSendPrompt = templateCommand.toPrompt(input);
     }
 
     setInput('');
     await onSubmitText(toSendPrompt);
+  };
+
+  const handleHintSelect = (hintValue: string) => {
+    if (!pendingHint) return;
+    const prompt = pendingHint.command.toPrompt(pendingHint.input, hintValue);
+    setPendingHint(null);
+    setInput('');
+    onSubmitText(prompt).catch(err => {
+      console.error('Submit failed:', err);
+    });
+  };
+
+  const handleHintCancel = () => {
+    setPendingHint(null);
+    textAreaRef.current?.focus();
   };
 
   const slashKey$ = useHotKey('/');
@@ -123,63 +141,78 @@ export const ChatInputView = ({
   return (
     <div className='relative flex flex-col isolate z-10 w-full mx-auto'>
       <section className='w-full flex flex-col items-start'>
-        <Textarea
-          ref={textAreaRef}
-          value={input}
-          disabled={disabled}
-          onKeyDown={handleKeyDown}
-          onChange={handleChange}
-          className='mx-auto max-w-2xl lg:max-w-4xl text-sm min-h-12 py-2.5 max-h-[500px] backdrop-blur-lg focus-visible:ring-ring/50 focus-visible:ring-[2px]'
-          spellCheck={false}
-          autoCorrect='off'
-          autoCapitalize='off'
-          placeholder='Ask AI Anything...'
-        />
-        <div className='w-full flex flex-row gap-2 max-w-2xl lg:max-w-4xl mx-auto justify-between mt-2 mb-4'>
-          <div className='flex flex-row gap-2 items-center'>
-            <Button
-              variant='ghost'
-              size='sm'
-              className='text-xs text-muted-foreground gap-1'
-              onClick={() => {
-                agentManager.cycleSelectedAgent();
-              }}
-            >
-              <SelectedAgentView />
-              <KbdGroup>
-                <Kbd>Tab</Kbd>
-              </KbdGroup>
-            </Button>
-            {isStreaming && (
+        {pendingHint ? (
+          <InlineOptionSelect
+            options={pendingHint.command.hints!.map(hint => ({
+              label: hint,
+              value: hint,
+            }))}
+            onSelect={handleHintSelect}
+            onCancel={handleHintCancel}
+            header={`Select option for /${pendingHint.command.commandName}`}
+            className='mx-auto max-w-2xl lg:max-w-4xl w-full border rounded-md py-2'
+          />
+        ) : (
+          <>
+            <Textarea
+              ref={textAreaRef}
+              value={input}
+              disabled={disabled}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange}
+              className='mx-auto max-w-2xl lg:max-w-4xl text-sm min-h-12 py-2.5 max-h-[500px] backdrop-blur-lg focus-visible:ring-ring/50 focus-visible:ring-[2px]'
+              spellCheck={false}
+              autoCorrect='off'
+              autoCapitalize='off'
+              placeholder='Ask AI Anything...'
+            />
+            <div className='w-full flex flex-row gap-2 max-w-2xl lg:max-w-4xl mx-auto justify-between mt-2 mb-4'>
+              <div className='flex flex-row gap-2 items-center'>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='text-xs text-muted-foreground gap-1'
+                  onClick={() => {
+                    agentManager.cycleSelectedAgent();
+                  }}
+                >
+                  <SelectedAgentView />
+                  <KbdGroup>
+                    <Kbd>Tab</Kbd>
+                  </KbdGroup>
+                </Button>
+                {isStreaming && (
+                  <Button
+                    variant={'outline'}
+                    size='sm'
+                    className='pr-2'
+                    onClick={onStop}
+                  >
+                    Stop
+                  </Button>
+                )}
+              </div>
               <Button
-                variant={'outline'}
-                size='sm'
-                className='pr-2'
-                onClick={onStop}
+                variant='ghost'
+                size='xs'
+                className='pr-2 gap-1'
+                onClick={() => {
+                  handleSubmit().catch(err => {
+                    console.error('Submit failed:', err);
+                  });
+                }}
+                disabled={disabled || input.trim().length === 0}
               >
-                Stop
+                Submit
+                <KbdGroup>
+                  <Kbd className='text-xs'>⏎</Kbd>
+                </KbdGroup>
               </Button>
-            )}
-          </div>
-          <Button
-            variant='ghost'
-            size='xs'
-            className='pr-2 gap-1'
-            onClick={() => {
-              handleSubmit().catch(err => {
-                console.error('Submit failed:', err);
-              });
-            }}
-            disabled={disabled || input.trim().length === 0}
-          >
-            Submit
-            <KbdGroup>
-              <Kbd className='text-xs'>⏎</Kbd>
-            </KbdGroup>
-          </Button>
-        </div>
+            </div>
+          </>
+        )}
       </section>
-      {isSlashCommandOpen && (
+      {!pendingHint && isSlashCommandOpen && (
         <SlashCommandPopover
           query={input.replace(/^\/|\/$/g, '')}
           modifierKeyEvent$={modifierKeyEvent$}

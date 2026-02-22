@@ -2,6 +2,7 @@ import { generateUIMessage } from '@allin/ai';
 import { useState } from 'react';
 import { PendingMessage } from '../channel/PendingMessage';
 import { useChannel } from '../channel/useChannel';
+import { CommandPaletteTrigger } from '../../command-palette/CommandPaletteTrigger';
 import { ChatInputView } from '../input/ChatInputView';
 
 export const NewChatView = () => {
@@ -19,6 +20,11 @@ export const NewChatView = () => {
 
   return (
     <div className='h-dvh w-full flex flex-col bg-background'>
+      <div className='border-b px-4 py-2'>
+        <div className='mx-auto max-w-3xl flex items-center justify-end'>
+          <CommandPaletteTrigger />
+        </div>
+      </div>
       <div className='flex-1 flex items-center justify-center'>
         <div className='text-center text-muted-foreground'>
           <p className='text-lg font-medium'>New Chat</p>

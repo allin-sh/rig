@@ -2,6 +2,7 @@ import { Kbd, toast } from '@allin/ui';
 import { useCallback, useMemo } from 'react';
 import { match } from 'ts-pattern';
 import type { StorageChannel } from '@/lib/gateway/channel/types';
+import { CommandPaletteTrigger } from '../../command-palette/CommandPaletteTrigger';
 import { EnergyBar } from '../EnergyBar';
 import { useChatFacadeCreation } from '../facade/useChatFacade';
 import { usePendingMessageProcess } from '../hooks/usePendingMessageProcess';
@@ -34,8 +35,9 @@ export const ChannelChatView = ({ channel }: { channel: StorageChannel }) => {
   return (
     <div className='h-dvh w-full flex flex-col bg-background'>
       <div className='border-b px-4 py-2'>
-        <div className='mx-auto max-w-3xl'>
+        <div className='mx-auto max-w-3xl flex items-center justify-between gap-2'>
           <ChannelTitleView channel={channel} />
+          <CommandPaletteTrigger />
         </div>
       </div>
       <div className='flex-1 overflow-y-auto px-4 py-6'>
