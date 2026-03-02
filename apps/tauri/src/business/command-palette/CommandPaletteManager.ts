@@ -1,6 +1,10 @@
 import { StateSubject } from '@allin/utils';
 import type { Observable } from 'rxjs';
-import type { CommandPaneId, CommandPaneState } from './types';
+import type {
+  CommandPaneId,
+  CommandPanePropsMap,
+  CommandPaneState,
+} from './types';
 
 export class CommandPaletteManager {
   private static instance: CommandPaletteManager;
@@ -25,8 +29,14 @@ export class CommandPaletteManager {
     return this._currentPane$.getValue();
   }
 
-  public open(viewId: CommandPaneId, props?: Record<string, unknown>): void {
-    this._currentPane$.next({ paneId: viewId, paneProps: props });
+  public open<T extends CommandPaneId>(
+    id: T,
+    props?: CommandPanePropsMap[T],
+  ): void {
+    this._currentPane$.next({
+      paneId: id,
+      paneProps: props,
+    });
   }
 
   public close(): void {

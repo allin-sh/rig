@@ -10,9 +10,9 @@ import { AgentEditView, AgentEditViewPropsSchema } from './panes/AgentEditView';
 import { AgentListView } from './panes/AgentListView';
 import { ChannelListView } from './panes/ChannelListView';
 import { HomeCommandView } from './panes/HomeCommandView';
-import { ModelSelectView } from './panes/ModelSelectView';
 import { ProviderConfigCommandView } from './panes/ProviderConfigCommandView';
 import { ProvidersCommandView } from './panes/ProvidersCommandView';
+import { SwitchModelView } from './panes/SwitchModelView';
 import { useCommandPalette } from './useCommandPalette';
 
 export const CommandPalette = () => {
@@ -33,20 +33,18 @@ export const CommandPalette = () => {
   return (
     <>
       {match(currentPane.paneId)
-        .with('home', () => <HomeCommandView {...currentPane.paneProps} />)
-        .with('channels', () => <ChannelListView {...currentPane.paneProps} />)
-        .with('providers', () => (
-          <ProvidersCommandView {...currentPane.paneProps} />
-        ))
+        .with('home', () => <HomeCommandView />)
+        .with('channels', () => <ChannelListView />)
+        .with('providers', () => <ProvidersCommandView />)
         .with('provider-config', () => (
           <ProviderConfigCommandView
-            providerId={currentPane.paneProps?.providerId as ProviderId}
+            providerId={
+              (currentPane.paneProps as { providerId: ProviderId }).providerId
+            }
           />
         ))
-        .with('model-select', () => (
-          <ModelSelectView {...currentPane.paneProps} />
-        ))
-        .with('agent-list', () => <AgentListView {...currentPane.paneProps} />)
+        .with('model-select', () => <SwitchModelView />)
+        .with('agent-list', () => <AgentListView />)
         .with('agent-create', () => <AgentCreateView />)
         .with('agent-edit', () => {
           const props = AgentEditViewPropsSchema.parse(currentPane.paneProps);
