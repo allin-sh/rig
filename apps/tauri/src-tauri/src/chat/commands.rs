@@ -52,10 +52,7 @@ async fn do_text_request<M: LanguageModel + TextInputSupport>(
             break;
         }
         let ui_chunk = match chunk {
-            Ok(c) => {
-                println!("{:?}", c);
-                c
-            }
+            Ok(c) => c,
             Err(e) => VercelUIStream::Error {
                 error_text: e.to_string(),
             },
