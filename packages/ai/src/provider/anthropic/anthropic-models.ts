@@ -1,11 +1,11 @@
 import { z } from 'zod/v3';
 
+// https://github.com/vercel/ai/blob/main/packages/anthropic/src/anthropic-messages-options.ts#L17
 export const AnthropicModelIdSchema = z.enum([
-  'claude-sonnet-4-20250514',
-  'claude-3-7-sonnet-20250219',
-  'claude-3-5-sonnet-20241022',
-  'claude-3-5-haiku-20241022',
-  'claude-3-opus-20240229',
+  'claude-opus-4-5',
+  'claude-sonnet-4-5',
+  'claude-sonnet-4-6',
+  'claude-opus-4-6',
 ]);
 
 export type AnthropicModelId = z.infer<typeof AnthropicModelIdSchema>;
