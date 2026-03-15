@@ -1,5 +1,7 @@
 mod api_key;
+mod auth;
 mod chat;
+mod font;
 mod provider;
 mod storage;
 
@@ -24,7 +26,6 @@ pub fn run() {
             chat::commands::stream_text,
             chat::commands::abort_stream,
             api_key::commands::save_api_key,
-            api_key::commands::get_api_key,
             api_key::commands::delete_api_key,
             api_key::commands::has_api_key,
             storage::commands::get_channels,
@@ -43,6 +44,10 @@ pub fn run() {
             storage::commands::delete_agent,
             storage::commands::get_app_settings,
             storage::commands::save_app_settings,
+            auth::commands::start_codex_oauth,
+            auth::commands::get_codex_auth_status,
+            auth::commands::revoke_codex_auth,
+            font::commands::get_system_fonts,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

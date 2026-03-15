@@ -11,6 +11,10 @@ export type AssistantMessage = UIMessage<UIMessageMetadata> & {
   role: 'assistant';
 };
 
+export type SystemMessage = UIMessage<UIMessageMetadata> & {
+  role: 'system';
+};
+
 export const isUserMessage = (
   message: UIMessage<UIMessageMetadata>,
 ): message is UserMessage => {
@@ -23,6 +27,27 @@ export const isAssistantMessage = (
   return message.role === 'assistant';
 };
 
+export const isSystemMessage = (
+  message: UIMessage<UIMessageMetadata>,
+): message is SystemMessage => {
+  return message.role === 'system';
+};
+
+export const getSystemMessageText = (
+  message: UIMessage<UIMessageMetadata>,
+): string => {
+  assert(
+    message.role === 'system',
+    `getSystemMessageText: message is not a system message. role: ${message.role}`,
+  );
+
+  return message.parts.reduce((acc, part) => {
+    if (part.type === 'text') {
+      return acc + part.text;
+    }
+    return acc;
+  }, '');
+};
 export const getAssistantMessageText = (
   message: UIMessage<UIMessageMetadata>,
 ): string => {
@@ -53,6 +78,21 @@ export const getUserMessageText = (
     }
     return acc;
   }, '');
+};
+
+export const getMessageText = (
+  message: UIMessage<UIMessageMetadata>,
+): string => {
+  if (isSystemMessage(message)) {
+    return getSystemMessageText(message);
+  }
+  if (isAssistantMessage(message)) {
+    return getAssistantMessageText(message);
+  }
+  if (isUserMessage(message)) {
+    return getUserMessageText(message);
+  }
+  throw new Error(`getMessageText: unknown message role: ${message.role}`);
 };
 
 export const generateUIMessage = <

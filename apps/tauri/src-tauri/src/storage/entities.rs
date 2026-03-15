@@ -41,7 +41,7 @@ impl Default for Agent {
     fn default() -> Self {
         Self {
             id: "default".to_string(),
-            name: "Default Agent".to_string(),
+            name: "Default".to_string(),
             provider_name: "openai".to_string(),
             model: "gpt-4.1-nano".to_string(),
             prompt: None,
@@ -52,10 +52,17 @@ impl Default for Agent {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentsFile {
+    pub agents: Vec<Agent>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub last_used_provider: Option<String>,
     pub last_used_model: Option<String>,
+    #[serde(default)]
+    pub font_family: Option<String>,
     pub updated_at: i64,
 }
 
@@ -64,6 +71,7 @@ impl Default for AppSettings {
         Self {
             last_used_provider: None,
             last_used_model: None,
+            font_family: None,
             updated_at: Utc::now().timestamp(),
         }
     }

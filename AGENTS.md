@@ -100,12 +100,43 @@ Use `BehaviorSubject` for state, `Subject` for events:
 
 ```typescript
 class Manager {
-  private state$ = new BehaviorSubject<State>(initialState);
-  private event$ = new Subject<Event>();
+  private _state$ = new StateSubject<State>(initialState);
+  private _event$ = new Subject<Event>();
 
-  getState$(): Observable<State> {
-    return this.state$.asObservable();
+  public get state$(): Observable<State> {
+    return this._state$.asObservable();
   }
+}
+```
+
+### Getter Convention for Singleton/Manager Classes
+- Use TypeScript `get` accessors instead of `getX()` methods for simple value reads
+- Private `BehaviorSubject` fields use `_` prefix (e.g., `_channels$`)
+- Public getter drops the prefix (e.g., `get channels()`, `get channels$()`)
+- Only apply to read-only accessors; setters keep `setX()` method style
+
+```typescript
+// Good
+class ChannelManager {
+  private _channels$ = new StateSubject<Channel[]>([]);
+
+  public get channels(): Channel[] {
+    return this._channels$.getValue();
+  }
+
+  public get channels$(): Observable<Channel[]> {
+    return this._channels$.asObservable();
+  }
+
+  public setPendingMessage(msg: string | null) {
+    this._pendingMessage$.next(msg);
+  }
+}
+
+// Bad
+class ChannelManager {
+  public getChannels(): Channel[] { ... }
+  public getChannels$(): Observable<Channel[]> { ... }
 }
 ```
 
@@ -151,20 +182,25 @@ export class SessionMap {
 
 ## Owner's Coding Style
 
-### React Component Syntax
-- Use arrow function syntax: `const Component = () => { ... }`
-- NOT function declaration: `function Component() { ... }`
+### Arrow Function Syntax (All Functions)
+- **Always** use arrow function syntax for components, hooks, utilities, and test helpers
+- NOT function declaration: `function foo() { ... }`
+- Only exception: class methods
 
 ```typescript
 // Good
 export const MyComponent = () => {
   return <div>...</div>;
 };
+const setup = () => { ... };
+const handleClick = () => { ... };
 
 // Bad
 export function MyComponent() {
   return <div>...</div>;
 }
+function setup() { ... }
+function handleClick() { ... }
 ```
 
 ### Architecture: View / State Separation
@@ -254,6 +290,25 @@ const CommandPalette = () => {
   <HomePane />      {/* internally: if (currentPane === 'home') */}
   <ChannelsPane />  {/* internally: if (currentPane === 'channels') */}
 </>
+```
+
+### Testing: Singleton Services
+- Hooks/components that depend on singleton services (via `useService`) must be tested with `renderHookWithServices` / `renderWithServices` from `@/test-utils/renderWithServices`
+- Do NOT mock `@/business/ServiceContext` directly — use the override parameter instead
+
+```typescript
+// Good
+import { renderHookWithServices } from '@/test-utils/renderWithServices';
+
+const { result } = renderHookWithServices(
+  () => useMyHook(),
+  { slashCommandManager: manager },
+);
+
+// Bad
+vi.mock('@/business/ServiceContext', () => ({
+  useService: () => ({ ... }),
+}));
 ```
 
 ## Error Handling

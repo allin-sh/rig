@@ -73,7 +73,7 @@ function createChannel(id: string, overrides?: Partial<Channel>): Channel {
   return {
     id,
     providerName: 'openai',
-    model: 'gpt-5',
+    model: 'gpt-5.2',
     reasoningEffort: 'low',
     reasoningSummary: false,
     createdAt: now,
@@ -114,7 +114,7 @@ describe('createDbAtoms: atom dependency updates', () => {
 
   it('after update selected channel id, configAtom.lastSelectedChannelId is updated and selectedChannelIdAtom/selectedChannelAtom are refreshed', async () => {
     const channelA = createChannel('channel-a', {
-      model: 'gpt-5',
+      model: 'gpt-5.2',
       providerName: 'openai',
     });
     const channelB = createChannel('channel-b', { providerName: 'google' });
@@ -145,16 +145,16 @@ describe('createDbAtoms: atom dependency updates', () => {
     const selectedChannelAfter = await store.get(atoms.selectedChannelAtom);
     expect(selectedChannelAfter?.id).toBe('channel-a');
     expect(selectedChannelAfter?.providerName).toBe('openai');
-    expect(selectedChannelAfter?.model).toBe('gpt-5');
+    expect(selectedChannelAfter?.model).toBe('gpt-5.2');
   });
 
   it('after update channel, allChannelsAtom is refreshed and selectedChannelAtom is updated', async () => {
     const channelA = createChannel('channel-a', {
-      model: 'gpt-5',
+      model: 'gpt-5.2',
       providerName: 'openai',
     });
     const channelB = createChannel('channel-b', {
-      model: 'gemini-2.5',
+      model: 'gemini-2.5-flash',
       providerName: 'google',
     });
 

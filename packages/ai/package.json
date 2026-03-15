@@ -24,7 +24,7 @@
   "scripts": {
     "dev": "pnpm run generate:model-spec && tsup --watch",
     "build": "pnpm run generate:model-spec && tsup",
-    "generate:model-spec": "tsx src/provider/google/script/fetch-google-model-spec.ts && tsx src/provider/openai/script/fetch-openai-model-spec.ts && tsx src/provider/anthropic/script/fetch-anthropic-model-spec.ts",
+    "generate:model-spec": "tsx src/provider/script/run-generate-all.ts",
     "check-ts": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest run --watch --passWithNoTests"
@@ -33,6 +33,7 @@
     "@ai-sdk/anthropic": "catalog:ai",
     "@ai-sdk/google": "catalog:ai",
     "@ai-sdk/openai": "catalog:ai",
+    "@ai-sdk/gateway": "catalog:ai",
     "@ai-sdk/provider": "catalog:ai",
     "@ai-sdk/provider-utils": "catalog:ai",
     "@ai-sdk/react": "catalog:ai",

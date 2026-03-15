@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "turbo dev --concurrency=15",
-    "dev:app": "pnpm --filter 'desktop-app' tauri dev",
+    "dev:app": "turbo dev --filter=desktop-app...",
     "start": "turbo start",
     "build": "turbo build",
     "test": "pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --if-present --stream test:watch",
     "test:once": "pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --if-present --stream test",
+    "check-ts:app": "pnpm -r --filter \"./apps/tauri/**\" --if-present --stream check-ts",
     "check-ts": "pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --if-present --stream check-ts",
     "new-extension": "node scripts/new-extension.mjs"
   },

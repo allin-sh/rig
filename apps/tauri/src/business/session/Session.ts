@@ -1,7 +1,7 @@
 import { Chat } from '@ai-sdk/react';
-import type { LLMProviderName } from '@allin/ai';
+import type { ProviderId } from '@allin/ai';
 import type { UIMessageMetadata } from '@allin/message-metadata-schema';
-import { type Setter, setValueOrFn } from '@allin/utils';
+import { type Setter, StateSubject, setValueOrFn } from '@allin/utils';
 import type {
   ChatOnDataCallback,
   ChatOnFinishCallback,
@@ -9,7 +9,7 @@ import type {
   ChatTransport,
   UIMessage,
 } from 'ai';
-import { BehaviorSubject, type Observable, Subject } from 'rxjs';
+import { type Observable, Subject } from 'rxjs';
 
 type ChatUiMessage = UIMessage<UIMessageMetadata>;
 
@@ -17,7 +17,7 @@ type SessionParam = {
   id: string;
   messages: ChatUiMessage[];
   transport: ChatTransport<ChatUiMessage>;
-  providerName: LLMProviderName;
+  providerName: ProviderId;
   modelId: string;
   throttleTime?: number;
 };
@@ -25,9 +25,8 @@ type SessionParam = {
 export class Session {
   private id: string;
   private chat: Chat<ChatUiMessage>;
-  private uiMessageStore: BehaviorSubject<ChatUiMessage[]> =
-    new BehaviorSubject<ChatUiMessage[]>([]);
-  private status$ = new BehaviorSubject<ChatStatus>('ready');
+  private uiMessageStore = new StateSubject<ChatUiMessage[]>([]);
+  private status$ = new StateSubject<ChatStatus>('ready');
 
   private onData$ = new Subject<
     Parameters<ChatOnDataCallback<ChatUiMessage>>[0]
@@ -38,7 +37,7 @@ export class Session {
   private onError$ = new Subject<Error>();
   private onBeforeSend$ = new Subject<ChatUiMessage & { role: 'user' }>();
 
-  private providerName: LLMProviderName;
+  private providerName: ProviderId;
   private modelId: string;
   private _isDisposed = false;
   private throttleTime: number;
@@ -249,7 +248,7 @@ export class Session {
 
   public updateTransport(
     transport: ChatTransport<ChatUiMessage>,
-    providerName: LLMProviderName,
+    providerName: ProviderId,
     modelId: string,
   ) {
     this.providerName = providerName;

@@ -1,48 +1,7 @@
+import type { ModelSpec } from '../../model-spec';
+import type { GoogleAiModelId } from '../google-models';
 
-  import type { ModelSpec } from '../../model-spec';
-  import type { GoogleAiModelId } from '../google-models';
-
-  export const googleModelSpec = {
-  "gemini-3-pro-preview": {
-    "id": "gemini-3-pro-preview",
-    "name": "Gemini 3 Pro Preview",
-    "family": "gemini-pro",
-    "attachment": true,
-    "reasoning": true,
-    "tool_call": true,
-    "structured_output": true,
-    "temperature": true,
-    "knowledge": "2025-01",
-    "release_date": "2025-11-18",
-    "last_updated": "2025-11-18",
-    "modalities": {
-      "input": [
-        "text",
-        "image",
-        "video",
-        "audio",
-        "pdf"
-      ],
-      "output": [
-        "text"
-      ]
-    },
-    "open_weights": false,
-    "cost": {
-      "input": 2,
-      "output": 12,
-      "cache_read": 0.2,
-      "context_over_200k": {
-        "input": 4,
-        "output": 18,
-        "cache_read": 0.4
-      }
-    },
-    "limit": {
-      "context": 1000000,
-      "output": 64000
-    }
-  },
+export const googleModelSpec = {
   "gemini-2.5-flash": {
     "id": "gemini-2.5-flash",
     "name": "Gemini 2.5 Flash",
@@ -73,6 +32,46 @@
       "output": 2.5,
       "cache_read": 0.075,
       "input_audio": 1
+    },
+    "limit": {
+      "context": 1048576,
+      "output": 65536
+    }
+  },
+  "gemini-3-flash-preview": {
+    "id": "gemini-3-flash-preview",
+    "name": "Gemini 3 Flash Preview",
+    "family": "gemini-flash",
+    "attachment": true,
+    "reasoning": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "knowledge": "2025-01",
+    "release_date": "2025-12-17",
+    "last_updated": "2025-12-17",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "video",
+        "audio",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "open_weights": false,
+    "cost": {
+      "input": 0.5,
+      "output": 3,
+      "cache_read": 0.05,
+      "context_over_200k": {
+        "input": 0.5,
+        "output": 3,
+        "cache_read": 0.05
+      }
     },
     "limit": {
       "context": 1048576,
@@ -112,6 +111,86 @@
     "limit": {
       "context": 1048576,
       "output": 65536
+    }
+  },
+  "gemini-3.1-pro-preview": {
+    "id": "gemini-3.1-pro-preview",
+    "name": "Gemini 3.1 Pro Preview",
+    "family": "gemini-pro",
+    "attachment": true,
+    "reasoning": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "knowledge": "2025-01",
+    "release_date": "2026-02-19",
+    "last_updated": "2026-02-19",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "video",
+        "audio",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "open_weights": false,
+    "cost": {
+      "input": 2,
+      "output": 12,
+      "cache_read": 0.2,
+      "context_over_200k": {
+        "input": 4,
+        "output": 18,
+        "cache_read": 0.4
+      }
+    },
+    "limit": {
+      "context": 1048576,
+      "output": 65536
+    }
+  },
+  "gemini-3-pro-preview": {
+    "id": "gemini-3-pro-preview",
+    "name": "Gemini 3 Pro Preview",
+    "family": "gemini-pro",
+    "attachment": true,
+    "reasoning": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "knowledge": "2025-01",
+    "release_date": "2025-11-18",
+    "last_updated": "2025-11-18",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "video",
+        "audio",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "open_weights": false,
+    "cost": {
+      "input": 2,
+      "output": 12,
+      "cache_read": 0.2,
+      "context_over_200k": {
+        "input": 4,
+        "output": 18,
+        "cache_read": 0.4
+      }
+    },
+    "limit": {
+      "context": 1000000,
+      "output": 64000
     }
   },
   "gemini-2.5-pro": {

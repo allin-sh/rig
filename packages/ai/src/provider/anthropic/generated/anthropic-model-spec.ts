@@ -1,52 +1,18 @@
-
 import type { ModelSpec } from '../../model-spec';
 import type { AnthropicModelId } from '../anthropic-models';
 
 export const anthropicModelSpec = {
-  "claude-3-5-sonnet-20241022": {
-    "id": "claude-3-5-sonnet-20241022",
-    "name": "Claude Sonnet 3.5 v2",
-    "family": "claude-sonnet",
-    "attachment": true,
-    "reasoning": false,
-    "tool_call": true,
-    "temperature": true,
-    "knowledge": "2024-04-30",
-    "release_date": "2024-10-22",
-    "last_updated": "2024-10-22",
-    "modalities": {
-      "input": [
-        "text",
-        "image",
-        "pdf"
-      ],
-      "output": [
-        "text"
-      ]
-    },
-    "open_weights": false,
-    "cost": {
-      "input": 3,
-      "output": 15,
-      "cache_read": 0.3,
-      "cache_write": 3.75
-    },
-    "limit": {
-      "context": 200000,
-      "output": 8192
-    }
-  },
-  "claude-3-opus-20240229": {
-    "id": "claude-3-opus-20240229",
-    "name": "Claude Opus 3",
+  "claude-opus-4-6": {
+    "id": "claude-opus-4-6",
+    "name": "Claude Opus 4.6",
     "family": "claude-opus",
     "attachment": true,
-    "reasoning": false,
+    "reasoning": true,
     "tool_call": true,
     "temperature": true,
-    "knowledge": "2023-08-31",
-    "release_date": "2024-02-29",
-    "last_updated": "2024-02-29",
+    "knowledge": "2025-05",
+    "release_date": "2026-02-05",
+    "last_updated": "2026-03-13",
     "modalities": {
       "input": [
         "text",
@@ -59,27 +25,27 @@ export const anthropicModelSpec = {
     },
     "open_weights": false,
     "cost": {
-      "input": 15,
-      "output": 75,
-      "cache_read": 1.5,
-      "cache_write": 18.75
+      "input": 5,
+      "output": 25,
+      "cache_read": 0.5,
+      "cache_write": 6.25
     },
     "limit": {
-      "context": 200000,
-      "output": 4096
+      "context": 1000000,
+      "output": 128000
     }
   },
-  "claude-sonnet-4-20250514": {
-    "id": "claude-sonnet-4-20250514",
-    "name": "Claude Sonnet 4",
+  "claude-sonnet-4-6": {
+    "id": "claude-sonnet-4-6",
+    "name": "Claude Sonnet 4.6",
     "family": "claude-sonnet",
     "attachment": true,
     "reasoning": true,
     "tool_call": true,
     "temperature": true,
-    "knowledge": "2025-03-31",
-    "release_date": "2025-05-22",
-    "last_updated": "2025-05-22",
+    "knowledge": "2025-08",
+    "release_date": "2026-02-17",
+    "last_updated": "2026-03-13",
     "modalities": {
       "input": [
         "text",
@@ -96,56 +62,56 @@ export const anthropicModelSpec = {
       "output": 15,
       "cache_read": 0.3,
       "cache_write": 3.75
+    },
+    "limit": {
+      "context": 1000000,
+      "output": 64000
+    }
+  },
+  "claude-opus-4-5": {
+    "id": "claude-opus-4-5",
+    "name": "Claude Opus 4.5 (latest)",
+    "family": "claude-opus",
+    "attachment": true,
+    "reasoning": true,
+    "tool_call": true,
+    "temperature": true,
+    "knowledge": "2025-03-31",
+    "release_date": "2025-11-24",
+    "last_updated": "2025-11-24",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "open_weights": false,
+    "cost": {
+      "input": 5,
+      "output": 25,
+      "cache_read": 0.5,
+      "cache_write": 6.25
     },
     "limit": {
       "context": 200000,
       "output": 64000
     }
   },
-  "claude-3-5-haiku-20241022": {
-    "id": "claude-3-5-haiku-20241022",
-    "name": "Claude Haiku 3.5",
-    "family": "claude-haiku",
-    "attachment": true,
-    "reasoning": false,
-    "tool_call": true,
-    "temperature": true,
-    "knowledge": "2024-07-31",
-    "release_date": "2024-10-22",
-    "last_updated": "2024-10-22",
-    "modalities": {
-      "input": [
-        "text",
-        "image",
-        "pdf"
-      ],
-      "output": [
-        "text"
-      ]
-    },
-    "open_weights": false,
-    "cost": {
-      "input": 0.8,
-      "output": 4,
-      "cache_read": 0.08,
-      "cache_write": 1
-    },
-    "limit": {
-      "context": 200000,
-      "output": 8192
-    }
-  },
-  "claude-3-7-sonnet-20250219": {
-    "id": "claude-3-7-sonnet-20250219",
-    "name": "Claude Sonnet 3.7",
+  "claude-sonnet-4-5": {
+    "id": "claude-sonnet-4-5",
+    "name": "Claude Sonnet 4.5 (latest)",
     "family": "claude-sonnet",
     "attachment": true,
     "reasoning": true,
     "tool_call": true,
     "temperature": true,
-    "knowledge": "2024-10-31",
-    "release_date": "2025-02-19",
-    "last_updated": "2025-02-19",
+    "knowledge": "2025-07-31",
+    "release_date": "2025-09-29",
+    "last_updated": "2025-09-29",
     "modalities": {
       "input": [
         "text",

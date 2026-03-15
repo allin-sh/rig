@@ -1,71 +1,106 @@
 import type {
   LanguageModelV3,
-  LanguageModelV3CallOptions,
   LanguageModelV3StreamPart,
 } from '@ai-sdk/provider';
 import { convertArrayToReadableStream, MockLanguageModelV3 } from 'ai/test';
+import { delay } from 'es-toolkit';
 
 type CreateMockModelOptions = {
-  /**
-   * @example 'gpt-4.1', 'gpt-5.1', 'gemini'...
-   * @default 'mock-model-id'
-   */
   modelId?: string;
-  /**
-   * @exmaple 'openai', 'google', 'anthropic'...
-   * @default 'mock-provider'
-   */
   provider?: string;
-  /**
-   * @description text delta chunks to be streamed
-   * @example ['Hello, world!', 'How are you?', 'I am fine, thank you!']
-   */
-  textDeltaChunks: string[];
+  textDeltaChunks: (string | Error)[];
   finishReason?: 'stop' | 'error';
+  chunkDelay?: number;
 };
 
-// https://github.com/vercel/ai/blob/31842e1b86ebba37bda5c596c78e7552cb02f013/examples/ai-core/src/stream-text/mock.ts#L17
+const createMockStream = <T>(
+  items: T[],
+  options?: { error?: Error; delayMs?: number },
+): ReadableStream<T> => {
+  const { error, delayMs } = options ?? {};
+
+  if (!error && delayMs == null) {
+    return convertArrayToReadableStream(items);
+  }
+
+  return new ReadableStream({
+    async start(controller) {
+      for (const item of items) {
+        if (delayMs != null) await delay(delayMs);
+        controller.enqueue(item);
+      }
+      if (error) {
+        if (delayMs != null) await delay(delayMs);
+        controller.error(error);
+      } else {
+        controller.close();
+      }
+    },
+  });
+};
+
 export const createMockLanguageModel = ({
   modelId = 'mock-model-id',
   provider = 'mock-provider',
   textDeltaChunks,
   finishReason = 'stop',
+  chunkDelay,
 }: CreateMockModelOptions): LanguageModelV3 => {
   const messageId = '0';
 
-  const textDelta: LanguageModelV3StreamPart[] = textDeltaChunks.map(text => ({
+  const errorIndex = textDeltaChunks.findIndex(
+    chunk => chunk instanceof Error,
+  );
+  const hasError = errorIndex !== -1;
+  const stringChunks = (
+    hasError ? textDeltaChunks.slice(0, errorIndex) : textDeltaChunks
+  ) as string[];
+  const error = hasError
+    ? (textDeltaChunks[errorIndex] as Error)
+    : undefined;
+
+  const textDelta: LanguageModelV3StreamPart[] = stringChunks.map(text => ({
     type: 'text-delta',
     id: messageId,
     delta: text,
   }));
 
+  const allParts: LanguageModelV3StreamPart[] = [];
+
+  if (stringChunks.length > 0) {
+    allParts.push({ type: 'text-start', id: messageId });
+    allParts.push(...textDelta);
+  }
+
+  if (!hasError) {
+    if (stringChunks.length === 0) {
+      allParts.push({ type: 'text-start', id: messageId });
+    }
+    allParts.push({ type: 'text-end', id: messageId });
+    allParts.push({
+      type: 'finish',
+      finishReason: { raw: undefined, unified: finishReason },
+      usage: {
+        inputTokens: {
+          total: 3,
+          noCache: 3,
+          cacheRead: undefined,
+          cacheWrite: undefined,
+        },
+        outputTokens: {
+          total: 10,
+          text: 10,
+          reasoning: undefined,
+        },
+      },
+    });
+  }
+
   return new MockLanguageModelV3({
     modelId,
     provider,
-    doStream: async options => ({
-      stream: convertArrayToReadableStream([
-        { type: 'text-start', id: messageId },
-        ...textDelta,
-        { type: 'text-end', id: messageId },
-        {
-          type: 'finish',
-          finishReason: { raw: undefined, unified: finishReason },
-          logprobs: undefined,
-          usage: {
-            inputTokens: {
-              total: 3,
-              noCache: 3,
-              cacheRead: undefined,
-              cacheWrite: undefined,
-            },
-            outputTokens: {
-              total: 10,
-              text: 10,
-              reasoning: undefined,
-            },
-          },
-        },
-      ]),
+    doStream: async () => ({
+      stream: createMockStream(allParts, { error, delayMs: chunkDelay }),
     }),
   });
 };
