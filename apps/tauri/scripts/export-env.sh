@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-$0}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${SCRIPT_SOURCE}")" && pwd)"
 APP_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 ENV_FILE="${APP_DIR}/.env.release.local"
 
@@ -12,8 +13,8 @@ if [[ -f "${ENV_FILE}" ]]; then
   set +a
 fi
 
-export TAURI_PRIVATE_KEY="${TAURI_PRIVATE_KEY:-${TAURI_SIGNING_PRIVATE_KEY:-}}"
-export TAURI_PRIVATE_KEY_PASSWORD="${TAURI_PRIVATE_KEY_PASSWORD:-${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:-}}"
+export TAURI_PRIVATE_KEY="${TAURI_SIGNING_PRIVATE_KEY:-}"
+export TAURI_PRIVATE_KEY_PASSWORD="${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:-}"
 
 if [[ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" && -z "${TAURI_PRIVATE_KEY:-}" ]]; then
   echo "TAURI_SIGNING_PRIVATE_KEY is required. Set it in .env.release.local or your shell env."

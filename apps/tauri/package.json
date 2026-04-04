@@ -1,9 +1,10 @@
 {
   "name": "desktop-app",
-  "version": "0.1.0",
+  "version": "25.99.0",
   "private": true,
   "scripts": {
-    "build:prod": "node ./scripts/build-prod.mjs",
+    "build:prod": "node ./scripts/build-prod.mjs && pnpm run release:upload",
+    "release:upload": "node ./scripts/upload-release-artifacts.mjs",
     "sync:version": "node ./scripts/sync-tauri-version.mjs",
     "build:signed": "bash -lc 'source ./scripts/export-env.sh && pnpm tauri build'",
     "sign:update:macos": "bash -lc 'source ./scripts/export-env.sh && pnpm tauri signer sign ./src-tauri/target/release/bundle/macos/ALLIN.app.tar.gz'",
