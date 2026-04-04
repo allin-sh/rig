@@ -32,6 +32,8 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
 });
 
+const FINDER_ICON_PATH = '/application_icon/finder.png';
+
 type MonacoEditorBeforeMount = NonNullable<
   ComponentProps<typeof MonacoEditor>['beforeMount']
 >;
@@ -86,6 +88,7 @@ export const ConfigFileWorkbenchView = () => {
     deleteConfigFile,
     readConfigFile,
     writeConfigFile,
+    openConfigFileFolder,
   } = useConfigFile();
 
   const [isLoadingList, setIsLoadingList] = useState(true);
@@ -405,6 +408,18 @@ export const ConfigFileWorkbenchView = () => {
     }
   };
 
+  const handleOpenConfigFileFolder = async (path: string) => {
+    try {
+      await openConfigFileFolder(path);
+    } catch (error) {
+      toast.error(`Failed to open folder: ${String(error)}`, {
+        position: 'top-center',
+        duration: 10000,
+        closeButton: true,
+      });
+    }
+  };
+
   return (
     <div className='h-dvh w-full grid grid-cols-[320px_1fr] bg-background'>
       <aside className='border-r bg-muted/10 flex flex-col'>
@@ -520,6 +535,25 @@ export const ConfigFileWorkbenchView = () => {
                 Unsaved
               </span>
             )}
+            <Button
+              onClick={() =>
+                selectedConfigFile &&
+                void handleOpenConfigFileFolder(selectedConfigFile.path)
+              }
+              size='sm'
+              variant='outline'
+              className='h-9 gap-2 rounded-full border-sky-200 bg-gradient-to-b from-white to-sky-50 px-3 text-slate-700 shadow-sm hover:border-sky-300 hover:from-sky-50 hover:to-sky-100 hover:text-slate-900'
+              disabled={!selectedConfigFile || showCreateForm}
+            >
+              <span className='inline-flex size-5 items-center justify-center overflow-hidden rounded-md bg-white'>
+                <img
+                  src={FINDER_ICON_PATH}
+                  alt='Finder'
+                  className='size-4 object-cover'
+                />
+              </span>
+              Show in Finder
+            </Button>
             <Button
               onClick={() => void handleDeleteSelectedConfigFile()}
               size='sm'

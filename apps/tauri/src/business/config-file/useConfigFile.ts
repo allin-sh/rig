@@ -108,6 +108,13 @@ export const useConfigFile = () => {
     [configFileManager],
   );
 
+  const openConfigFileFolder = useCallback(
+    async (path: string) => {
+      await configFileManager.openConfigFileFolder(path);
+    },
+    [configFileManager],
+  );
+
   return {
     configFiles,
     selectedConfigFile,
@@ -118,5 +125,6 @@ export const useConfigFile = () => {
     selectConfigFile,
     readConfigFile,
     writeConfigFile,
+    openConfigFileFolder,
   };
 };

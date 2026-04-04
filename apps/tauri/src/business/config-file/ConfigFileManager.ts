@@ -131,4 +131,8 @@ export class ConfigFileManager {
   public async writeConfigFile(path: string, content: string) {
     await configFileGateway.writeContent(path, content);
   }
+
+  public async openConfigFileFolder(path: string) {
+    await configFileGateway.openFolder(path);
+  }
 }

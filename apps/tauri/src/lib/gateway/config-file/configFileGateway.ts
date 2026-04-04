@@ -12,6 +12,9 @@ export const configFileGateway = {
 
   delete: (id: string) => invoke<void>('delete_config_file', { id }),
 
+  openFolder: (path: string) =>
+    invoke<void>('open_config_file_folder', { path }),
+
   readContent: (path: string) => invoke<string>('read_config_file', { path }),
 
   writeContent: (path: string, content: string) =>

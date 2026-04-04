@@ -152,3 +152,18 @@ pub async fn write_config_file(
     let storage = Storage::new(&app);
     storage.write_config_file(&path, &content).await
 }
+
+#[tauri::command]
+pub async fn open_config_file_folder(path: String) -> Result<(), String> {
+    let resolved_path = Storage::resolve_local_path(&path)?;
+
+    let parent_directory = resolved_path
+        .parent()
+        .ok_or_else(|| "Could not determine parent folder for the file".to_string())?;
+
+    if !parent_directory.exists() {
+        return Err("The parent folder does not exist".to_string());
+    }
+
+    open::that(parent_directory).map_err(|e| e.to_string())
+}

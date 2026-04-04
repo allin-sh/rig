@@ -116,6 +116,7 @@ pub fn run() {
             storage::commands::create_config_file,
             storage::commands::update_config_file,
             storage::commands::delete_config_file,
+            storage::commands::open_config_file_folder,
             storage::commands::read_config_file,
             storage::commands::write_config_file,
             auth::commands::start_codex_oauth,
