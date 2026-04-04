@@ -46,3 +46,6 @@ next-env.d.ts
 .opencode
 
 docs/
+
+# local release script (contains signing/notarization secrets)
+/scripts/*
