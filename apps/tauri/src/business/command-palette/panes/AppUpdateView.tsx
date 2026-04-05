@@ -104,7 +104,6 @@ export const AppUpdateView = () => {
               )}
             </Button>
           </div>
-          <p className='text-xs text-muted-foreground'>Can not load.</p>
         </div>
       </CommandList>
     </CommandDialog>

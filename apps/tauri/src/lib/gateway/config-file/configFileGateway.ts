@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { StorageConfigFile } from './types';
+import type { ConfigDirectoryEntry, StorageConfigFile } from './types';
 
 export const configFileGateway = {
   getAll: () => invoke<StorageConfigFile[]>('get_config_files'),
@@ -11,6 +11,21 @@ export const configFileGateway = {
     invoke<void>('update_config_file', { configFile }),
 
   delete: (id: string) => invoke<void>('delete_config_file', { id }),
+
+  listDirectory: (path: string) =>
+    invoke<ConfigDirectoryEntry[]>('list_config_directory_entries', { path }),
+
+  openFolder: (path: string) =>
+    invoke<void>('open_config_file_folder', { path }),
+
+  openInOpencode: (path: string) =>
+    invoke<void>('open_config_file_in_opencode', { path }),
+
+  openInCursor: (path: string) =>
+    invoke<void>('open_config_file_in_cursor', { path }),
+
+  openInZed: (path: string) =>
+    invoke<void>('open_config_file_in_zed', { path }),
 
   readContent: (path: string) => invoke<string>('read_config_file', { path }),
 

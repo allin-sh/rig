@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { useService } from '@/business/ServiceContext';
+import type { ConfigDirectoryEntry } from '@/lib/gateway/config-file/types';
 
 export const useConfigFile = () => {
   const { configFileManager } = useService();
@@ -60,12 +61,14 @@ export const useConfigFile = () => {
     async (
       name: string,
       path: string,
+      isDirectory: boolean,
       iconType: 'preset' | 'uploaded' | null,
       iconValue: string | null,
     ) => {
       return configFileManager.createConfigFile({
         name,
         path,
+        isDirectory,
         iconType,
         iconValue,
       });
@@ -108,6 +111,41 @@ export const useConfigFile = () => {
     [configFileManager],
   );
 
+  const openConfigFileFolder = useCallback(
+    async (path: string) => {
+      await configFileManager.openConfigFileFolder(path);
+    },
+    [configFileManager],
+  );
+
+  const openConfigFileInOpencode = useCallback(
+    async (path: string) => {
+      await configFileManager.openConfigFileInOpencode(path);
+    },
+    [configFileManager],
+  );
+
+  const openConfigFileInCursor = useCallback(
+    async (path: string) => {
+      await configFileManager.openConfigFileInCursor(path);
+    },
+    [configFileManager],
+  );
+
+  const openConfigFileInZed = useCallback(
+    async (path: string) => {
+      await configFileManager.openConfigFileInZed(path);
+    },
+    [configFileManager],
+  );
+
+  const listConfigDirectoryEntries = useCallback(
+    async (path: string): Promise<ConfigDirectoryEntry[]> => {
+      return configFileManager.listConfigDirectoryEntries(path);
+    },
+    [configFileManager],
+  );
+
   return {
     configFiles,
     selectedConfigFile,
@@ -118,5 +156,10 @@ export const useConfigFile = () => {
     selectConfigFile,
     readConfigFile,
     writeConfigFile,
+    openConfigFileFolder,
+    openConfigFileInOpencode,
+    openConfigFileInCursor,
+    openConfigFileInZed,
+    listConfigDirectoryEntries,
   };
 };

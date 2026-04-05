@@ -3,7 +3,48 @@ use super::{
     Storage,
 };
 use crate::storage::entities::{Agent, AppSettings};
+use std::process::Command;
 use tauri::AppHandle;
+
+fn resolve_config_target_path(path: &str) -> Result<std::path::PathBuf, String> {
+    Storage::resolve_local_path(path)
+}
+
+fn resolve_config_target_directory(path: &str) -> Result<std::path::PathBuf, String> {
+    let resolved_path = resolve_config_target_path(path)?;
+
+    let target_directory = if resolved_path.is_dir() {
+        resolved_path
+    } else {
+        resolved_path
+            .parent()
+            .ok_or_else(|| "Could not determine parent folder for the file".to_string())?
+            .to_path_buf()
+    };
+
+    if !target_directory.exists() {
+        return Err("The target folder does not exist".to_string());
+    }
+
+    Ok(target_directory)
+}
+
+fn shell_escape(value: &str) -> String {
+    format!("'{}'", value.replace('\'', "'\\''"))
+}
+
+fn run_open_command(args: &[&str]) -> Result<(), String> {
+    let status = Command::new("open")
+        .args(args)
+        .status()
+        .map_err(|e| e.to_string())?;
+
+    if status.success() {
+        return Ok(());
+    }
+
+    Err(format!("open command failed with status: {}", status))
+}
 
 #[tauri::command]
 pub async fn get_channels(app: AppHandle) -> Result<Vec<Channel>, String> {
@@ -151,4 +192,70 @@ pub async fn write_config_file(
 ) -> Result<(), String> {
     let storage = Storage::new(&app);
     storage.write_config_file(&path, &content).await
+}
+
+#[tauri::command]
+pub async fn list_config_directory_entries(
+    app: AppHandle,
+    path: String,
+) -> Result<Vec<super::entities::ConfigDirectoryEntry>, String> {
+    let storage = Storage::new(&app);
+    storage.list_config_directory_entries(&path).await
+}
+
+#[tauri::command]
+pub async fn open_config_file_folder(path: String) -> Result<(), String> {
+    let resolved_path = resolve_config_target_path(&path)?;
+
+    if resolved_path.is_dir() {
+        return run_open_command(&[resolved_path.to_string_lossy().as_ref()]);
+    }
+
+    if !resolved_path.exists() {
+        return Err("The target file does not exist".to_string());
+    }
+
+    run_open_command(&["-R", resolved_path.to_string_lossy().as_ref()])
+}
+
+#[tauri::command]
+pub async fn open_config_file_in_opencode(path: String) -> Result<(), String> {
+    let target_directory = resolve_config_target_directory(&path)?;
+    let command = format!(
+        "cd {} && opencode; exec zsh",
+        shell_escape(target_directory.to_string_lossy().as_ref())
+    );
+
+    run_open_command(&[
+        "-n",
+        "-a",
+        "Ghostty",
+        "--args",
+        "-e",
+        "zsh",
+        "-lc",
+        command.as_str(),
+    ])
+}
+
+#[tauri::command]
+pub async fn open_config_file_in_zed(path: String) -> Result<(), String> {
+    let resolved_path = resolve_config_target_path(&path)?;
+
+    if !resolved_path.exists() {
+        return Err("The target path does not exist".to_string());
+    }
+
+    run_open_command(&["-a", "Zed", resolved_path.to_string_lossy().as_ref()])
+}
+
+#[tauri::command]
+pub async fn open_config_file_in_cursor(path: String) -> Result<(), String> {
+    let resolved_path = resolve_config_target_path(&path)?;
+
+    if !resolved_path.exists() {
+        return Err("The target path does not exist".to_string());
+    }
+
+    run_open_command(&["-a", "Cursor", resolved_path.to_string_lossy().as_ref()])
 }

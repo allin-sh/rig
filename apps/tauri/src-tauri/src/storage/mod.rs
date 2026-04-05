@@ -124,7 +124,7 @@ impl Storage {
         Ok(dirs)
     }
 
-    fn resolve_local_path(path: &str) -> Result<PathBuf, String> {
+    pub(crate) fn resolve_local_path(path: &str) -> Result<PathBuf, String> {
         let trimmed = path.trim();
 
         if trimmed.is_empty() {
