@@ -6,7 +6,7 @@ type Props = {
   imageClassName?: string;
 };
 
-export const ConfigFileEntryIconView = ({
+export const EntryIconView = ({
   isDirectory,
   iconUrl,
   imageClassName = 'size-5 rounded-sm object-cover border',

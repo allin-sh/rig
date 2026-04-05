@@ -1,10 +1,10 @@
 import { Button } from '@allin/ui';
 import { Plus } from 'lucide-react';
 import { use } from 'react';
-import { ConfigFileEntryListView } from './ConfigFileEntryListView';
-import { ConfigFileWorkbenchContext } from './ConfigFileWorkbenchProvider';
+import { ConfigFileWorkbenchContext } from '../ConfigFileWorkbenchProvider';
+import { EntryListView } from './EntryListView';
 
-export const ConfigFileSidebarView = () => {
+export const SidebarView = () => {
   const context = use(ConfigFileWorkbenchContext);
 
   if (!context) {
@@ -28,10 +28,7 @@ export const ConfigFileSidebarView = () => {
           Add
         </Button>
       </div>
-
-      <div className='flex-1 overflow-y-auto p-2'>
-        <ConfigFileEntryListView />
-      </div>
+      <EntryListView />
     </aside>
   );
 };
