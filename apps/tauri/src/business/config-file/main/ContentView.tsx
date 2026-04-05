@@ -61,6 +61,9 @@ export const ContentView = () => {
         onOpenInOpencode={() => {
           void context.openInOpencode();
         }}
+        onOpenInCursor={() => {
+          void context.openInCursor();
+        }}
         onOpenInZed={() => {
           void context.openInZed();
         }}

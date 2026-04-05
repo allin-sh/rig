@@ -21,6 +21,9 @@ export const configFileGateway = {
   openInOpencode: (path: string) =>
     invoke<void>('open_config_file_in_opencode', { path }),
 
+  openInCursor: (path: string) =>
+    invoke<void>('open_config_file_in_cursor', { path }),
+
   openInZed: (path: string) =>
     invoke<void>('open_config_file_in_zed', { path }),
 

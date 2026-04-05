@@ -145,6 +145,10 @@ export class ConfigFileManager {
     await configFileGateway.openInOpencode(path);
   }
 
+  public async openConfigFileInCursor(path: string) {
+    await configFileGateway.openInCursor(path);
+  }
+
   public async openConfigFileInZed(path: string) {
     await configFileGateway.openInZed(path);
   }

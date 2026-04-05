@@ -3,6 +3,7 @@ import { getApplicationIconUrl } from './applicationIconPresets';
 import type { ConfigBrowserItem } from './configFileWorkbenchTypes';
 
 export const FINDER_ICON_PATH = '/application_icon/finder.png';
+export const CURSOR_ICON_PATH = '/application_icon/cursor.png';
 export const ZED_ICON_PATH = '/application_icon/zed.png';
 
 export const getLanguageFromPath = (path: string) => {

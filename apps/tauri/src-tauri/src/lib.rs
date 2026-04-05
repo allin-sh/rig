@@ -118,6 +118,7 @@ pub fn run() {
             storage::commands::delete_config_file,
             storage::commands::open_config_file_folder,
             storage::commands::open_config_file_in_opencode,
+            storage::commands::open_config_file_in_cursor,
             storage::commands::open_config_file_in_zed,
             storage::commands::list_config_directory_entries,
             storage::commands::read_config_file,

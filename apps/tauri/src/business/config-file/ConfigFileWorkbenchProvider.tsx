@@ -77,6 +77,7 @@ type ConfigFileWorkbenchContextValue = {
   removeSelectedEntry: () => Promise<void>;
   openInFinder: () => Promise<void>;
   openInOpencode: () => Promise<void>;
+  openInCursor: () => Promise<void>;
   openInZed: () => Promise<void>;
   saveActiveFile: () => Promise<void>;
 };
@@ -99,6 +100,7 @@ export const ConfigFileWorkbenchProvider = ({
     writeConfigFile,
     openConfigFileFolder,
     openConfigFileInOpencode,
+    openConfigFileInCursor,
     openConfigFileInZed,
     listConfigDirectoryEntries,
   } = useConfigFile();
@@ -243,8 +245,6 @@ export const ConfigFileWorkbenchProvider = ({
     },
     [ensureDirectoryEntriesLoaded],
   );
-
-
 
   useEffect(() => {
     if (!selectedConfigFile) {
@@ -588,6 +588,22 @@ export const ConfigFileWorkbenchProvider = ({
     }
   }, [finderTargetPath, openConfigFileInZed]);
 
+  const openInCursor = useCallback(async () => {
+    if (!finderTargetPath) {
+      return;
+    }
+
+    try {
+      await openConfigFileInCursor(finderTargetPath);
+    } catch (error) {
+      toast.error(`Failed to open Cursor: ${String(error)}`, {
+        position: 'top-center',
+        duration: 10000,
+        closeButton: true,
+      });
+    }
+  }, [finderTargetPath, openConfigFileInCursor]);
+
   const value = useMemo<ConfigFileWorkbenchContextValue>(
     () => ({
       pane,
@@ -638,6 +654,7 @@ export const ConfigFileWorkbenchProvider = ({
       removeSelectedEntry,
       openInFinder,
       openInOpencode,
+      openInCursor,
       openInZed,
       saveActiveFile,
     }),
@@ -670,6 +687,7 @@ export const ConfigFileWorkbenchProvider = ({
       newPath,
       openInFinder,
       openInOpencode,
+      openInCursor,
       openInZed,
       pane,
       pickPath,

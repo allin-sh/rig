@@ -1,6 +1,10 @@
 import { Button } from '@allin/ui';
 import { ExternalLink } from 'lucide-react';
-import { FINDER_ICON_PATH, ZED_ICON_PATH } from '../configFileWorkbenchUtils';
+import {
+  CURSOR_ICON_PATH,
+  FINDER_ICON_PATH,
+  ZED_ICON_PATH,
+} from '../configFileWorkbenchUtils';
 
 type PreviewActionButtonProps = {
   iconSrc: string;
@@ -35,6 +39,7 @@ type Props = {
   isDarkMode: boolean;
   onOpenInFinder: () => void;
   onOpenInOpencode: () => void;
+  onOpenInCursor: () => void;
   onOpenInZed: () => void;
 };
 
@@ -42,6 +47,7 @@ export const PreviewActionsView = ({
   isDarkMode,
   onOpenInFinder,
   onOpenInOpencode,
+  onOpenInCursor,
   onOpenInZed,
 }: Props) => {
   const opencodeIconSrc = isDarkMode
@@ -59,6 +65,11 @@ export const PreviewActionsView = ({
         iconSrc={opencodeIconSrc}
         label='Opencode'
         onClick={onOpenInOpencode}
+      />
+      <PreviewActionButton
+        iconSrc={CURSOR_ICON_PATH}
+        label='Cursor'
+        onClick={onOpenInCursor}
       />
       <PreviewActionButton
         iconSrc={ZED_ICON_PATH}

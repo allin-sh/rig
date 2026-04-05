@@ -125,6 +125,13 @@ export const useConfigFile = () => {
     [configFileManager],
   );
 
+  const openConfigFileInCursor = useCallback(
+    async (path: string) => {
+      await configFileManager.openConfigFileInCursor(path);
+    },
+    [configFileManager],
+  );
+
   const openConfigFileInZed = useCallback(
     async (path: string) => {
       await configFileManager.openConfigFileInZed(path);
@@ -151,6 +158,7 @@ export const useConfigFile = () => {
     writeConfigFile,
     openConfigFileFolder,
     openConfigFileInOpencode,
+    openConfigFileInCursor,
     openConfigFileInZed,
     listConfigDirectoryEntries,
   };

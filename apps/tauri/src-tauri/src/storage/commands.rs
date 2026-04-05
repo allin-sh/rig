@@ -248,3 +248,14 @@ pub async fn open_config_file_in_zed(path: String) -> Result<(), String> {
 
     run_open_command(&["-a", "Zed", resolved_path.to_string_lossy().as_ref()])
 }
+
+#[tauri::command]
+pub async fn open_config_file_in_cursor(path: String) -> Result<(), String> {
+    let resolved_path = resolve_config_target_path(&path)?;
+
+    if !resolved_path.exists() {
+        return Err("The target path does not exist".to_string());
+    }
+
+    run_open_command(&["-a", "Cursor", resolved_path.to_string_lossy().as_ref()])
+}
