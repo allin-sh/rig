@@ -1,11 +1,4 @@
-export type ApplicationIconPreset = {
-  id: string;
-  label: string;
-  light: string;
-  dark: string;
-};
-
-export const APPLICATION_ICON_PRESETS: ApplicationIconPreset[] = [
+export const APPLICATION_ICON_PRESETS = [
   {
     id: 'chrome',
     label: 'Chrome',
@@ -72,22 +65,19 @@ export const APPLICATION_ICON_PRESETS: ApplicationIconPreset[] = [
     light: '/application_icon/vscode.webp',
     dark: '/application_icon/vscode.webp',
   },
-];
+] as const;
 
-export const getApplicationIconPreset = (presetId: string) => {
-  return (
-    APPLICATION_ICON_PRESETS.find(preset => preset.id === presetId) ?? null
-  );
+type AppIconPresetId = (typeof APPLICATION_ICON_PRESETS)[number]['id'];
+
+export const getApplicationIconPreset = (presetId: AppIconPresetId) => {
+  return APPLICATION_ICON_PRESETS.find(preset => preset.id === presetId)!;
 };
 
 export const getApplicationIconUrl = (
-  presetId: string,
-  isDarkMode: boolean,
+  presetId: AppIconPresetId,
+  isDarkMode: boolean = false,
 ) => {
   const preset = getApplicationIconPreset(presetId);
-  if (!preset) {
-    return null;
-  }
 
   return isDarkMode ? preset.dark : preset.light;
 };

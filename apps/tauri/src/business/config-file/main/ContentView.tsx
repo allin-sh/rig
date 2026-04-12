@@ -1,73 +1,26 @@
-import { use } from 'react';
-import { ConfigFileWorkbenchContext } from '../ConfigFileWorkbenchProvider';
-import { getLanguageFromPath } from '../configFileWorkbenchUtils';
-import { ContentPlaceholderView } from './ContentPlaceholderView';
+import type { StorageConfigFile } from '@/lib/gateway/config-file/types';
+import { getFileTypeFromPath } from '../configFileWorkbenchUtils';
 import { EditorView } from './EditorView';
 import { PreviewActionsView } from './PreviewActionsView';
+import { useUserFile } from './useUserFile';
 
-export const ContentView = () => {
-  const context = use(ConfigFileWorkbenchContext);
-
-  if (!context) {
-    throw new Error(
-      'ContentView must be used within ConfigFileWorkbenchProvider',
-    );
-  }
-
-  if (!context.selectedConfigFile) {
-    return (
-      <ContentPlaceholderView
-        title='No selection'
-        description='Pick a file or folder from the sidebar'
-        showIcon
-      />
-    );
-  }
-
-  if (context.selectedBrowserItem?.isDirectory) {
-    return (
-      <ContentPlaceholderView
-        title='Folder selected'
-        description='Choose a file inside this folder to start editing.'
-      />
-    );
-  }
-
-  if (context.isLoadingContent) {
-    return (
-      <ContentPlaceholderView title='Loading' description='Loading file...' />
-    );
-  }
+export const ContentView = ({
+  selectedFile,
+}: {
+  selectedFile: StorageConfigFile;
+}) => {
+  const { data } = useUserFile();
 
   return (
     <div className='flex h-full min-h-0'>
       <div className='min-w-0 flex-1'>
         <EditorView
-          language={
-            context.selectedBrowserItem?.path
-              ? getLanguageFromPath(context.selectedBrowserItem.path)
-              : 'json'
-          }
-          value={context.editorValue}
-          isReadOnly
-          onChange={context.setEditorValue}
+          language={getFileTypeFromPath(selectedFile.path)}
+          value={''}
+          onChange={() => {}}
         />
       </div>
-      <PreviewActionsView
-        isDarkMode={context.isDarkMode}
-        onOpenInFinder={() => {
-          void context.openInFinder();
-        }}
-        onOpenInOpencode={() => {
-          void context.openInOpencode();
-        }}
-        onOpenInCursor={() => {
-          void context.openInCursor();
-        }}
-        onOpenInZed={() => {
-          void context.openInZed();
-        }}
-      />
+      <PreviewActionsView />
     </div>
   );
 };

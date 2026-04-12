@@ -23,18 +23,6 @@ export const configFileGateway = {
   listDirectory: (path: string) =>
     invoke<ConfigDirectoryEntry[]>('list_config_directory_entries', { path }),
 
-  openFolder: (path: string) =>
-    invoke<void>('open_config_file_folder', { path }),
-
-  openInOpencode: (path: string) =>
-    invoke<void>('open_config_file_in_opencode', { path }),
-
-  openInCursor: (path: string) =>
-    invoke<void>('open_config_file_in_cursor', { path }),
-
-  openInZed: (path: string) =>
-    invoke<void>('open_config_file_in_zed', { path }),
-
   readContent: (path: string) => invoke<string>('read_config_file', { path }),
 
   writeContent: (path: string, content: string) =>

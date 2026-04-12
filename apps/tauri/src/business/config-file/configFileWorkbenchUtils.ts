@@ -1,41 +1,36 @@
+import { match } from 'ts-pattern';
 import type { StorageConfigFile } from '@/lib/gateway/config-file/types';
-import { getApplicationIconUrl } from './applicationIconPresets';
 import type { ConfigBrowserItem } from './configFileWorkbenchTypes';
 
-export const FINDER_ICON_PATH = '/application_icon/finder.png';
-export const CURSOR_ICON_PATH = '/application_icon/cursor.png';
-export const ZED_ICON_PATH = '/application_icon/zed.png';
-
-export const getLanguageFromPath = (path: string) => {
+export const getFileTypeFromPath = (path: string) => {
   const lowerCasePath = path.toLowerCase();
 
-  if (lowerCasePath.endsWith('.jsonc')) return 'json';
-  if (lowerCasePath.endsWith('.json')) return 'json';
-  if (lowerCasePath.endsWith('.yaml') || lowerCasePath.endsWith('.yml')) {
-    return 'yaml';
-  }
-  if (lowerCasePath.endsWith('.toml')) return 'toml';
-  if (lowerCasePath.endsWith('.zshrc') || lowerCasePath.endsWith('.sh')) {
-    return 'shell';
-  }
-  if (lowerCasePath.endsWith('.md')) return 'markdown';
-  return 'plaintext';
-};
-
-export const getIconUrl = (
-  iconType: StorageConfigFile['iconType'],
-  iconValue: string | null,
-  isDarkMode: boolean,
-) => {
-  if (!iconType || !iconValue) {
-    return null;
-  }
-
-  if (iconType === 'uploaded') {
-    return iconValue;
-  }
-
-  return getApplicationIconUrl(iconValue, isDarkMode);
+  return match(lowerCasePath)
+    .when(
+      path => path.endsWith('.jsonc'),
+      () => 'json',
+    )
+    .when(
+      path => path.endsWith('.json'),
+      () => 'json',
+    )
+    .when(
+      path => path.endsWith('.yaml') || path.endsWith('.yml'),
+      () => 'yaml',
+    )
+    .when(
+      path => path.endsWith('.toml'),
+      () => 'toml',
+    )
+    .when(
+      path => path.endsWith('.zshrc') || path.endsWith('.sh'),
+      () => 'shell',
+    )
+    .when(
+      path => path.endsWith('.md'),
+      () => 'markdown',
+    )
+    .otherwise(() => 'plaintext');
 };
 
 export const getNameFromPath = (path: string) => {

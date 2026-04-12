@@ -58,7 +58,7 @@ export const useConfigFile = () => {
   }, [configFiles, selectedConfigFileId]);
 
   const fetchConfigFiles = useCallback(async () => {
-    await configFileManager.fetchConfigFiles();
+    await configFileManager.fetchFiles();
   }, [configFileManager]);
 
   const createConfigFile = useCallback(
@@ -122,34 +122,6 @@ export const useConfigFile = () => {
     [configFileManager],
   );
 
-  const openConfigFileFolder = useCallback(
-    async (path: string) => {
-      await configFileManager.openConfigFileFolder(path);
-    },
-    [configFileManager],
-  );
-
-  const openConfigFileInOpencode = useCallback(
-    async (path: string) => {
-      await configFileManager.openConfigFileInOpencode(path);
-    },
-    [configFileManager],
-  );
-
-  const openConfigFileInCursor = useCallback(
-    async (path: string) => {
-      await configFileManager.openConfigFileInCursor(path);
-    },
-    [configFileManager],
-  );
-
-  const openConfigFileInZed = useCallback(
-    async (path: string) => {
-      await configFileManager.openConfigFileInZed(path);
-    },
-    [configFileManager],
-  );
-
   const listConfigDirectoryEntries = useCallback(
     async (path: string): Promise<ConfigDirectoryEntry[]> => {
       return configFileManager.listConfigDirectoryEntries(path);
@@ -168,10 +140,7 @@ export const useConfigFile = () => {
     selectConfigFile,
     readConfigFile,
     writeConfigFile,
-    openConfigFileFolder,
-    openConfigFileInOpencode,
-    openConfigFileInCursor,
-    openConfigFileInZed,
+
     listConfigDirectoryEntries,
   };
 };

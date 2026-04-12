@@ -1,15 +1,33 @@
 'use client';
 
+import { Suspense, use } from 'react';
 import { match } from 'ts-pattern';
+import { SelectionContext } from '../SelectionContext';
 import { usePaneType } from '../usePaneType';
 import { ContentView } from './ContentView';
-import { CreateFormView } from './CreateFormView';
+import { EmptyPaneView } from './EmptyPaneView';
+import { FileAddFormView } from './FileAddFormView';
 
 export const MainView = () => {
   const { paneType } = usePaneType();
+  const { selectedFile } = use(SelectionContext);
 
   return match(paneType)
-    .with('content', () => <ContentView />)
-    .with('create-entry', () => <CreateFormView />)
-    .exhaustive();
+    .when(
+      type => type === 'content' && selectedFile,
+      () => (
+        <Suspense
+          fallback={
+            <EmptyPaneView title='Loading' description='Loading file...' />
+          }
+        >
+          <ContentView selectedFile={selectedFile!} />
+        </Suspense>
+      ),
+    )
+    .when(
+      type => type === 'create-entry',
+      () => <FileAddFormView />,
+    )
+    .otherwise(() => null);
 };

@@ -1,7 +1,7 @@
 import { Button } from '@allin/ui';
 import { Plus } from 'lucide-react';
 import { usePaneType } from '../usePaneType';
-import { EntryListView } from './EntryListView';
+import { UserFileListView } from './UserFileListView';
 
 export const SidebarView = () => {
   const { setPaneType } = usePaneType();
@@ -19,7 +19,7 @@ export const SidebarView = () => {
           Add
         </Button>
       </div>
-      <EntryListView />
+      <UserFileListView />
     </aside>
   );
 };

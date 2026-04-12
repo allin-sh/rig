@@ -59,22 +59,11 @@ export class ConfigFileManager {
     );
   }
 
-  public async fetchConfigFiles() {
+  public async fetchFiles() {
     const configFiles = await configFileGateway.getAll();
     this._configFiles$.next(configFiles);
 
-    const selectedConfigFileId = this._selectedConfigFileId$.getValue();
-    if (!selectedConfigFileId && configFiles[0]) {
-      this._selectedConfigFileId$.next(configFiles[0].id);
-      return;
-    }
-
-    if (
-      selectedConfigFileId &&
-      !configFiles.find(configFile => configFile.id === selectedConfigFileId)
-    ) {
-      this._selectedConfigFileId$.next(configFiles[0]?.id ?? null);
-    }
+    return configFiles;
   }
 
   public async createConfigFile(
@@ -93,7 +82,7 @@ export class ConfigFileManager {
     };
 
     await configFileGateway.create(configFile);
-    await this.fetchConfigFiles();
+    await this.fetchFiles();
     this._selectedConfigFileId$.next(configFile.id);
     return configFile;
   }
@@ -121,12 +110,12 @@ export class ConfigFileManager {
       updatedAt: Date.now(),
     });
 
-    await this.fetchConfigFiles();
+    await this.fetchFiles();
   }
 
   public async deleteConfigFile(configFileId: string) {
     await configFileGateway.delete(configFileId);
-    await this.fetchConfigFiles();
+    await this.fetchFiles();
   }
 
   public selectConfigFile(configFileId: string) {
@@ -143,22 +132,6 @@ export class ConfigFileManager {
 
   public async writeConfigFile(path: string, content: string) {
     await configFileGateway.writeContent(path, content);
-  }
-
-  public async openConfigFileFolder(path: string) {
-    await configFileGateway.openFolder(path);
-  }
-
-  public async openConfigFileInOpencode(path: string) {
-    await configFileGateway.openInOpencode(path);
-  }
-
-  public async openConfigFileInCursor(path: string) {
-    await configFileGateway.openInCursor(path);
-  }
-
-  public async openConfigFileInZed(path: string) {
-    await configFileGateway.openInZed(path);
   }
 
   public async listConfigDirectoryEntries(

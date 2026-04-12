@@ -1,22 +1,16 @@
+import { use } from 'react';
+import type { StorageConfigFile } from '@/lib/gateway/config-file/types';
 import { EntryIconView } from '../EntryIconView';
+import { SelectionContext } from '../SelectionContext';
 
 type Props = {
-  name: string;
-  path: string;
-  isSelected: boolean;
-  iconUrl: string | null;
-  isDirectory: boolean;
-  onSelect: () => void;
+  file: StorageConfigFile;
 };
 
-export const FileItemView = ({
-  name,
-  path,
-  isSelected,
-  iconUrl,
-  isDirectory,
-  onSelect,
-}: Props) => {
+export const FileItemView = ({ file }: Props) => {
+  const { id, name, path, iconType, iconValue } = file;
+  const { selectedFile, setSelectedFile } = use(SelectionContext);
+  const isSelected = selectedFile?.id === id;
   return (
     <div
       className={`relative rounded-md ${
@@ -26,7 +20,7 @@ export const FileItemView = ({
       <button
         type='button'
         className='absolute inset-0 rounded-md'
-        onClick={onSelect}
+        onClick={() => setSelectedFile(file)}
         aria-label={`Select ${name}`}
       />
       <div
@@ -37,7 +31,7 @@ export const FileItemView = ({
         <span className='mt-0.5 size-4 shrink-0' />
         <div className='flex min-w-0 flex-1 items-start gap-2 text-left'>
           <span className='mt-0.5 inline-flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm'>
-            <EntryIconView isDirectory={isDirectory} iconUrl={iconUrl} />
+            <EntryIconView isDirectory={false} iconUrl={''} />
           </span>
           <span className='min-w-0 flex-1'>
             <span className='block truncate text-sm font-medium'>{name}</span>
