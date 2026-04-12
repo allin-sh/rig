@@ -24,6 +24,7 @@ import {
   toBrowserItem,
 } from './configFileWorkbenchUtils';
 import { useConfigFile } from './useConfigFile';
+import { usePaneType } from './usePaneType';
 
 type ConfigFileWorkbenchContextValue = {
   pane: 'content' | 'create-entry';
@@ -105,7 +106,7 @@ export const ConfigFileWorkbenchProvider = ({
     listConfigDirectoryEntries,
   } = useConfigFile();
 
-  const [pane, setPane] = useState<'content' | 'create-entry'>('content');
+  const { paneType: pane, setPaneType: setPane } = usePaneType();
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [newName, setNewName] = useState('');

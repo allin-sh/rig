@@ -1,16 +1,15 @@
 'use client';
 
-import { use } from 'react';
-import { ConfigFileWorkbenchContext } from '../ConfigFileWorkbenchProvider';
+import { match } from 'ts-pattern';
+import { usePaneType } from '../usePaneType';
 import { ContentView } from './ContentView';
 import { CreateFormView } from './CreateFormView';
 
 export const MainView = () => {
-  const context = use(ConfigFileWorkbenchContext);
+  const { paneType } = usePaneType();
 
-  if (!context) {
-    throw new Error('MainView must be used within ConfigFileWorkbenchProvider');
-  }
-
-  return context.pane === 'create-entry' ? <CreateFormView /> : <ContentView />;
+  return match(paneType)
+    .with('content', () => <ContentView />)
+    .with('create-entry', () => <CreateFormView />)
+    .exhaustive();
 };
