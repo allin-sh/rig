@@ -22,8 +22,8 @@ export const configFileGateway = {
   listDirectory: (path: string) =>
     invoke<ConfigDirectoryEntry[]>('list_config_directory_entries', { path }),
 
-  readContent: (path: string) => invoke<string>('read_config_file', { path }),
+  readContent: (path: string) => invoke<string>('read_file', { path }),
 
   writeContent: (path: string, content: string) =>
-    invoke<void>('write_config_file', { path, content }),
+    invoke<void>('write_file', { path, content }),
 };

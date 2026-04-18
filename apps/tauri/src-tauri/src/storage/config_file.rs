@@ -1,4 +1,4 @@
-use super::{entities, Storage};
+use super::{entities, external_file::resolve_local_path, Storage};
 
 impl Storage {
     pub async fn get_config_files(&self) -> Result<Vec<entities::ConfigFile>, String> {
@@ -73,78 +73,12 @@ impl Storage {
         self.write(&["config_file"], &file).await
     }
 
-    pub async fn list_config_directory_entries(
-        &self,
-        path: &str,
-    ) -> Result<Vec<entities::ConfigDirectoryEntry>, String> {
-        let resolved_path = Self::resolve_local_path(path)?;
-
-        if !resolved_path.exists() {
-            return Err(format!(
-                "Directory does not exist: {}",
-                resolved_path.display()
-            ));
-        }
-
-        if !resolved_path.is_dir() {
-            return Err(format!(
-                "Path is not a directory: {}",
-                resolved_path.display()
-            ));
-        }
-
-        let mut entries = Vec::new();
-        let mut read_dir = tokio::fs::read_dir(&resolved_path).await.map_err(|e| {
-            format!(
-                "Failed to read directory {}: {}",
-                resolved_path.display(),
-                e
-            )
-        })?;
-
-        while let Some(entry) = read_dir.next_entry().await.map_err(|e| {
-            format!(
-                "Failed to read directory entry {}: {}",
-                resolved_path.display(),
-                e
-            )
-        })? {
-            let entry_path = entry.path();
-            let metadata = entry
-                .metadata()
-                .await
-                .map_err(|e| format!("Failed to read metadata {}: {}", entry_path.display(), e))?;
-
-            let is_directory = if metadata.is_dir() {
-                true
-            } else if metadata.is_file() {
-                false
-            } else {
-                continue;
-            };
-
-            entries.push(entities::ConfigDirectoryEntry {
-                name: entry.file_name().to_string_lossy().to_string(),
-                path: entry_path.to_string_lossy().to_string(),
-                is_directory,
-            });
-        }
-
-        entries.sort_by(|a, b| match (a.is_directory, b.is_directory) {
-            (true, false) => std::cmp::Ordering::Less,
-            (false, true) => std::cmp::Ordering::Greater,
-            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
-        });
-
-        Ok(entries)
-    }
-
     fn validate_existing_config_file_path(
         &self,
         path: &str,
         is_directory: bool,
     ) -> Result<(), String> {
-        let resolved_path = Self::resolve_local_path(path)?;
+        let resolved_path = resolve_local_path(path)?;
 
         if !resolved_path.exists() {
             return Err(format!(

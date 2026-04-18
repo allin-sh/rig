@@ -1,27 +1,18 @@
 use super::{
     entities::{Channel, ConfigFile, Message},
+    external_file::{
+        check_local_path as check_external_local_path, read_text_file,
+        resolve_local_path, write_text_file, LocalPathCheckInput,
+        LocalPathCheckResult,
+    },
     Storage,
 };
 use crate::storage::entities::{Agent, AppSettings};
-use serde::{Deserialize, Serialize};
 use std::process::Command;
 use tauri::AppHandle;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LocalPathCheckInput {
-    pub path: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LocalPathCheckResult {
-    pub resolved_path: String,
-    pub exists: bool,
-}
-
 fn resolve_config_target_path(path: &str) -> Result<std::path::PathBuf, String> {
-    Storage::resolve_local_path(path)
+    resolve_local_path(path)
 }
 
 fn resolve_config_target_directory(path: &str) -> Result<std::path::PathBuf, String> {
@@ -182,20 +173,7 @@ pub async fn create_config_file(app: AppHandle, config_file: ConfigFile) -> Resu
 
 #[tauri::command]
 pub async fn check_local_path(input: LocalPathCheckInput) -> Result<LocalPathCheckResult, String> {
-    Ok(match Storage::resolve_local_path(&input.path) {
-        Ok(resolved_path) => {
-            let resolved_path_string = resolved_path.to_string_lossy().to_string();
-
-            LocalPathCheckResult {
-                resolved_path: resolved_path_string,
-                exists: resolved_path.exists(),
-            }
-        }
-        Err(error) => LocalPathCheckResult {
-            resolved_path: error,
-            exists: false,
-        },
-    })
+    Ok(check_external_local_path(&input.path))
 }
 
 #[tauri::command]
@@ -211,28 +189,13 @@ pub async fn delete_config_file(app: AppHandle, id: String) -> Result<(), String
 }
 
 #[tauri::command]
-pub async fn read_config_file(app: AppHandle, path: String) -> Result<String, String> {
-    let storage = Storage::new(&app);
-    storage.read_config_file(&path).await
+pub async fn read_file(path: String) -> Result<String, String> {
+    read_text_file(&path).await
 }
 
 #[tauri::command]
-pub async fn write_config_file(
-    app: AppHandle,
-    path: String,
-    content: String,
-) -> Result<(), String> {
-    let storage = Storage::new(&app);
-    storage.write_config_file(&path, &content).await
-}
-
-#[tauri::command]
-pub async fn list_config_directory_entries(
-    app: AppHandle,
-    path: String,
-) -> Result<Vec<super::entities::ConfigDirectoryEntry>, String> {
-    let storage = Storage::new(&app);
-    storage.list_config_directory_entries(&path).await
+pub async fn write_file(path: String, content: String) -> Result<(), String> {
+    write_text_file(&path, &content).await
 }
 
 #[tauri::command]

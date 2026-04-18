@@ -22,4 +22,6 @@ export type LocalPathCheckInput = {
 export type LocalPathCheckResult = {
   resolvedPath: string;
   exists: boolean;
+  createdAt: number | null;
+  updatedAt: number | null;
 };
