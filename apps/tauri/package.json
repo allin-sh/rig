@@ -33,6 +33,7 @@
     "@allin/message-metadata-schema": "workspace:*",
     "@allin/ui": "workspace:*",
     "@allin/utils": "workspace:*",
+    "@dnd-kit/react": "^0.4.0",
     "@lobehub/icons": "^2.43.1",
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.80.7",

@@ -5,6 +5,7 @@ export type StorageConfigFile = {
   isDirectory: boolean;
   iconUrl: string | null;
   groupId: string | null;
+  order: number;
   createdAt: number;
   updatedAt: number;
 };
@@ -13,6 +14,7 @@ export type StorageGroup = {
   id: string;
   name: string;
   iconUrl: string | null;
+  order: number;
   createdAt: number;
   updatedAt: number;
 };

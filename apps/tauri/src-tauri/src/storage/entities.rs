@@ -90,6 +90,7 @@ pub struct ConfigFile {
     pub group_id: Option<String>,
     pub created_at: i64,
     pub updated_at: i64,
+    pub order: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -101,6 +102,7 @@ pub struct Group {
     pub icon_url: Option<String>,
     pub created_at: i64,
     pub updated_at: i64,
+    pub order: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

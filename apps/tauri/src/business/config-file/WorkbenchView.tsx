@@ -8,7 +8,8 @@ import { SidebarView } from './sidebar/SidebarView';
 export const WorkbenchView = () => {
   return (
     <SelectionProvider>
-      <div className='h-dvh w-full grid grid-cols-[320px_1fr] bg-background'>
+      <div className='w-full h-1 border-b'></div>
+      <div className='h-dvh w-full grid grid-cols-[360px_1fr] bg-background'>
         <SidebarView />
         <section className='flex flex-col min-w-0'>
           <HeaderView />

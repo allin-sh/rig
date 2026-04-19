@@ -2,10 +2,12 @@ import { Button } from '@allin/ui';
 import { ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { v4 } from 'uuid';
-import { configFileGateway } from '@/lib/gateway/config-file/configFileGateway';
+import type {
+  StorageConfigFile,
+  StorageGroup,
+} from '@/lib/gateway/config-file/types';
 import { getApplicationIconUrl } from '../config-file/AppIconPresets';
 import { useConfigFile } from '../config-file/useConfigFile';
-import { useGroup, useSetGroup } from '../config-file/useGroup';
 import { Group } from './Group';
 import type { ScanFile } from './scan-file';
 
@@ -24,17 +26,24 @@ const doGroupping = (files: ScanFile[]) => {
   }, {});
 };
 
-export type StorageGroup = {
-  id: string;
-  name: string;
-  iconUrl: string | null;
-  createdAt: number;
-  updatedAt: number;
+const getNextOrder = <T extends { order: number }>(items: T[]) => {
+  if (items.length === 0) {
+    return 0;
+  }
+
+  return Math.max(...items.map(item => item.order)) + 1;
+};
+
+const getFilesByGroupId = (
+  files: StorageConfigFile[],
+  groupId: string | null,
+) => {
+  return files.filter(file => file.groupId === groupId);
 };
 
 export const ScanFileList = ({ files }: ScanFileListProps) => {
-  const { groups, createGroup, createGroups } = useGroup();
-  const { createConfigFile } = useConfigFile();
+  const { groups, configFiles, createConfigFile, createGroup } =
+    useConfigFile();
 
   const groupedFiles = useMemo(() => {
     const sortedFiles = [...files].sort(
@@ -67,26 +76,39 @@ export const ScanFileList = ({ files }: ScanFileListProps) => {
   };
 
   const doGenerate = async (groupId: string, items: ScanFile[]) => {
-    let group: StorageGroup | null = null;
-    group = groups.data?.find(group => group.name === groupId) ?? null;
-    if (!group) {
-      group = await createGroup.mutateAsync({
+    let targetGroup = groups.find(group => group.name === groupId) ?? null;
+
+    if (!targetGroup) {
+      const now = Date.now();
+      targetGroup = await createGroup({
         id: v4(),
         name: groupId,
         iconUrl: getApplicationIconUrl(groupId),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
+        order: getNextOrder(groups),
       });
     }
 
+    let nextFileOrder = getNextOrder(
+      getFilesByGroupId(configFiles, targetGroup.id),
+    );
+
     for (const item of items) {
+      const now = Date.now();
       await createConfigFile({
+        id: v4(),
         name: item.name,
         path: item.resolvedPath,
         isDirectory: item.isDirectory,
         iconUrl: null,
-        groupId: group.id,
+        groupId: targetGroup.id,
+        createdAt: now,
+        updatedAt: now,
+        order: nextFileOrder,
       });
+
+      nextFileOrder += 1;
     }
   };
 

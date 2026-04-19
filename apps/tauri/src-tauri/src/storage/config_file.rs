@@ -8,7 +8,7 @@ impl Storage {
         {
             Ok(file) => {
                 let mut config_files = file.config_files;
-                config_files.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+                config_files.sort_by(|a, b| a.order.total_cmp(&b.order));
                 Ok(config_files)
             }
             Err(error) => {
@@ -72,7 +72,7 @@ impl Storage {
         match self.read::<entities::GroupsFile>(&["groups"]).await {
             Ok(file) => {
                 let mut groups = file.groups;
-                groups.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+                groups.sort_by(|a, b| a.order.total_cmp(&b.order));
                 Ok(groups)
             }
             Err(error) => {
