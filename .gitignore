@@ -76,3 +76,5 @@ localhost-key.pem
 session-ses*.md
 
 .sisyphus/*
+
+.config/linear.toml
