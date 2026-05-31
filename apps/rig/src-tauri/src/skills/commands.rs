@@ -2,7 +2,9 @@ use super::models::{
     BucketType, Skill, SkillListingError, SkillRoot, SkillRootDefinition, SkillRootImportError,
     SkillRootKind, SkillUsage, SkillUsageError, SkillUsageSeries, WindowType,
 };
-use super::root_store::{import_skill_root_from_path, list_imported_skill_roots};
+use super::root_store::{
+    import_skill_root_from_path, list_imported_skill_roots, remove_imported_skill_root,
+};
 use super::scanner::list_skills_from_root;
 use super::usage::{list_skill_usage_tendencies_from_log, list_skill_usages_from_log};
 use crate::skills::fs::expand_path;
@@ -55,6 +57,14 @@ pub fn import_skill_root(
     path: String,
 ) -> Result<SkillRoot, SkillRootImportError> {
     import_skill_root_from_path(&app, expand_path(path.as_str()))
+}
+
+#[tauri::command]
+pub fn remove_skill_root(
+    app: tauri::AppHandle,
+    root_id: String,
+) -> Result<(), SkillRootImportError> {
+    remove_imported_skill_root(&app, root_id)
 }
 
 #[tauri::command]

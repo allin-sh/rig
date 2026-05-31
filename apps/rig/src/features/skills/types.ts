@@ -42,6 +42,7 @@ export const SkillRootImportErrorCodeSchema = z.enum([
   'pathNotFound',
   'notDirectory',
   'duplicateId',
+  'notFound',
   'readFailed',
   'writeFailed',
 ]);
@@ -58,7 +59,14 @@ export const SkillUsageErrorSchema = z.object({
   message: z.string(),
 });
 
-export const WindowTypeSchema = z.enum(['day', 'week', 'month', 'year']);
+export const WindowTypeSchema = z.enum([
+  'day',
+  'week',
+  'month',
+  'threeMonths',
+  'year',
+  'all',
+]);
 
 export const BucketTypeSchema = z.enum(['hour', 'day', 'month']);
 

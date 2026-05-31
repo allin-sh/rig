@@ -1,6 +1,8 @@
-import { cn, Popover, PopoverContent, PopoverTrigger } from '@allin/ui';
+import { cn, Popover, PopoverContent, PopoverTrigger, toast } from '@allin/ui';
 import { Check, ChevronsUpDown, Folder, Home, Plus } from 'lucide-react';
+import { useEffect } from 'react';
 import type { SkillRoot } from '../types';
+import { useRemoveSkillRoot } from '../useRemoveSkillRoot';
 
 const GLOBAL_REPOSITORY_ID = 'global';
 
@@ -28,6 +30,27 @@ export const RepositorySelector = ({
     root => root.id === selectedRepositoryId,
   );
   const selectedLabel = selectedRepository?.label ?? 'Global';
+  const { removeRoot } = useRemoveSkillRoot();
+
+  useEffect(() => {
+    if (
+      selectedRepository?.kind === 'repository' &&
+      !selectedRepository?.exists
+    ) {
+      toast.error(`${selectedLabel} repository does not exist.`, {
+        description: 'This repository is removed from the list.',
+      });
+
+      removeRoot(selectedRepositoryId);
+      onSelectRepository(GLOBAL_REPOSITORY_ID);
+    }
+  }, [
+    onSelectRepository,
+    removeRoot,
+    selectedLabel,
+    selectedRepository,
+    selectedRepositoryId,
+  ]);
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
@@ -45,7 +68,10 @@ export const RepositorySelector = ({
             </span>
           </span>
 
-          <ChevronsUpDown size={16} className='shrink-0 text-muted-foreground' />
+          <ChevronsUpDown
+            size={16}
+            className='shrink-0 text-muted-foreground'
+          />
         </button>
       </PopoverTrigger>
 

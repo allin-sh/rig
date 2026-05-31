@@ -35,6 +35,7 @@ pub enum SkillRootImportErrorCode {
     PathNotFound,
     NotDirectory,
     DuplicateId,
+    NotFound,
     ReadFailed,
     WriteFailed,
 }
@@ -110,7 +111,9 @@ pub enum WindowType {
     Day,
     Week,
     Month,
+    ThreeMonths,
     Year,
+    All,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

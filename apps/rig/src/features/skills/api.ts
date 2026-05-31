@@ -72,6 +72,39 @@ export const importSkillRoot = Effect.fn('importSkillRoot')(function* (
   });
 });
 
+export class RemoveSkillRootError extends Data.TaggedError(
+  'RemoveSkillRootError',
+)<{
+  kind: 'InvokeError' | 'SkillRootImportError';
+  cause: unknown;
+}> {}
+
+export const removeSkillRoot = Effect.fn('removeSkillRoot')(function* (
+  rootId: string,
+) {
+  yield* Effect.tryPromise({
+    try: () => invoke<void>('remove_skill_root', { rootId }),
+    catch: error => error,
+  }).pipe(
+    Effect.catchAll(error => {
+      const removeError = SkillRootImportErrorSchema.safeParse(error);
+
+      if (removeError.success) {
+        return Effect.fail(
+          new RemoveSkillRootError({
+            kind: 'SkillRootImportError',
+            cause: removeError.data,
+          }),
+        );
+      }
+
+      return Effect.fail(
+        new RemoveSkillRootError({ kind: 'InvokeError', cause: error }),
+      );
+    }),
+  );
+});
+
 export class ListSkillsError extends Data.TaggedError('ListSkillsError')<{
   kind: 'InvokeError' | 'SkillListingError' | 'ZodParseError';
   rootPath: string;

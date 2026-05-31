@@ -28,10 +28,7 @@ export const useSkillRepositorySelection = ({
   };
 };
 
-const getVisibleRoots = (
-  roots: SkillRoot[],
-  selectedRepositoryId: string,
-) => {
+const getVisibleRoots = (roots: SkillRoot[], selectedRepositoryId: string) => {
   if (selectedRepositoryId === GLOBAL_REPOSITORY_ID) {
     return roots.filter(root => root.kind === 'default');
   }

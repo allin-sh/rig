@@ -71,6 +71,25 @@ pub fn import_skill_root_from_path(
     Ok(imported_skill_root_to_skill_root(imported))
 }
 
+pub fn remove_imported_skill_root(
+    app: &AppHandle,
+    root_id: String,
+) -> Result<(), SkillRootImportError> {
+    let mut imported_roots = load_imported_skill_roots(app)?;
+    let root_count = imported_roots.len();
+
+    imported_roots.retain(|root| root.id != root_id);
+
+    if imported_roots.len() == root_count {
+        return Err(SkillRootImportError {
+            code: SkillRootImportErrorCode::NotFound,
+            message: format!("Imported skill root not found: {}", root_id),
+        });
+    }
+
+    save_imported_skill_roots(app, &imported_roots)
+}
+
 fn load_imported_skill_roots(
     app: &AppHandle,
 ) -> Result<Vec<ImportedSkillRoot>, SkillRootImportError> {
