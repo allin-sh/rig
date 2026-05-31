@@ -42,6 +42,7 @@ export const SkillRootImportErrorCodeSchema = z.enum([
   'pathNotFound',
   'notDirectory',
   'duplicateId',
+  'notFound',
   'readFailed',
   'writeFailed',
 ]);

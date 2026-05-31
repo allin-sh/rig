@@ -35,6 +35,7 @@ pub enum SkillRootImportErrorCode {
     PathNotFound,
     NotDirectory,
     DuplicateId,
+    NotFound,
     ReadFailed,
     WriteFailed,
 }

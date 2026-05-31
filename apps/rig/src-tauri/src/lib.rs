@@ -100,6 +100,7 @@ pub fn run() {
             skills::commands::list_skills,
             skills::commands::list_skill_usages,
             skills::commands::list_skill_usages_tendency,
+            skills::commands::remove_skill_root,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
