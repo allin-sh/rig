@@ -1,0 +1,30 @@
+{
+  "description": "Track Claude Code skill usage for Rig",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/log-skill-usage.js"],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/log-skill-usage.js"],
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

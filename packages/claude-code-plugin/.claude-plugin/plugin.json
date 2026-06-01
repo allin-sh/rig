@@ -1,0 +1,11 @@
+{
+  "name": "rig-claude-code",
+  "version": "0.1.0",
+  "description": "Claude Code plugin for tracking Rig skill usage locally",
+  "author": {
+    "name": "ALLIN"
+  },
+  "repository": "https://github.com/allin-sh/rig",
+  "license": "MIT",
+  "keywords": ["claude-code", "rig", "skills", "usage-tracking"]
+}

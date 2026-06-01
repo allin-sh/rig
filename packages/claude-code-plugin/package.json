@@ -1,0 +1,28 @@
+{
+  "name": "rig-claude-code",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Claude Code plugin for tracking Rig skill usage locally",
+  "type": "module",
+  "files": [
+    ".claude-plugin",
+    "hooks",
+    "scripts",
+    "README.md"
+  ],
+  "scripts": {
+    "check": "node --check scripts/log-skill-usage.js",
+    "prepublishOnly": "pnpm check"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "rig",
+    "skills",
+    "usage-tracking"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
