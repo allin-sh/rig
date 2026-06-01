@@ -1,0 +1,43 @@
+{
+  "name": "rig-opencode",
+  "version": "0.1.1",
+  "private": false,
+  "description": "OpenCode plugin for tracking Rig skill usage locally",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "check-ts": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "rig",
+    "skills",
+    "usage-tracking"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "^1.15.13",
+    "@types/node": "catalog:types",
+    "tsup": "catalog:build",
+    "typescript": "catalog:types"
+  }
+}

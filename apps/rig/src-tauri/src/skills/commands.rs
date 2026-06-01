@@ -10,7 +10,7 @@ use super::usage::{list_skill_usage_tendencies_from_log, list_skill_usages_from_
 use crate::skills::fs::expand_path;
 use crate::skills::models::SkillListingErrorCode;
 
-const SKILL_USAGE_LOG_PATH: &str = "~/rig-usage.jsonl";
+const SKILL_USAGE_LOG_PATH: &str = "~/.rig/usage.jsonl";
 
 pub const SKILL_ROOT_DEFINITIONS: &[SkillRootDefinition] = &[
     SkillRootDefinition {
