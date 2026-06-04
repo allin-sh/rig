@@ -4,17 +4,18 @@ Claude Code plugin for tracking Rig skill usage locally.
 
 ## Installation
 
-Copy this entire folder into your Claude Code skills directory:
+Add the Rig marketplace and install the plugin:
 
-```sh
-mkdir -p ~/.claude/skills
-cp -R ./packages/claude-code-plugin ~/.claude/skills/rig-claude-code
+```text
+/plugin marketplace add builder-mafia/rig
+/plugin install rig-claude-code@rig
 ```
 
-Then start Claude Code normally:
+If you are testing from a local checkout, add the repository path instead:
 
-```sh
-claude
+```text
+/plugin marketplace add ./path/to/rig
+/plugin install rig-claude-code@rig
 ```
 
 The plugin records skill usage to:
