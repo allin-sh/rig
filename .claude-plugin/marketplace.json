@@ -18,8 +18,7 @@
       "license": "MIT",
       "keywords": ["claude-code", "rig", "skills", "usage-tracking"],
       "category": "productivity",
-      "tags": ["claude-code", "skills", "usage-tracking"],
-      "version": "0.1.0"
+      "tags": ["claude-code", "skills", "usage-tracking"]
     }
   ]
 }
