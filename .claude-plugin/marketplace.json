@@ -1,0 +1,25 @@
+{
+  "name": "rig",
+  "owner": {
+    "name": "Rig"
+  },
+  "description": "Claude Code plugins for Rig",
+  "plugins": [
+    {
+      "name": "rig-claude-code",
+      "displayName": "Rig Claude Code",
+      "source": "./packages/claude-code-plugin",
+      "description": "Track Claude Code skill usage locally for Rig",
+      "author": {
+        "name": "Rig"
+      },
+      "homepage": "https://github.com/builder-mafia/rig/tree/main/packages/claude-code-plugin",
+      "repository": "https://github.com/builder-mafia/rig",
+      "license": "MIT",
+      "keywords": ["claude-code", "rig", "skills", "usage-tracking"],
+      "category": "productivity",
+      "tags": ["claude-code", "skills", "usage-tracking"],
+      "version": "0.1.0"
+    }
+  ]
+}

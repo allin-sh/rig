@@ -57,15 +57,14 @@ Restart OpenCode after saving the config. OpenCode installs npm plugins automati
 
 #### Claude Code
 
-Use the [Rig Claude Code plugin folder](https://github.com/builder-mafia/rig/tree/main/packages/claude-code-plugin).
-
-Put the contents of that folder into your local Claude Code plugin setup folder, for example:
+Add the Rig Claude Code marketplace and install the plugin:
 
 ```text
-~/.claude/skills/rig-claude-code
+/plugin marketplace add builder-mafia/rig
+/plugin install rig-claude-code@rig
 ```
 
-Restart Claude Code after copying the plugin.
+For local development, use the repository path with `/plugin marketplace add ./path/to/rig`.
 
 ## Development
 
