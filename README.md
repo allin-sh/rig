@@ -10,7 +10,7 @@ Agent SKILL files are powerful, but they are easy to lose track of once they spr
 
 Rig gives you one focused desktop workspace for finding, editing, and understanding the skills already living on your machine.
 
-## MVP Features
+## Features
 
 - **Browse local SKILL files**
   Discover and inspect SKILL files from one place.
@@ -19,11 +19,7 @@ Rig gives you one focused desktop workspace for finding, editing, and understand
 - **Track skill usage**
   See invocation counts and understand which skills are actually being used.
 
-## Status
-
-Rig is currently in MVP development.
-
-## Usage
+## Quick Start
 
 ### 1. Install Rig
 
@@ -33,14 +29,6 @@ Rig is currently in MVP development.
 4. Launch Rig.
 
 ### 2. Install Plugins
-
-Rig tracks skill usage when OpenCode or Claude Code writes usage events to:
-
-```text
-~/.rig/usage.jsonl
-```
-
-The desktop app reads this file automatically.
 
 #### OpenCode
 
@@ -59,18 +47,15 @@ Restart OpenCode after saving the config. OpenCode installs npm plugins automati
 
 Add the Rig Claude Code marketplace and install the plugin:
 
-```text
+```sh
+# Add the Rig marketplace
 /plugin marketplace add builder-mafia/rig
+
+# Install the Rig Claude Code plugin
 /plugin install rig-claude-code@rig
-```
 
-For local development, use the repository path with `/plugin marketplace add ./path/to/rig`.
-
-## Development
-
-```bash
-pnpm install
-pnpm dev:app
+# Reload the plugins
+/reload-plugins
 ```
 
 
